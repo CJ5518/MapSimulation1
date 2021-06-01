@@ -1,61 +1,75 @@
-// Decompiled with JetBrains decompiler
-// Type: BigLineRenderer
-// Assembly: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: DADC71AF-6ED1-41B5-9B7D-530B78799929
-// Assembly location: C:\Users\carso\Desktop\Build\MapSimulation0_Data\Managed\Assembly-CSharp.dll
+//Re-Written by Carson Rueber
+//Max point count could very likely be 10666
+//ENTIRELY untested in its new state
 
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI.Extensions;
 
+//Renders one very large line
 public class BigLineRenderer {
+	//Our game object, all the lineRenderers get parented to it, has a RectTransform
 	public GameObject gameObject;
 	public List<GameObject> lineRenderers;
+	//The maximum number of points before needing to make a new lineRenderer
 	public const int maxPointCount = 5000;
-	private int currentLineIndex;
+	//Index of the next point
+	private int currentPointIndex = 0;
 
+	//Default constructor
 	public BigLineRenderer() {
-		this.lineRenderers = new List<GameObject>();
-		this.gameObject = new GameObject(nameof(BigLineRenderer), new System.Type[1]
-		{
-	  typeof (RectTransform)
-		});
-		this.createNewLineRenderer();
+		lineRenderers = new List<GameObject>();
+		gameObject = new GameObject("BigLineRenderer", new System.Type[] { typeof(RectTransform) });
+		createNewLineRenderer();
 	}
 
-	public void AddPoint(Vector2 line) {
-		if (this.currentLineIndex >= maxPointCount)
-			this.createNewLineRenderer();
-		UILineRenderer component1 = this.lineRenderers[this.lineRenderers.Count - 1].GetComponent<UILineRenderer>();
-		if (this.lineRenderers.Count > 1 && this.currentLineIndex == 0) {
-			UILineRenderer component2 = this.lineRenderers[this.lineRenderers.Count - 2].GetComponent<UILineRenderer>();
-			component1.Points[0] = component2.Points[maxPointCount - 1];
-			++this.currentLineIndex;
+	//Add a point to the line
+	public void addPoint(Vector2 point) {
+		//If we need to make a new line renderer, do so
+		if (currentPointIndex >= maxPointCount) {
+			createNewLineRenderer();
 		}
-		component1.Points[this.currentLineIndex] = line;
-		++this.currentLineIndex;
+		UILineRenderer currentComponent = lineRenderers[lineRenderers.Count - 1].GetComponent<UILineRenderer>();
+		//If this is the first point in a new line renderer
+		if (lineRenderers.Count > 1 && currentPointIndex == 0) {
+			//Now we need to set the first point to the last point of the previous line renderer
+			UILineRenderer previousComponent = lineRenderers[lineRenderers.Count - 2].GetComponent<UILineRenderer>();
+			currentComponent.Points[0] = previousComponent.Points[maxPointCount - 1];
+			currentPointIndex++;
+		}
+		//Set the point
+		currentComponent.Points[currentPointIndex] = point;
+		currentPointIndex++;
 	}
 
+	//Call this function when you're finished so that it'll be finished
 	public void finishAdding() {
-		UILineRenderer component = this.lineRenderers[this.lineRenderers.Count - 1].GetComponent<UILineRenderer>();
-		Vector2 point = component.Points[this.currentLineIndex - 1];
-		for (int currentLineIndex = this.currentLineIndex; currentLineIndex < maxPointCount; ++currentLineIndex)
-			component.Points[currentLineIndex] = point;
+		UILineRenderer component = lineRenderers[lineRenderers.Count - 1].GetComponent<UILineRenderer>();
+		//The last point we added
+		Vector2 point = component.Points[currentPointIndex - 1];
+
+		//Set the remaining points to the last point we added
+		for (int q = currentPointIndex; q < maxPointCount; q++) {
+			component.Points[q] = point;
+		}
 	}
 
 	private void createNewLineRenderer() {
+		//Create the game object
 		GameObject lineRendererObj = new GameObject("LineRenderer", new System.Type[] { typeof(UILineRenderer) });
 		lineRendererObj.transform.SetParent(gameObject.transform);
 		lineRendererObj.GetComponent<RectTransform>().position = new Vector2(0.0f, 0.0f);
 		UILineRenderer lineRenderer = lineRendererObj.GetComponent<UILineRenderer>();
 
+		//Set properties
 		lineRenderer.Points = new Vector2[maxPointCount];
 		lineRenderer.lineList = false;
 		lineRenderer.lineThickness = 1.0f;
 		lineRenderer.BezierMode = UILineRenderer.BezierType.None;
 		lineRenderer.ImproveResolution = ResolutionMode.None;
 
+		//Add it to the list and reset currentLineIndex while we're here
 		lineRenderers.Add(lineRendererObj);
-		currentLineIndex = 0;
+		currentPointIndex = 0;
 	}
 }
