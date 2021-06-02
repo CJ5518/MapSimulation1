@@ -11,12 +11,12 @@ public class BigLineListRenderer {
 	//Our game object, all the lineRenderers get parented to it, has a RectTransform
 	public GameObject gameObject;
 	public List<GameObject> lineRenderers;
-	//The maximum number of points before needing to make a new lineRenderer
+	//The maximum number of points before needing to make a new lineRenderer 10666
 	public const int maxPointCount = 10666;
 	//Index of the next point
 	private int currentPointIndex = 0;
-	//Whether or not there is a previous element we need to copy
-	private bool arePreviousElements = false;
+	//Number of points that have been added to the shape, not how many vectors are in lineRenderers or anything
+	private int linePointCount = 0;
 
 	//Default constructor
 	public BigLineListRenderer() {
@@ -33,21 +33,29 @@ public class BigLineListRenderer {
 		}
 		UILineRenderer lineRenderer = lineRenderers[lineRenderers.Count - 1].GetComponent<UILineRenderer>();
 
-		if (arePreviousElements) {
+		if (linePointCount >= 2) {
 			lineRenderer.Points[currentPointIndex] = getPreviousElement();
-		}
-		else { //Generally just the first element of a shape
-			arePreviousElements = true;
+			currentPointIndex++;
 		}
 
 		//Set the point
 		lineRenderer.Points[currentPointIndex] = point;
 		currentPointIndex++;
+
+		linePointCount++;
 	}
 
-	//Call this function when you're finished with a shape
-	public void finishShape() {
-		arePreviousElements = false;
+	//Call this function when you're finished with a line
+	public void finishLine() {
+		linePointCount = 0;
+	}
+
+	//Sets the thickness of the lines
+	public void setLineThickness(float thickness) {
+		for (int q = 0; q < lineRenderers.Count; q++) {
+			UILineRenderer lineRenderer = lineRenderers[q].GetComponent<UILineRenderer>();
+			lineRenderer.LineThickness = thickness;
+		}
 	}
 
 	private void createNewLineRenderer() {
@@ -61,6 +69,7 @@ public class BigLineListRenderer {
 		lineRenderer.Points = new Vector2[maxPointCount];
 		lineRenderer.lineList = true; //The key difference
 		lineRenderer.lineThickness = 1.0f;
+		lineRenderer.lineCaps = true;
 		lineRenderer.BezierMode = UILineRenderer.BezierType.None;
 		lineRenderer.ImproveResolution = ResolutionMode.None;
 

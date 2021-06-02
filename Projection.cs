@@ -1,9 +1,35 @@
+// Carson Rueber
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+//https://stackoverflow.com/a/4565555
 public class Projection {
 	public static float projectLongitude(float x) {
 		return (Screen.width / 360.0f) * (180.0f + x);
+	}
+	public static double projectLongitude(double x) {
+		return (Screen.width / 360.0) * (180.0 + x);
+	}
+	public static float projectLatitude(float y) {
+		return (Screen.height / 180.0f) * (90.0f - y);
+	}
+	public static double projectLatitude(double y) {
+		return (Screen.height / 180.0) * (90.0 - y);
+	}
+
+	public static Vector2 projectVector(Vector2 vector) {
+		Vector2 ret;
+		ret.x = projectLongitude(vector.x);
+		ret.y = projectLatitude(vector.y);
+		return ret;
+	}
+	public static Vector2Double projectVector(Vector2Double vector) {
+		Vector2Double ret;
+		ret.x = projectLongitude(vector.x);
+		ret.y = projectLatitude(vector.y);
+		return ret;
 	}
 }

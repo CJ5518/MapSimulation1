@@ -198,7 +198,7 @@ namespace ShapeImporter {
 
         // Part indices and points array.
         private Collection<int> parts = new Collection<int>();
-        private Collection<Vector2> points = new Collection<Vector2>();
+        private Collection<Vector2Double> points = new Collection<Vector2Double>();
 
         // Shape attributes from a row in the dBASE file.
         private DataRow attributes;
@@ -304,7 +304,7 @@ namespace ShapeImporter {
         /// A collection of all of the points defining the
         /// shape record.
         /// </summary>
-        public Collection<Vector2> Points {
+        public Collection<Vector2Double> Points {
             get { return this.points; }
         }
 
@@ -499,9 +499,9 @@ namespace ShapeImporter {
         /// Read shapes (geometry) from the given shapefile.
         /// </summary>
         /// <param name="fileName">Full pathname of the shapefile.</param>
-        public void ReadShapes(string fileName, double XMa, double XMi, double YMa, double YMi) {
+        public void ReadShapes(string fileName) {
             using (FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read)) {
-                this.ReadShapes(stream, XMa, XMi, YMa, YMi);
+                this.ReadShapes(stream);
             }
         }
 
@@ -509,7 +509,7 @@ namespace ShapeImporter {
         /// Read shapes (geometry) from the given stream.
         /// </summary>
         /// <param name="stream">Input stream for a shapefile.</param>
-        public void ReadShapes(Stream stream, double XMa, double XMi, double YMa, double YMi) {
+        public void ReadShapes(Stream stream) {
             // Read the File Header.
             this.ReadShapeFileHeader(stream);
 
@@ -629,7 +629,7 @@ namespace ShapeImporter {
                         if (a + 1 < record.Parts.Count) {
                             for (int b = record.Parts[a]; b < record.Parts[a + 1]; b++) {
 
-                                Vector2 p = new Vector2();
+                                Vector2Double p = new Vector2Double();
                                 p.x = record.Points[b].x;
                                 p.y = record.Points[b].y;
                                 record1.Points.Add(p);
@@ -642,7 +642,7 @@ namespace ShapeImporter {
                         else {
                             for (int b = record.Parts[a]; b < record.Points.Count; b++) {
 
-                                Vector2 p = new Vector2();
+                                Vector2Double p = new Vector2Double();
                                 p.x = record.Points[b].x;
                                 p.y = record.Points[b].y;
                                 record1.Points.Add(p);
@@ -820,9 +820,9 @@ namespace ShapeImporter {
         private static void ReadPoint(Stream stream, ShapeFileRecord record) {
             // Points - add a single point.
             //,double XMax,double XMin,double YMax,double YMin
-            Vector2 p = new Vector2();
-            p.x = (float)ShapeFile.ReadDouble64_LE(stream);
-            p.y = (float)ShapeFile.ReadDouble64_LE(stream);
+            Vector2Double p = new Vector2Double();
+            p.x = ShapeFile.ReadDouble64_LE(stream);
+            p.y = ShapeFile.ReadDouble64_LE(stream);
 
             record.Points.Add(p);
 
@@ -850,9 +850,9 @@ namespace ShapeImporter {
 
             // Points.           
             for (int i = 0; i < numPoints; i++) {
-                Vector2 p = new Vector2();
-                p.x = (float)ShapeFile.ReadDouble64_LE(stream);
-                p.y = (float)ShapeFile.ReadDouble64_LE(stream);
+                Vector2Double p = new Vector2Double();
+                p.x = ShapeFile.ReadDouble64_LE(stream);
+                p.y = ShapeFile.ReadDouble64_LE(stream);
                 record.Points.Add(p);
             }
         }
@@ -880,9 +880,9 @@ namespace ShapeImporter {
 
             // Points.           
             for (int i = 0; i < numPoints; i++) {
-                Vector2 p = new Vector2();
-                p.x = (float)ShapeFile.ReadDouble64_LE(stream);
-                p.y = (float)ShapeFile.ReadDouble64_LE(stream);
+                Vector2Double p = new Vector2Double();
+                p.x = ShapeFile.ReadDouble64_LE(stream);
+                p.y = ShapeFile.ReadDouble64_LE(stream);
                 //    if (p.X > XMi - (XMa - XMi) && p.X < XMa +   (XMa - XMi) && p.Y < YMa+YMa-YMi  && p.Y > YMi-YMa +YMi )
                 //    {
                 record.Points.Add(p);

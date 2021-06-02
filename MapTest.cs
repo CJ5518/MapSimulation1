@@ -7,7 +7,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
-using OSGeo.OGR;
+//using OSGeo.OGR;
 
 public class MapTest : MonoBehaviour {
 
@@ -16,27 +16,27 @@ public class MapTest : MonoBehaviour {
 	Slider thicknessSlider;
 
 	Texture2D finalTexture = null;
+	bool wantDraw = true;
 
 	MovableRawImage movableRawImage;
 	void Start() {
 		Application.targetFrameRate = 60;
 
 		shapeFileRenderer = new ShapeFileRenderer(
-			"C:/Users/carso/Desktop/DataPart2/USA2.shp",
-			GameObject.Find("Canvas/MapImage").transform
+			@"C:\Users\carso\Desktop\DataPart2\USA2.shp", GameObject.Find("Canvas/Background").transform
 		);
 
 		thicknessSlider = GameObject.Find("Canvas/ThicknessSlider").GetComponent<Slider>();
 		thicknessSlider.value = 1.0f;
 		thicknessSlider.onValueChanged.AddListener(OnThicknessSliderValueChanged);
 
-		movableRawImage = GameObject.Find("Canvas/MapImage").GetComponent<MovableRawImage>();
+		movableRawImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
 
 		//Generate the texture
 		//Good to keep it at the screen aspect ratio
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
-		int factor = 10;
+		int factor = 1;
 		finalTexture = new Texture2D(1920 / factor, 1080 / factor, TextureFormat.RGBA32, false);
 		for (int x = 0; x < finalTexture.width; x++) {
 			for (int y = 0; y < finalTexture.height; y++) {
@@ -49,27 +49,23 @@ public class MapTest : MonoBehaviour {
 		finalTexture.filterMode = FilterMode.Point;
 		finalTexture.Apply();
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " time");
-
-		Ogr.RegisterAll();
-		using (DataSource ds = Ogr.Open("C:/Users/carso/Desktop/Data/population_usa_2019-07-01.vrt", 0)) {
-			if (ds == null) {
-				// create an error
-			}
-
-		}
 	}
 
 	void OnThicknessSliderValueChanged(float value) {
 		shapeFileRenderer.bigLineListRenderer.setLineThickness(value);
 	}
 	void OnGUI() {
-		if (finalTexture != null && Event.current.type.Equals(EventType.Repaint)) {
+		if (finalTexture != null && Event.current.type.Equals(EventType.Repaint) && wantDraw) {
 			Graphics.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), finalTexture);
 		}
 	}
 
 	private void Update() {
+		if (Input.GetKeyDown(KeyCode.Q)) {
+			wantDraw = !wantDraw;
+		}
 		Vector2 coord = movableRawImage.getLocalPositionInRectangle(Input.mousePosition);
+		//Vector2 coord = Input.mousePosition;
 		GameObject.Find("Canvas/Text").GetComponent<Text>().text = IsPointInPolygon(shapeFileRenderer.projectedShapes[3], coord) ? "inside" : "outside";
 	}
 
