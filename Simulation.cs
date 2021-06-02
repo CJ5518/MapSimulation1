@@ -1,8 +1,4 @@
-// Decompiled with JetBrains decompiler
-// Type: Simulation
-// Assembly: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: DADC71AF-6ED1-41B5-9B7D-530B78799929
-// Assembly location: C:\Users\carso\Desktop\Build\MapSimulation0_Data\Managed\Assembly-CSharp.dll
+// Carson Rueber
 
 using System;
 using Unity.Collections;
@@ -10,6 +6,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
+//Handles a cell based simulation of stuff
 public class Simulation {
 	//Array of input textures
 	public Texture2D[] textureArray;
