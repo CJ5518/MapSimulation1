@@ -1,5 +1,4 @@
-// Carson Rueber
-// the getLocalPositionInRectangle function is untested and likely doesn't account for scaling
+//By Carson Rueber
 
 using System;
 using UnityEngine;

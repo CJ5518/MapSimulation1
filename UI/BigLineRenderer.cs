@@ -1,4 +1,4 @@
-//Re-Written by Carson Rueber
+//By Carson Rueber
 //Max point count could very likely be 10666
 //ENTIRELY untested in its new state
 
@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI.Extensions;
 
 //Renders one very large line
+//Best used for large shapes, as no "islands" are permitted
 public class BigLineRenderer {
 	//Our game object, all the lineRenderers get parented to it, has a RectTransform
 	public GameObject gameObject;

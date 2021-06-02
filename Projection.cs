@@ -1,10 +1,11 @@
-// Carson Rueber
+//By Carson Rueber
 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
+//Projects lat/longs into screen coordinates
 //https://stackoverflow.com/a/4565555
 public class Projection {
 	public static float projectLongitude(float x) {

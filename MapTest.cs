@@ -1,3 +1,4 @@
+//By Carson Rueber
 //The only file to survive the purge
 
 using System.Collections;
@@ -9,23 +10,28 @@ using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
 //using OSGeo.OGR;
 
+//Test class
 public class MapTest : MonoBehaviour {
-
+	//Our shape file renderer
 	ShapeFileRenderer shapeFileRenderer;
 
+	//Controls the thickness of the lines of the shape file renderer
 	Slider thicknessSlider;
 
+	//Texture testing things
 	Texture2D finalTexture = null;
 	bool wantDraw = true;
-
+	//The background image
 	MovableRawImage movableRawImage;
 	void Start() {
 		Application.targetFrameRate = 60;
 
+		//Set up the shape file renderer
 		shapeFileRenderer = new ShapeFileRenderer(
 			@"C:\Users\carso\Desktop\DataPart2\USA2.shp", GameObject.Find("Canvas/Background").transform
 		);
 
+		//Set up thickness slider
 		thicknessSlider = GameObject.Find("Canvas/ThicknessSlider").GetComponent<Slider>();
 		thicknessSlider.value = 1.0f;
 		thicknessSlider.onValueChanged.AddListener(OnThicknessSliderValueChanged);
@@ -41,14 +47,12 @@ public class MapTest : MonoBehaviour {
 		for (int x = 0; x < finalTexture.width; x++) {
 			for (int y = 0; y < finalTexture.height; y++) {
 				bool isInShape = IsPointInPolygon(shapeFileRenderer.projectedShapes[3], new Vector2(x * factor, y * factor));
-
-
 				finalTexture.SetPixel(x, y, isInShape ? Color.white : Color.clear);
 			}
 		}
 		finalTexture.filterMode = FilterMode.Point;
 		finalTexture.Apply();
-		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " time");
+		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
 	}
 
 	void OnThicknessSliderValueChanged(float value) {
@@ -61,6 +65,7 @@ public class MapTest : MonoBehaviour {
 	}
 
 	private void Update() {
+		//Texture testing to hide/show the texture
 		if (Input.GetKeyDown(KeyCode.Q)) {
 			wantDraw = !wantDraw;
 		}

@@ -1,8 +1,13 @@
+//By Carson Rueber
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ShapeImporter;
 
+//Renders a shape file using BigLineListRenderer
+//Also provides the shapes in their projected form
+//This functionality should probably be moved to a better shape file handler
 public class ShapeFileRenderer {
 	//The shape file
 	public ShapeFile shapeFile;

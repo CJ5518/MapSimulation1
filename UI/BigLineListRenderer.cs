@@ -1,5 +1,4 @@
-//Re-Written by Carson Rueber
-//Entirely untested as of now
+//By Carson Rueber
 
 using UnityEngine;
 using UnityEngine.UI.Extensions;
@@ -7,6 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 
+//Renders some big lines
+//Best used for large amounts of small shapes, as this is more ineffecient than its counterpart,
+//BigLineRenderer; however, this implementation allows for "islands"
 public class BigLineListRenderer {
 	//Our game object, all the lineRenderers get parented to it, has a RectTransform
 	public GameObject gameObject;
