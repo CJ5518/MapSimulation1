@@ -74,23 +74,9 @@ public class MapTest : MonoBehaviour {
 
 		startTime = Time.realtimeSinceStartupAsDouble;
 
-		CSVLoaderJob[] jobs = new CSVLoaderJob[6];
-		JobHandle[] jobHandles = new JobHandle[6];
-		for (int q = 0; q < 6; q++) {
-			string filename = @"F:\Data\csv\population_usa_2019-07-01_part_" + (q + 1) + "_of_6.csv";
-			var job = new CSVLoaderJob() {
-				//File.ReadLines(@"C:\file.txt").Count();
-				filename = new NativeArray<char>(filename.ToCharArray(), Allocator.Persistent),
-				//NEED a MUCH better way to count the lines in the files
-				outputData = new NativeArray<DataEntry>(File.ReadAllLines(filename).Length, Allocator.Persistent)
-			};
-			jobHandles[q] = job.Schedule();
-		}
-		for (int q = 0; q < 6; q++) {
-			jobHandles[q].Complete();
-			Debug.Log(jobs[q].outputData[192]);
-			jobs[q].outputData.Dispose();
-		}
+
+
+
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
 
 	}
@@ -106,18 +92,6 @@ public class MapTest : MonoBehaviour {
 		}
 	}
 
-	//TODO: Delete this function
-	static string GDALInfoGetPosition(Dataset ds, double x, double y) {
-		double[] adfGeoTransform = new double[6];
-		double dfGeoX, dfGeoY;
-		ds.GetGeoTransform(adfGeoTransform);
-
-		dfGeoX = adfGeoTransform[0] + adfGeoTransform[1] * x + adfGeoTransform[2] * y;
-		dfGeoY = adfGeoTransform[3] + adfGeoTransform[4] * x + adfGeoTransform[5] * y;
-
-		return dfGeoX.ToString() + ", " + dfGeoY.ToString();
-	}
-
 	private void Update() {
 		//Texture testing to hide/show the texture
 		if (Input.GetKeyDown(KeyCode.Q)) {
@@ -126,34 +100,6 @@ public class MapTest : MonoBehaviour {
 		Vector2 coord = movableRawImage.getLocalPositionInRectangle(Input.mousePosition);
 		//Vector2 coord = Input.mousePosition;
 		GameObject.Find("Canvas/Text").GetComponent<Text>().text = IsPointInPolygon(shapeFileRenderer.projectedShapes[2], coord) ? "inside" : "outside";
-	}
-
-	public struct CSVLoaderJob : IJob {
-
-		public NativeArray<DataEntry> outputData;
-
-		//The pain of getting a string into this
-		public NativeArray<char> filename;
-		
-		public void Execute() {
-			char[] filenameChars = new char[filename.Length];
-			filename.CopyTo(filenameChars);
-			using (var reader = new StreamReader(new string(filenameChars))) {
-
-				List<DataEntry> list = new List<DataEntry>();
-
-				while (!reader.EndOfStream) {
-					var line = reader.ReadLine();
-					var values = line.Split(',');
-					DataEntry dataEntry = new DataEntry();
-					dataEntry.lat = Convert.ToDouble(values[0]);
-					dataEntry.lon = Convert.ToDouble(values[1]);
-					dataEntry.pop = Convert.ToDouble(values[2]);
-					list.Add(dataEntry);
-				}
-				outputData.CopyFrom(list.ToArray());
-			}
-		}
 	}
 
 
