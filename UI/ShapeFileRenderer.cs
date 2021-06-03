@@ -13,7 +13,7 @@ public class ShapeFileRenderer {
 	//The rendering object
 	public BigLineListRenderer bigLineListRenderer;
 	//List of arrays holding the points of the projected and scaled shapes, for your pleasure
-	public List<Vector2[]> scaledShapes;
+	public List<Vector2[]> renderShapes;
 	//The non-projected shapes, directly extracted from the shape file
 	public List<Vector2Double[]> nonProjectedShapes;
 
@@ -36,7 +36,7 @@ public class ShapeFileRenderer {
 		bigLineListRenderer = new BigLineListRenderer();
 		bigLineListRenderer.gameObject.transform.SetParent(parent);
 
-		scaledShapes = new List<Vector2[]>();
+		renderShapes = new List<Vector2[]>();
 		nonProjectedShapes = new List<Vector2Double[]>();
 
 		//Collect min and max
@@ -59,7 +59,7 @@ public class ShapeFileRenderer {
 		for (int shapeIndex = 0; shapeIndex < shapeFile.MyRecords.Count; shapeIndex++) {
 			ShapeFileRecord myRecord = shapeFile.MyRecords[shapeIndex];
 
-			scaledShapes.Add(new Vector2[myRecord.Points.Count]);
+			renderShapes.Add(new Vector2[myRecord.Points.Count]);
 			nonProjectedShapes.Add(new Vector2Double[myRecord.Points.Count]);
 
 			for (int q = 0; q < myRecord.Points.Count; q++) {
@@ -75,7 +75,7 @@ public class ShapeFileRenderer {
 				floatPoint *= factor;
 
 				bigLineListRenderer.addPoint(floatPoint);
-				scaledShapes[shapeIndex][q] = floatPoint;
+				renderShapes[shapeIndex][q] = floatPoint;
 				nonProjectedShapes[shapeIndex][q] = point;
 			}
 			bigLineListRenderer.finishLine();
@@ -84,5 +84,4 @@ public class ShapeFileRenderer {
 
 
 	//Coordinate transformations
-
 }
