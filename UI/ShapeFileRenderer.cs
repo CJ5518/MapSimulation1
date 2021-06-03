@@ -6,15 +6,18 @@ using UnityEngine;
 using ShapeImporter;
 
 //Renders a shape file using BigLineListRenderer
-//Also provides the shapes in their projected form
-//This functionality should probably be moved to a better shape file handler
+//Also provides the shapes in their projected/scaled form
 public class ShapeFileRenderer {
 	//The shape file
-	public ShapeFile shapeFile;
+	private ShapeFile shapeFile;
 	//The rendering object
 	public BigLineListRenderer bigLineListRenderer;
 	//List of arrays holding the points of the projected and scaled shapes, for your pleasure
 	public List<Vector2[]> projectedShapes;
+	//The non-projected shapes, directly extracted from the shape file
+	public List<Vector2Double[]> nonProjectedShapes;
+
+	public Vector2 min, max, projectedMin, projectedMax;
 
 	//Init ShapeFileRenderer with a loaded shapeFile
 	public ShapeFileRenderer(ShapeFile shapeFile, Transform parent) {
@@ -34,9 +37,9 @@ public class ShapeFileRenderer {
 		bigLineListRenderer.gameObject.transform.SetParent(parent);
 
 		projectedShapes = new List<Vector2[]>();
+		nonProjectedShapes = new List<Vector2Double[]>();
 
 		//Collect min and max
-		Vector2 min, max, projectedMin, projectedMax;
 		min.x = (float)shapeFile.FileHeader.XMin;
 		min.y = (float)shapeFile.FileHeader.YMin;
 		max.x = (float)shapeFile.FileHeader.XMax;
@@ -57,6 +60,7 @@ public class ShapeFileRenderer {
 			ShapeFileRecord myRecord = shapeFile.MyRecords[shapeIndex];
 
 			projectedShapes.Add(new Vector2[myRecord.Points.Count]);
+			nonProjectedShapes.Add(new Vector2Double[myRecord.Points.Count]);
 
 			for (int q = 0; q < myRecord.Points.Count; q++) {
 				//Only use doubles for the precise part
@@ -72,6 +76,7 @@ public class ShapeFileRenderer {
 
 				bigLineListRenderer.addPoint(floatPoint);
 				projectedShapes[shapeIndex][q] = floatPoint;
+				nonProjectedShapes[shapeIndex][q] = point;
 			}
 			bigLineListRenderer.finishLine();
 		}
