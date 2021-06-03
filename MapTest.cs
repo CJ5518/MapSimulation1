@@ -59,7 +59,7 @@ public class MapTest : MonoBehaviour {
 		finalTexture = new Texture2D(1920 / factor, 1080 / factor, TextureFormat.RGBA32, false);
 		for (int x = 0; x < finalTexture.width; x++) {
 			for (int y = 0; y < finalTexture.height; y++) {
-				bool isInShape = IsPointInPolygon(shapeFileRenderer.projectedShapes[2], new Vector2(x * factor, y * factor));
+				bool isInShape = IsPointInPolygon(shapeFileRenderer.scaledShapes[2], new Vector2(x * factor, y * factor));
 				finalTexture.SetPixel(x, y, isInShape ? Color.white : Color.clear);
 			}
 		}
@@ -70,12 +70,15 @@ public class MapTest : MonoBehaviour {
 
 		//GDAL testing
 		Gdal.AllRegister();
-		Ogr.RegisterAll();
 
 		startTime = Time.realtimeSinceStartupAsDouble;
 
+		string filename = @"F:\Data\tif\USA_lat_24_lon_-111_children_under_five.tif";
+
+		Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
 
 
+		dataset.Dispose();
 
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
 
@@ -99,7 +102,7 @@ public class MapTest : MonoBehaviour {
 		}
 		Vector2 coord = movableRawImage.getLocalPositionInRectangle(Input.mousePosition);
 		//Vector2 coord = Input.mousePosition;
-		GameObject.Find("Canvas/Text").GetComponent<Text>().text = IsPointInPolygon(shapeFileRenderer.projectedShapes[2], coord) ? "inside" : "outside";
+		GameObject.Find("Canvas/Text").GetComponent<Text>().text = IsPointInPolygon(shapeFileRenderer.scaledShapes[2], coord) ? "inside" : "outside";
 	}
 
 
