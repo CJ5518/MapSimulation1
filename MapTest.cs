@@ -4,11 +4,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Runtime.InteropServices;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
-//using OSGeo.OGR;
+using Unity.Jobs;
+using Unity.Collections;
+using OSGeo.OSR;
+using OSGeo.GDAL;
+using OSGeo.OGR;
 
 //Test class
 public class MapTest : MonoBehaviour {
@@ -23,12 +28,19 @@ public class MapTest : MonoBehaviour {
 	bool wantDraw = true;
 	//The background image
 	MovableRawImage movableRawImage;
+
+	public struct DataEntry {
+		public double lat;
+		public double lon;
+		public double pop;
+	}
+
 	void Start() {
 		Application.targetFrameRate = 60;
 
 		//Set up the shape file renderer
 		shapeFileRenderer = new ShapeFileRenderer(
-			@"C:\Users\carso\Desktop\DataPart2\USA2.shp", GameObject.Find("Canvas/Background").transform
+			@"C:\Users\carso\Desktop\DataPart2\USA_Final.shp", GameObject.Find("Canvas/Background").transform
 		);
 
 		//Set up thickness slider
@@ -42,18 +54,48 @@ public class MapTest : MonoBehaviour {
 		//Good to keep it at the screen aspect ratio
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
-		int factor = 1;
+		//Texture scaling factor
+		int factor = 4;
 		finalTexture = new Texture2D(1920 / factor, 1080 / factor, TextureFormat.RGBA32, false);
 		for (int x = 0; x < finalTexture.width; x++) {
 			for (int y = 0; y < finalTexture.height; y++) {
-				bool isInShape = IsPointInPolygon(shapeFileRenderer.projectedShapes[3], new Vector2(x * factor, y * factor));
+				bool isInShape = IsPointInPolygon(shapeFileRenderer.projectedShapes[2], new Vector2(x * factor, y * factor));
 				finalTexture.SetPixel(x, y, isInShape ? Color.white : Color.clear);
 			}
 		}
 		finalTexture.filterMode = FilterMode.Point;
 		finalTexture.Apply();
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
+
+
+		//GDAL testing
+		Gdal.AllRegister();
+		Ogr.RegisterAll();
+
+		startTime = Time.realtimeSinceStartupAsDouble;
+
+		CSVLoaderJob[] jobs = new CSVLoaderJob[6];
+		JobHandle[] jobHandles = new JobHandle[6];
+		for (int q = 0; q < 6; q++) {
+			string filename = @"F:\Data\csv\population_usa_2019-07-01_part_" + (q + 1) + "_of_6.csv";
+			var job = new CSVLoaderJob() {
+				//File.ReadLines(@"C:\file.txt").Count();
+				filename = new NativeArray<char>(filename.ToCharArray(), Allocator.Persistent),
+				//NEED a MUCH better way to count the lines in the files
+				outputData = new NativeArray<DataEntry>(File.ReadAllLines(filename).Length, Allocator.Persistent)
+			};
+			jobHandles[q] = job.Schedule();
+		}
+		for (int q = 0; q < 6; q++) {
+			jobHandles[q].Complete();
+			Debug.Log(jobs[q].outputData[192]);
+			jobs[q].outputData.Dispose();
+		}
+		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
+
 	}
+
+
 
 	void OnThicknessSliderValueChanged(float value) {
 		shapeFileRenderer.bigLineListRenderer.setLineThickness(value);
@@ -64,6 +106,18 @@ public class MapTest : MonoBehaviour {
 		}
 	}
 
+	//TODO: Delete this function
+	static string GDALInfoGetPosition(Dataset ds, double x, double y) {
+		double[] adfGeoTransform = new double[6];
+		double dfGeoX, dfGeoY;
+		ds.GetGeoTransform(adfGeoTransform);
+
+		dfGeoX = adfGeoTransform[0] + adfGeoTransform[1] * x + adfGeoTransform[2] * y;
+		dfGeoY = adfGeoTransform[3] + adfGeoTransform[4] * x + adfGeoTransform[5] * y;
+
+		return dfGeoX.ToString() + ", " + dfGeoY.ToString();
+	}
+
 	private void Update() {
 		//Texture testing to hide/show the texture
 		if (Input.GetKeyDown(KeyCode.Q)) {
@@ -71,8 +125,37 @@ public class MapTest : MonoBehaviour {
 		}
 		Vector2 coord = movableRawImage.getLocalPositionInRectangle(Input.mousePosition);
 		//Vector2 coord = Input.mousePosition;
-		GameObject.Find("Canvas/Text").GetComponent<Text>().text = IsPointInPolygon(shapeFileRenderer.projectedShapes[3], coord) ? "inside" : "outside";
+		GameObject.Find("Canvas/Text").GetComponent<Text>().text = IsPointInPolygon(shapeFileRenderer.projectedShapes[2], coord) ? "inside" : "outside";
 	}
+
+	public struct CSVLoaderJob : IJob {
+
+		public NativeArray<DataEntry> outputData;
+
+		//The pain of getting a string into this
+		public NativeArray<char> filename;
+		
+		public void Execute() {
+			char[] filenameChars = new char[filename.Length];
+			filename.CopyTo(filenameChars);
+			using (var reader = new StreamReader(new string(filenameChars))) {
+
+				List<DataEntry> list = new List<DataEntry>();
+
+				while (!reader.EndOfStream) {
+					var line = reader.ReadLine();
+					var values = line.Split(',');
+					DataEntry dataEntry = new DataEntry();
+					dataEntry.lat = Convert.ToDouble(values[0]);
+					dataEntry.lon = Convert.ToDouble(values[1]);
+					dataEntry.pop = Convert.ToDouble(values[2]);
+					list.Add(dataEntry);
+				}
+				outputData.CopyFrom(list.ToArray());
+			}
+		}
+	}
+
 
 	//https://stackoverflow.com/a/14998816
 	public static bool IsPointInPolygon(Vector2[] polygon, Vector2 testPoint) {
