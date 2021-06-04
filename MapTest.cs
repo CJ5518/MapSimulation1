@@ -79,10 +79,12 @@ public class MapTest : MonoBehaviour {
 		//Open the dataset
 		string filename = @"F:\Data\tif\USA_lat_24_lon_-111_children_under_five.tif";
 		Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
+		//This starts counting at 1 for some reason
+		Band rasterBand = dataset.GetRasterBand(1);
 
 		//Just for testing
 		const float USPopulation = 306000000.0f;
-		
+
 		//TODO:
 		/*
 		 * Get the number of raster pixels that should make up one of these pixels, see
@@ -91,10 +93,64 @@ public class MapTest : MonoBehaviour {
 		 * over number of pixels, although that would make the average number be the max color
 		 * so maybe not on that front, but you get the jist
 		 */
+
+		//Gather info about the raster
+		double[] argout = new double[6];
+		dataset.GetGeoTransform(argout);
+		for (int q = 0; q < 6; q++) {
+			Debug.Log(q + " " + argout[q]);
+		}
+		
+		//The size of a raster pixel, scaled up to render space
+		Vector2Double rasterProjectedPixelSize = new Vector2Double(argout[1], argout[5]) * shapeFileRenderer.scalingFactor;
+
+		//The number of raster pixels that make up one of our texture pixels
+		//Technically the sqrt of the actual figure, this is the number in a single row
+		int rasterPixelsPerImagePixel = (int)(pixelSize / rasterProjectedPixelSize.x);
+
+		Vector2Double topLeftCorner = rasterSpaceToWorld(dataset, Vector2Double.Zero);
+
+		Debug.Log(rasterPixelsPerImagePixel);
+
+		//Raster data buffer
+		double[] rasterData = new double[rasterPixelsPerImagePixel * rasterPixelsPerImagePixel];
+
 		//For every pixel in the image
 		for (int x = 0; x < finalTexture.width; x++) {
 			for (int y = 0; y < finalTexture.height; y++) {
+				//Convert these coords to world coords
+				Vector2 screenCoords = new Vector2(x * pixelSize, y * pixelSize);
+				Vector2 projectedCoords = shapeFileRenderer.renderSpaceToProjection(screenCoords);
+				Vector2Double worldCoords = Projection.projectionToLatLongs((Vector2Double)projectedCoords);
 
+				//Get raster coords from the world coords
+				Vector2Double rasterCoords = worldToRasterSpace(dataset, worldCoords);
+
+				if (
+					!(rasterCoords.x >= 0 &&
+					rasterCoords.y >= 0 &&
+					rasterCoords.x + rasterPixelsPerImagePixel < dataset.RasterXSize &&
+					rasterCoords.y + rasterPixelsPerImagePixel < dataset.RasterYSize)
+				) {
+					continue;
+				}
+
+				//Read in the raster data
+				rasterBand.ReadRaster(
+					(int)rasterCoords.x, (int)rasterCoords.y,
+					rasterPixelsPerImagePixel, rasterPixelsPerImagePixel,
+					rasterData,
+					rasterPixelsPerImagePixel, rasterPixelsPerImagePixel,
+					0,0
+				);
+				//Iterate over the raster data
+				double numberOfPeople = 0.0;
+				for (int q = 0; q < rasterData.Length; q++) {
+					if (!double.IsNaN(rasterData[q])) {
+						numberOfPeople += rasterData[q];
+					}
+				}
+				Debug.Log(numberOfPeople);
 			}
 		}
 
@@ -105,6 +161,17 @@ public class MapTest : MonoBehaviour {
 
 	}
 
+	//Convert from raster space to lat/longs
+	Vector2Double rasterSpaceToWorld(Dataset dataset, Vector2Double rasterPixel) {
+		double[] argout = new double[6];
+		dataset.GetGeoTransform(argout);
+		return new Vector2Double(argout[0] + (argout[1] * rasterPixel.x), argout[3] + (argout[5] * rasterPixel.y));
+	}
+	Vector2Double worldToRasterSpace(Dataset dataset, Vector2Double coords) {
+		double[] argout = new double[6];
+		dataset.GetGeoTransform(argout);
+		return new Vector2Double((coords.x - argout[0]) / argout[1], (coords.y - argout[3]) / argout[5]);
+	}
 
 
 	void OnThicknessSliderValueChanged(float value) {
@@ -122,8 +189,10 @@ public class MapTest : MonoBehaviour {
 			wantDraw = !wantDraw;
 		}
 		Vector2 coord = movableRawImage.getLocalPositionInRectangle(Input.mousePosition);
-		//Vector2 coord = Input.mousePosition;
-		GameObject.Find("Canvas/Text").GetComponent<Text>().text = IsPointInPolygon(shapeFileRenderer.renderShapes[2], coord) ? "inside" : "outside";
+		//Fix this too, same hack as above
+		GameObject.Find("Canvas/Text").GetComponent<Text>().text = 
+			IsPointInPolygon(shapeFileRenderer.renderShapes[2], coord) ? "inside" : "outside";
+		
 	}
 
 
