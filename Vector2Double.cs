@@ -18,6 +18,21 @@ public struct Vector2Double {
 
 	//Operators
 
+	//Unary minus
+	public static Vector2Double operator -(Vector2Double self) {
+		return new Vector2Double(-self.x, -self.y);
+	}
+
+	//Addition
+	public static Vector2Double operator +(Vector2Double first, Vector2Double second) {
+		return new Vector2Double(first.x + second.x, first.y + second.y);
+	}
+
+	//Subtraction
+	public static Vector2Double operator -(Vector2Double first, Vector2Double second) {
+		return first + (-second);
+	}
+
 	//Multiplication
 	public static Vector2Double operator *(Vector2Double self, double a) {
 		return new Vector2Double(self.x * a, self.y * a);
