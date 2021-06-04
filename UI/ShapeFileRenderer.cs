@@ -18,6 +18,7 @@ public class ShapeFileRenderer {
 	public List<Vector2Double[]> nonProjectedShapes;
 
 	public Vector2 min, max, projectedMin, projectedMax;
+	public float scalingFactor;
 
 	//Init ShapeFileRenderer with a loaded shapeFile
 	public ShapeFileRenderer(ShapeFile shapeFile, Transform parent) {
@@ -53,7 +54,7 @@ public class ShapeFileRenderer {
 		float factorY = Mathf.Abs(Screen.height / (projectedMax.y - projectedMin.y));
 
 		//Pick the smallest one
-		float factor = factorX < factorY ? factorX : factorY;
+		scalingFactor = factorX < factorY ? factorX : factorY;
 
 		//Load the data
 		for (int shapeIndex = 0; shapeIndex < shapeFile.MyRecords.Count; shapeIndex++) {
@@ -68,11 +69,7 @@ public class ShapeFileRenderer {
 				point = Projection.projectVector(point);
 				Vector2 floatPoint = new Vector2((float)point.x, (float)point.y);
 
-				//Move to bottom left
-				floatPoint -= projectedMin;
-				floatPoint.y = Screen.height - (floatPoint.y + Screen.height);
-
-				floatPoint *= factor;
+				floatPoint = projectionToRenderSpace(floatPoint);
 
 				bigLineListRenderer.addPoint(floatPoint);
 				renderShapes[shapeIndex][q] = floatPoint;
@@ -84,4 +81,14 @@ public class ShapeFileRenderer {
 
 
 	//Coordinate transformations
+	public Vector2 projectionToRenderSpace(Vector2 point) {
+		//Move to bottom left
+		point -= projectedMin;
+		point.y = Screen.height - (point.y + Screen.height);
+
+		//Scale up
+		point *= scalingFactor;
+
+		return point;
+	}
 }
