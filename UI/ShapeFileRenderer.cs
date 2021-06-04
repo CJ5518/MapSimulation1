@@ -91,4 +91,36 @@ public class ShapeFileRenderer {
 
 		return point;
 	}
+	public Vector2Double projectionToRenderSpace(Vector2Double point) {
+		//Move to bottom left
+		point -= projectedMin;
+		point.y = Screen.height - (point.y + Screen.height);
+
+		//Scale up
+		point *= scalingFactor;
+
+		return point;
+	}
+
+	public Vector2 renderSpaceToProjection(Vector2 point) {
+		//Scale down
+		point /= scalingFactor;
+
+		//Move back to where it ought to be
+		point.y = -point.y;
+		point += projectedMin;
+
+		return point;
+	}
+	//Render space to projected coords
+	public Vector2Double renderSpaceToProjection(Vector2Double point) {
+		//Scale down
+		point /= scalingFactor;
+
+		//Move back to where it ought to be
+		point.y = -point.y;
+		point += projectedMin;
+
+		return point;
+	}
 }

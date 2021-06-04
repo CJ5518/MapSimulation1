@@ -16,6 +16,17 @@ public struct Vector2Double {
 		this.y = y;
 	}
 
+	//Overrrides
+	public override string ToString() {
+		return x + ", " + y;
+	}
+
+	//Default vectors
+
+	public static Vector2Double Zero {
+		get { return new Vector2Double(0, 0); }
+	}
+
 	//Operators
 
 	//Unary minus
@@ -41,8 +52,20 @@ public struct Vector2Double {
 		return new Vector2Double(self.x * a, self.y * a);
 	}
 
+	//Division
+	public static Vector2Double operator /(Vector2Double self, double a) {
+		return new Vector2Double(self.x / a, self.y / a);
+	}
+	public static Vector2Double operator /(Vector2Double self, float a) {
+		return new Vector2Double(self.x / a, self.y / a);
+	}
+
 	//Conversions
 	public static implicit operator Vector2Double(Vector2 vec) {
 		return new Vector2Double(vec.x, vec.y);
+	}
+	//Made explicit because double to float is explicit
+	public static explicit operator Vector2(Vector2Double vec) {
+		return new Vector2((float)vec.x, (float)vec.y);
 	}
 }
