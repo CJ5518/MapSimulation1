@@ -55,11 +55,14 @@ public class MapTest : MonoBehaviour {
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
 		//Texture scaling factor
-		int factor = 4;
-		finalTexture = new Texture2D(1920 / factor, 1080 / factor, TextureFormat.RGBA32, false);
+		int pixelSize = 20;
+		finalTexture = new Texture2D(1920 / pixelSize, 1080 / pixelSize, TextureFormat.RGBA32, false);
 		for (int x = 0; x < finalTexture.width; x++) {
 			for (int y = 0; y < finalTexture.height; y++) {
-				bool isInShape = IsPointInPolygon(shapeFileRenderer.renderShapes[2], new Vector2(x * factor, y * factor));
+				bool isInShape = IsPointInPolygon(
+					shapeFileRenderer.renderShapes[2], //FIX: Bit of a hack
+					new Vector2(x * pixelSize, y * pixelSize)
+				);
 				finalTexture.SetPixel(x, y, isInShape ? Color.white : Color.clear);
 			}
 		}
@@ -73,9 +76,27 @@ public class MapTest : MonoBehaviour {
 
 		startTime = Time.realtimeSinceStartupAsDouble;
 
+		//Open the dataset
 		string filename = @"F:\Data\tif\USA_lat_24_lon_-111_children_under_five.tif";
-
 		Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
+
+		//Just for testing
+		const float USPopulation = 306000000.0f;
+		
+		//TODO:
+		/*
+		 * Get the number of raster pixels that should make up one of these pixels, see
+		 * https://github.com/OSGeo/gdal/blob/master/gdal/swig/csharp/apps/GDALInfo.cs
+		 * for some info on how to do that, then count the number of people there, divide by US pop
+		 * over number of pixels, although that would make the average number be the max color
+		 * so maybe not on that front, but you get the jist
+		 */
+		//For every pixel in the image
+		for (int x = 0; x < finalTexture.width; x++) {
+			for (int y = 0; y < finalTexture.height; y++) {
+
+			}
+		}
 
 
 		dataset.Dispose();
