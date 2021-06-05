@@ -15,6 +15,13 @@ using OSGeo.OSR;
 using OSGeo.GDAL;
 using OSGeo.OGR;
 
+/* TODO:
+ * Use the Gdal.Warp() function instead of using it outside of the environment
+ * Get it to work lmao
+ * https://gis.stackexchange.com/questions/132149/down-sample-raster-map-with-average-algorithm
+ * 
+ */
+
 //Test class
 public class MapTest : MonoBehaviour {
 	//Our shape file renderer
@@ -55,7 +62,7 @@ public class MapTest : MonoBehaviour {
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
 		//Texture scaling factor
-		int pixelSize = 20;
+		int pixelSize = 1;
 		finalTexture = new Texture2D(1920 / pixelSize, 1080 / pixelSize, TextureFormat.RGBA32, false);
 		for (int x = 0; x < finalTexture.width; x++) {
 			for (int y = 0; y < finalTexture.height; y++) {
@@ -63,7 +70,7 @@ public class MapTest : MonoBehaviour {
 					shapeFileRenderer.renderShapes[2], //FIX: Bit of a hack
 					new Vector2(x * pixelSize, y * pixelSize)
 				);
-				finalTexture.SetPixel(x, y, isInShape ? Color.white : Color.clear);
+				finalTexture.SetPixel(x, y, isInShape ? Color.gray : Color.clear);
 			}
 		}
 		finalTexture.filterMode = FilterMode.Point;
@@ -77,10 +84,16 @@ public class MapTest : MonoBehaviour {
 		startTime = Time.realtimeSinceStartupAsDouble;
 
 		//Open the dataset
-		string filename = @"F:\Data\tif\USA_lat_24_lon_-111_children_under_five.tif";
+		string filename = @"F:\Data\tif\resampled_image.tif";
 		Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
+		
 		//This starts counting at 1 for some reason
+		//FIX more hardcoded indices
 		Band rasterBand = dataset.GetRasterBand(1);
+
+		double datasetMin, datasetMax, datasetMean, datasetStdDev;
+		rasterBand.GetStatistics(0, 1, out datasetMin, out datasetMax, out datasetMean, out datasetStdDev);
+
 
 		//Just for testing
 		const float USPopulation = 306000000.0f;
@@ -97,9 +110,7 @@ public class MapTest : MonoBehaviour {
 		//Gather info about the raster
 		double[] argout = new double[6];
 		dataset.GetGeoTransform(argout);
-		for (int q = 0; q < 6; q++) {
-			Debug.Log(q + " " + argout[q]);
-		}
+
 		
 		//The size of a raster pixel, scaled up to render space
 		Vector2Double rasterProjectedPixelSize = new Vector2Double(argout[1], argout[5]) * shapeFileRenderer.scalingFactor;
@@ -108,8 +119,8 @@ public class MapTest : MonoBehaviour {
 		//Technically the sqrt of the actual figure, this is the number in a single row
 		int rasterPixelsPerImagePixel = (int)(pixelSize / rasterProjectedPixelSize.x);
 
-		Vector2Double topLeftCorner = rasterSpaceToWorld(dataset, Vector2Double.Zero);
-
+		//Vector2Double topLeftCorner = rasterSpaceToWorld(dataset, Vector2Double.Zero);
+		
 		Debug.Log(rasterPixelsPerImagePixel);
 
 		//Raster data buffer
@@ -150,10 +161,15 @@ public class MapTest : MonoBehaviour {
 						numberOfPeople += rasterData[q];
 					}
 				}
-				Debug.Log(numberOfPeople);
+				float val = (float)(numberOfPeople / (datasetMax * 5.0));
+
+				if (numberOfPeople != 0.0)
+					finalTexture.SetPixel(x, y, new Color(val, val, val, 1.0f));
+
+				Debug.Log(x + ", " + y + " " + val);
 			}
 		}
-
+		finalTexture.Apply();
 
 		dataset.Dispose();
 
