@@ -83,110 +83,13 @@ public class MapTest : MonoBehaviour {
 
 		startTime = Time.realtimeSinceStartupAsDouble;
 
-		//Open the dataset
-		string filename = @"F:\Data\tif\resampled_image.tif";
-		Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
-		
-		//This starts counting at 1 for some reason
-		//FIX more hardcoded indices
-		Band rasterBand = dataset.GetRasterBand(1);
+		RasterHandler popRaster = new PopulationRasterHandler();
+		finalTexture = popRaster.loadToTexture(finalTexture.width, finalTexture.height, shapeFileRenderer);
 
-		double datasetMin, datasetMax, datasetMean, datasetStdDev;
-		rasterBand.GetStatistics(0, 1, out datasetMin, out datasetMax, out datasetMean, out datasetStdDev);
-
-
-		//Just for testing
-		const float USPopulation = 306000000.0f;
-
-		//TODO:
-		/*
-		 * Get the number of raster pixels that should make up one of these pixels, see
-		 * https://github.com/OSGeo/gdal/blob/master/gdal/swig/csharp/apps/GDALInfo.cs
-		 * for some info on how to do that, then count the number of people there, divide by US pop
-		 * over number of pixels, although that would make the average number be the max color
-		 * so maybe not on that front, but you get the jist
-		 */
-
-		//Gather info about the raster
-		double[] argout = new double[6];
-		dataset.GetGeoTransform(argout);
-
-		
-		//The size of a raster pixel, scaled up to render space
-		Vector2Double rasterProjectedPixelSize = new Vector2Double(argout[1], argout[5]) * shapeFileRenderer.scalingFactor;
-
-		//The number of raster pixels that make up one of our texture pixels
-		//Technically the sqrt of the actual figure, this is the number in a single row
-		int rasterPixelsPerImagePixel = (int)(pixelSize / rasterProjectedPixelSize.x);
-
-		//Vector2Double topLeftCorner = rasterSpaceToWorld(dataset, Vector2Double.Zero);
-		
-		Debug.Log(rasterPixelsPerImagePixel);
-
-		//Raster data buffer
-		double[] rasterData = new double[rasterPixelsPerImagePixel * rasterPixelsPerImagePixel];
-
-		//For every pixel in the image
-		for (int x = 0; x < finalTexture.width; x++) {
-			for (int y = 0; y < finalTexture.height; y++) {
-				//Convert these coords to world coords
-				Vector2 screenCoords = new Vector2(x * pixelSize, y * pixelSize);
-				Vector2 projectedCoords = shapeFileRenderer.renderSpaceToProjection(screenCoords);
-				Vector2Double worldCoords = Projection.projectionToLatLongs((Vector2Double)projectedCoords);
-
-				//Get raster coords from the world coords
-				Vector2Double rasterCoords = worldToRasterSpace(dataset, worldCoords);
-
-				if (
-					!(rasterCoords.x >= 0 &&
-					rasterCoords.y >= 0 &&
-					rasterCoords.x + rasterPixelsPerImagePixel < dataset.RasterXSize &&
-					rasterCoords.y + rasterPixelsPerImagePixel < dataset.RasterYSize)
-				) {
-					continue;
-				}
-
-				//Read in the raster data
-				rasterBand.ReadRaster(
-					(int)rasterCoords.x, (int)rasterCoords.y,
-					rasterPixelsPerImagePixel, rasterPixelsPerImagePixel,
-					rasterData,
-					rasterPixelsPerImagePixel, rasterPixelsPerImagePixel,
-					0,0
-				);
-				//Iterate over the raster data
-				double numberOfPeople = 0.0;
-				for (int q = 0; q < rasterData.Length; q++) {
-					if (!double.IsNaN(rasterData[q])) {
-						numberOfPeople += rasterData[q];
-					}
-				}
-				float val = (float)(numberOfPeople / (datasetMax * 5.0));
-
-				if (numberOfPeople != 0.0)
-					finalTexture.SetPixel(x, y, new Color(val, val, val, 1.0f));
-
-				Debug.Log(x + ", " + y + " " + val);
-			}
-		}
-		finalTexture.Apply();
-
-		dataset.Dispose();
+		popRaster.Dispose();
 
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
 
-	}
-
-	//Convert from raster space to lat/longs
-	Vector2Double rasterSpaceToWorld(Dataset dataset, Vector2Double rasterPixel) {
-		double[] argout = new double[6];
-		dataset.GetGeoTransform(argout);
-		return new Vector2Double(argout[0] + (argout[1] * rasterPixel.x), argout[3] + (argout[5] * rasterPixel.y));
-	}
-	Vector2Double worldToRasterSpace(Dataset dataset, Vector2Double coords) {
-		double[] argout = new double[6];
-		dataset.GetGeoTransform(argout);
-		return new Vector2Double((coords.x - argout[0]) / argout[1], (coords.y - argout[3]) / argout[5]);
 	}
 
 
