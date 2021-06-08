@@ -80,8 +80,11 @@ public class MapTest : MonoBehaviour {
 
 		//GDAL testing
 		Gdal.AllRegister();
+		Gdal.SetCacheMax((int)Math.Pow(2, 30));
 
 		startTime = Time.realtimeSinceStartupAsDouble;
+
+		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
 		RasterHandler popRaster = new PopulationRasterHandler();
 		finalTexture = popRaster.loadToTexture(finalTexture.width, finalTexture.height, shapeFileRenderer);

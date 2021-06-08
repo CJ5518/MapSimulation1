@@ -27,12 +27,12 @@ public abstract class RasterHandler : IDisposable {
 	}
 
 	//Convert from raster space to lat/longs and vice versa
-	public Vector2Double rasterSpaceToWorld(Vector2Double rasterPixel) {
+	public Vector2Double rasterSpaceToWorld(Vector2Double rasterPixel, Dataset dataset) {
 		double[] argout = new double[6];
 		dataset.GetGeoTransform(argout);
 		return new Vector2Double(argout[0] + (argout[1] * rasterPixel.x), argout[3] + (argout[5] * rasterPixel.y));
 	}
-	public Vector2Double worldToRasterSpace(Vector2Double coords) {
+	public Vector2Double worldToRasterSpace(Vector2Double coords, Dataset dataset) {
 		double[] argout = new double[6];
 		dataset.GetGeoTransform(argout);
 		return new Vector2Double((coords.x - argout[0]) / argout[1], (coords.y - argout[3]) / argout[5]);
