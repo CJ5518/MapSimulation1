@@ -1,7 +1,5 @@
 ﻿//By Carson Rueber
 
-//TODO: Clean it up it's a mess
-
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -9,7 +7,7 @@ using UnityEngine;
 using OSGeo.GDAL;
 using System.Xml;
 
-//Population raster data
+//Population raster data handler
 public class PopulationRasterHandler : RasterHandler {
 	//File paths
 	const string inputVrtFilename = @"F:\Data\tif\out.vrt";
@@ -18,43 +16,38 @@ public class PopulationRasterHandler : RasterHandler {
 	//The important band
 	Band rasterBand;
 
-	//ShapeFileRenderer
-	//Should really split up some of the functionality from this function
+	//ShapeFileRenderer, needed for some render-space transformations
 	ShapeFileRenderer shapeFileRenderer;
 
+	//Default constructor
 	public PopulationRasterHandler() {}
 
-	private void warpData(int width, int height, ShapeFileRenderer shapeFileRenderer) {
-		double startTime = Time.realtimeSinceStartupAsDouble;
-
-		int pixelSize = Screen.width / width;
-
+	//Preprocess the input data
+	private void preprocessData(ShapeFileRenderer shapeFileRenderer) {
+		//Read the xml of the vrt
 		XmlDocument xmlDocument = new XmlDocument();
 		xmlDocument.Load(inputVrtFilename);
 
+		//List of the resultant filenames for building the new vrt
 		List<string> outputFilenames = new List<string>();
 
+		//Iterate over all the band nodes
 		foreach (XmlNode node in xmlDocument.DocumentElement.SelectSingleNode("VRTRasterBand").ChildNodes) {
+			//If it is a tif
 			if (node.Name == "ComplexSource") {
 				//Filename of the tif
 				string filename = Directory.GetParent(inputVrtFilename) + "/" + node.SelectSingleNode("SourceFilename").InnerText;
 
+				//Open it
 				Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
 
-				//Compute the new size of the dataset
+				//Warp options
 
-				int sizeX = dataset.RasterXSize;
-				int sizeY = dataset.RasterYSize;
-
-				double[] argout = new double[6];
-				dataset.GetGeoTransform(argout);
-
-				//Warp the dataset
-
-				//Options
+				//We can set the raster pixel size here
 				double resolution = 1.0 / shapeFileRenderer.scalingFactor;
-				string options = "-tr " + resolution + " " + resolution + " -r sum -wm 2000 -overwrite -wo \"INIT_DEST=NO_DATA\"";
+				string options = "-tr " + resolution + " " + resolution + " -r sum -wm 500 -overwrite -wo \"INIT_DEST=NO_DATA\"";
 
+				//Take the options string and convert to GDALWarpAppOptions
 				string[] optionsStrings = options
 					.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -66,12 +59,10 @@ public class PopulationRasterHandler : RasterHandler {
 				outputFilenames.Add(outputFilename);
 
 				//Warp drive
-				dataset = Gdal.Warp(
+				Gdal.Warp(
 					outputFilename,
 					new Dataset[] { dataset }, warpOptions, null, null
 				);
-
-				Debug.Log(outputFilename + " " + countDataset(dataset));
 			}
 		}
 
@@ -84,38 +75,16 @@ public class PopulationRasterHandler : RasterHandler {
 		);
 
 
-		Debug.Log("Warping and building took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
-
-
 		//The population data only has 1 band
 		rasterBand = dataset.GetRasterBand(1);
 
-		//Collect statistics
+		//Collect statistics while we're here
 		rasterBand.GetStatistics(0, 1, out datasetMin, out datasetMax, out datasetMean, out datasetStdDev);
 	}
 
-	double countDataset(Dataset dataset) {
-		double sum = 0.0;
-
-		double[] data = new double[dataset.RasterXSize * dataset.RasterYSize];
-		Band b = dataset.GetRasterBand(1);
-		b.ReadRaster(
-			0,0,
-			dataset.RasterXSize, dataset.RasterYSize,
-			data, dataset.RasterXSize, dataset.RasterYSize, 0, 0
-		);
-		
-		for (int q = 0; q < data.Length; q++) {
-			if (double.IsNaN(data[q])) continue;
-			sum += data[q];
-		}
-
-
-		return sum;
-	}
-
 	public override Texture2D loadToTexture(int width, int height, ShapeFileRenderer shapeFileRenderer) {
-		warpData(width, height, shapeFileRenderer);
+		//Process the data
+		preprocessData(shapeFileRenderer);
 		//Output texture
 		Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 
@@ -133,10 +102,6 @@ public class PopulationRasterHandler : RasterHandler {
 		//The number of raster pixels that make up one of our texture pixels
 		//Technically the sqrt of the actual figure, this is the number in a single row
 		int rasterPixelsPerImagePixel = (int)Math.Floor((pixelSize / rasterProjectedPixelSize.x) + 0.5);
-		Debug.Log(rasterPixelsPerImagePixel + " raster pixels per image pixel " + (pixelSize / rasterProjectedPixelSize.x));
-
-		//Vector2Double topLeftCorner = rasterSpaceToWorld(dataset, Vector2Double.Zero);
-
 
 		//Raster data buffer
 		double[] rasterData = new double[rasterPixelsPerImagePixel * rasterPixelsPerImagePixel];
@@ -173,13 +138,15 @@ public class PopulationRasterHandler : RasterHandler {
 					rasterPixelsPerImagePixel, rasterPixelsPerImagePixel,
 					0, 0
 				);
-				//Iterate over the raster data
+				//Iterate over the raster data and count the number of people
 				double numberOfPeople = 0.0;
 				for (int q = 0; q < rasterData.Length; q++) {
 					if (!double.IsNaN(rasterData[q])) {
 						numberOfPeople += rasterData[q];
 					}
 				}
+
+				//Output the color
 				float val = (float)(numberOfPeople / (datasetMax * 1.0));
 
 				if (numberOfPeople != 0.0) {
@@ -192,5 +159,28 @@ public class PopulationRasterHandler : RasterHandler {
 		//We're finished
 		texture.Apply();
 		return texture;
+	}
+
+
+
+	//Count the number of people in the given dataset
+	double countDataset(Dataset dataset) {
+		double sum = 0.0;
+
+		double[] data = new double[dataset.RasterXSize * dataset.RasterYSize];
+		Band b = dataset.GetRasterBand(1);
+		b.ReadRaster(
+			0, 0,
+			dataset.RasterXSize, dataset.RasterYSize,
+			data, dataset.RasterXSize, dataset.RasterYSize, 0, 0
+		);
+
+		for (int q = 0; q < data.Length; q++) {
+			if (double.IsNaN(data[q])) continue;
+			sum += data[q];
+		}
+
+
+		return sum;
 	}
 }
