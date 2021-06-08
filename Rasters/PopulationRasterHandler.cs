@@ -19,6 +19,7 @@ public class PopulationRasterHandler : RasterHandler {
 	Band rasterBand;
 
 	//ShapeFileRenderer
+	//Should really split up some of the functionality from this function
 	ShapeFileRenderer shapeFileRenderer;
 
 	public PopulationRasterHandler() {}
@@ -31,9 +32,6 @@ public class PopulationRasterHandler : RasterHandler {
 		XmlDocument xmlDocument = new XmlDocument();
 		xmlDocument.Load(inputVrtFilename);
 
-
-		//TODO: Remove index
-		int index = 0;
 		List<string> outputFilenames = new List<string>();
 
 		foreach (XmlNode node in xmlDocument.DocumentElement.SelectSingleNode("VRTRasterBand").ChildNodes) {
@@ -51,28 +49,11 @@ public class PopulationRasterHandler : RasterHandler {
 				double[] argout = new double[6];
 				dataset.GetGeoTransform(argout);
 
-				//Both of these are in screen space
-				Vector2Double topLeft = shapeFileRenderer.projectionToRenderSpace(
-					Projection.projectVector(rasterSpaceToWorld(new Vector2(0, 0), dataset))
-				);
-				Vector2Double bottomRight = shapeFileRenderer.projectionToRenderSpace(
-					Projection.projectVector(rasterSpaceToWorld(new Vector2(sizeX, sizeY), dataset))
-				);
-				Debug.Log("Screen space coords");
-				Debug.Log(topLeft);
-				Debug.Log(bottomRight);
-
-				Vector2Double difference = topLeft - bottomRight;
-				difference.x = Math.Ceiling(Math.Abs(difference.x));
-				difference.y = Math.Ceiling(Math.Abs(difference.y));
-
-				Debug.Log(difference);
-
-
 				//Warp the dataset
 
 				//Options
-				string options = "-ts " + (int)difference.x + " " + (int)difference.y + " -r sum -wm 2000 -overwrite -wo \"INIT_DEST=NO_DATA\"";
+				double resolution = 1.0 / shapeFileRenderer.scalingFactor;
+				string options = "-tr " + resolution + " " + resolution + " -r sum -wm 2000 -overwrite -wo \"INIT_DEST=NO_DATA\"";
 
 				string[] optionsStrings = options
 					.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -80,7 +61,8 @@ public class PopulationRasterHandler : RasterHandler {
 				GDALWarpAppOptions warpOptions = new GDALWarpAppOptions(optionsStrings);
 
 				//Output
-				string outputFilename = Application.temporaryCachePath + "/" + index + ".tif";
+				string outputFilename = Application.temporaryCachePath +
+					"/Warped_" + Path.GetFileNameWithoutExtension(filename) + ".tif";
 				outputFilenames.Add(outputFilename);
 
 				//Warp drive
@@ -89,9 +71,7 @@ public class PopulationRasterHandler : RasterHandler {
 					new Dataset[] { dataset }, warpOptions, null, null
 				);
 
-				index++;
-
-				//dataset = Gdal.Open(Application.temporaryCachePath + "/temp.tif", Access.GA_ReadOnly);
+				Debug.Log(outputFilename + " " + countDataset(dataset));
 			}
 		}
 
@@ -114,6 +94,26 @@ public class PopulationRasterHandler : RasterHandler {
 		rasterBand.GetStatistics(0, 1, out datasetMin, out datasetMax, out datasetMean, out datasetStdDev);
 	}
 
+	double countDataset(Dataset dataset) {
+		double sum = 0.0;
+
+		double[] data = new double[dataset.RasterXSize * dataset.RasterYSize];
+		Band b = dataset.GetRasterBand(1);
+		b.ReadRaster(
+			0,0,
+			dataset.RasterXSize, dataset.RasterYSize,
+			data, dataset.RasterXSize, dataset.RasterYSize, 0, 0
+		);
+		
+		for (int q = 0; q < data.Length; q++) {
+			if (double.IsNaN(data[q])) continue;
+			sum += data[q];
+		}
+
+
+		return sum;
+	}
+
 	public override Texture2D loadToTexture(int width, int height, ShapeFileRenderer shapeFileRenderer) {
 		warpData(width, height, shapeFileRenderer);
 		//Output texture
@@ -132,7 +132,8 @@ public class PopulationRasterHandler : RasterHandler {
 
 		//The number of raster pixels that make up one of our texture pixels
 		//Technically the sqrt of the actual figure, this is the number in a single row
-		int rasterPixelsPerImagePixel = (int)(pixelSize / rasterProjectedPixelSize.x);
+		int rasterPixelsPerImagePixel = (int)Math.Floor((pixelSize / rasterProjectedPixelSize.x) + 0.5);
+		Debug.Log(rasterPixelsPerImagePixel + " raster pixels per image pixel " + (pixelSize / rasterProjectedPixelSize.x));
 
 		//Vector2Double topLeftCorner = rasterSpaceToWorld(dataset, Vector2Double.Zero);
 
@@ -154,7 +155,7 @@ public class PopulationRasterHandler : RasterHandler {
 				//Get raster coords from the world coords
 				Vector2Double rasterCoords = worldToRasterSpace(worldCoords, dataset);
 
-				//If in bounds
+				//If not in bounds, skip
 				if (
 					!(rasterCoords.x >= 0 &&
 					rasterCoords.y >= 0 &&
@@ -181,9 +182,10 @@ public class PopulationRasterHandler : RasterHandler {
 				}
 				float val = (float)(numberOfPeople / (datasetMax * 1.0));
 
-				if (numberOfPeople != 0.0)
+				if (numberOfPeople != 0.0) {
+					val = Mathf.Sqrt(val);
 					texture.SetPixel(x, y, new Color(val, val, val, 1.0f));
-
+				}
 			}
 		}
 		
