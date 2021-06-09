@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System;
 using System.Runtime.InteropServices;
 using System.IO;
 using UnityEngine;
@@ -36,11 +35,9 @@ public class MapTest : MonoBehaviour {
 	//The background image
 	MovableRawImage movableRawImage;
 
-	public struct DataEntry {
-		public double lat;
-		public double lon;
-		public double pop;
-	}
+	PopulationRasterHandler popRaster;
+
+	Simulation simulation;
 
 	void Start() {
 		Application.targetFrameRate = 60;
@@ -70,29 +67,29 @@ public class MapTest : MonoBehaviour {
 					shapeFileRenderer.renderShapes[2], //FIX: Bit of a hack
 					new Vector2(x * pixelSize, y * pixelSize)
 				);
-				finalTexture.SetPixel(x, y, isInShape ? Color.gray : Color.clear);
+				finalTexture.SetPixel(x, y, isInShape ? Color.gray : Color.Lerp(Color.clear, Color.black, 0.1f));
 			}
 		}
 		finalTexture.filterMode = FilterMode.Point;
 		finalTexture.Apply();
-		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
+		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds to create the texture");
 
 
-		//GDAL testing
+		//Init GDAL
 		Gdal.AllRegister();
-		Gdal.SetCacheMax((int)Math.Pow(2, 30));
-
-		startTime = Time.realtimeSinceStartupAsDouble;
-
+		Gdal.SetCacheMax((int)System.Math.Pow(2, 30));
 		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
-		RasterHandler popRaster = new PopulationRasterHandler();
+		popRaster = new PopulationRasterHandler();
+		popRaster.preprocessData(finalTexture.width, finalTexture.height, shapeFileRenderer);
 		finalTexture = popRaster.loadToTexture(finalTexture.width, finalTexture.height, shapeFileRenderer);
+		finalTexture.filterMode = FilterMode.Point;
 
-		popRaster.Dispose();
 
-		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds");
+		finalTexture.filterMode = FilterMode.Point;
 
+		//simulation = new Simulation();
+		movableRawImage.texture = finalTexture;
 	}
 
 
@@ -101,7 +98,7 @@ public class MapTest : MonoBehaviour {
 	}
 	void OnGUI() {
 		if (finalTexture != null && Event.current.type.Equals(EventType.Repaint) && wantDraw) {
-			Graphics.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), finalTexture);
+			//Graphics.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), finalTexture);
 		}
 	}
 
@@ -115,6 +112,14 @@ public class MapTest : MonoBehaviour {
 		GameObject.Find("Canvas/Text").GetComponent<Text>().text = 
 			IsPointInPolygon(shapeFileRenderer.renderShapes[2], coord) ? "inside" : "outside";
 		
+		if (Input.GetMouseButtonDown(0)) {
+			Vector2 projectedCoords = shapeFileRenderer.renderSpaceToProjection(coord);
+			Vector2Double worldCoords = Projection.projectionToLatLongs((Vector2Double)projectedCoords);
+
+			Debug.Log(coord);
+			Debug.Log(popRaster.worldToRasterSpace(worldCoords, popRaster.dataset));
+		}
+
 	}
 
 

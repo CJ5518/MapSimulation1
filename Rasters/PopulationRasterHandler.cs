@@ -1,6 +1,5 @@
 ﻿//By Carson Rueber
 
-using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,7 +22,7 @@ public class PopulationRasterHandler : RasterHandler {
 	public PopulationRasterHandler() {}
 
 	//Preprocess the input data
-	private void preprocessData(ShapeFileRenderer shapeFileRenderer) {
+	public void preprocessData(int width, int height, ShapeFileRenderer shapeFileRenderer) {
 		//Read the xml of the vrt
 		XmlDocument xmlDocument = new XmlDocument();
 		xmlDocument.Load(inputVrtFilename);
@@ -44,12 +43,25 @@ public class PopulationRasterHandler : RasterHandler {
 				//Warp options
 
 				//We can set the raster pixel size here
-				double resolution = 1.0 / shapeFileRenderer.scalingFactor;
-				string options = "-tr " + resolution + " " + resolution + " -r sum -wm 500 -overwrite -wo \"INIT_DEST=NO_DATA\"";
+				int pixelSize = Screen.width / width;
+
+				//Get pixel size in lat long
+				Vector2 corner = new Vector2(0, 0) * pixelSize;
+				Vector2Double projectedCornerCoords = shapeFileRenderer.renderSpaceToProjection(corner);
+				Vector2Double worldCornerCoords = Projection.projectionToLatLongs(projectedCornerCoords);
+
+				Vector2 other = new Vector2(1, 0) * pixelSize;
+				Vector2Double projectedOtherCoords = shapeFileRenderer.renderSpaceToProjection(other);
+				Vector2Double worldOtherCoords = Projection.projectionToLatLongs(projectedOtherCoords);
+				//Diff is now the new size of a raster pixel
+				double diff = System.Math.Abs(worldCornerCoords.x - worldOtherCoords.x);
+
+				string options = "-tr " + diff + " " + diff + " -r sum -wm 500 -overwrite -wo \"INIT_DEST=NO_DATA\"";
+				Debug.Log(options);
 
 				//Take the options string and convert to GDALWarpAppOptions
 				string[] optionsStrings = options
-					.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+					.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
 
 				GDALWarpAppOptions warpOptions = new GDALWarpAppOptions(optionsStrings);
 
@@ -83,8 +95,7 @@ public class PopulationRasterHandler : RasterHandler {
 	}
 
 	public override Texture2D loadToTexture(int width, int height, ShapeFileRenderer shapeFileRenderer) {
-		//Process the data
-		preprocessData(shapeFileRenderer);
+		Debug.Log("Loading to texture");
 		//Output texture
 		Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 
@@ -100,9 +111,8 @@ public class PopulationRasterHandler : RasterHandler {
 		Vector2Double rasterProjectedPixelSize = new Vector2Double(argout[1], argout[5]) * shapeFileRenderer.scalingFactor;
 
 		//The number of raster pixels that make up one of our texture pixels
-		//Technically the sqrt of the actual figure, this is the number in a single row
-		int rasterPixelsPerImagePixel = (int)Math.Floor((pixelSize / rasterProjectedPixelSize.x) + 0.5);
-
+		//We set this to one because we BELIEVE that we warped it properly
+		int rasterPixelsPerImagePixel = 1;
 		//Raster data buffer
 		double[] rasterData = new double[rasterPixelsPerImagePixel * rasterPixelsPerImagePixel];
 
@@ -110,12 +120,12 @@ public class PopulationRasterHandler : RasterHandler {
 		for (int x = 0; x < texture.width; x++) {
 			for (int y = 0; y < texture.height; y++) {
 				//Default texture color
-				texture.SetPixel(x, y, Color.clear);
+				texture.SetPixel(x, y, Color.Lerp(Color.clear, Color.black, 0.1f));
 
 				//Convert these coords to world coords
-				Vector2 screenCoords = new Vector2(x * pixelSize, y * pixelSize);
-				Vector2 projectedCoords = shapeFileRenderer.renderSpaceToProjection(screenCoords);
-				Vector2Double worldCoords = Projection.projectionToLatLongs((Vector2Double)projectedCoords);
+				Vector2Double screenCoords = new Vector2Double(x * pixelSize, y * pixelSize);
+				Vector2Double projectedCoords = shapeFileRenderer.renderSpaceToProjection(screenCoords);
+				Vector2Double worldCoords = Projection.projectionToLatLongs(projectedCoords);
 
 				//Get raster coords from the world coords
 				Vector2Double rasterCoords = worldToRasterSpace(worldCoords, dataset);
@@ -147,16 +157,15 @@ public class PopulationRasterHandler : RasterHandler {
 				}
 
 				//Output the color
-				float val = (float)(numberOfPeople / (datasetMax * 1.0));
+				double val = (numberOfPeople / (datasetMax));
 
 				if (numberOfPeople != 0.0) {
-					val = Mathf.Sqrt(val);
-					texture.SetPixel(x, y, new Color(val, val, val, 1.0f));
+					val = System.Math.Sqrt(val);
+					float f = (float)val;
+					texture.SetPixel(x, y, new Color(f, f, f, 1.0f));
 				}
 			}
 		}
-		
-		//We're finished
 		texture.Apply();
 		return texture;
 	}
@@ -164,7 +173,7 @@ public class PopulationRasterHandler : RasterHandler {
 
 
 	//Count the number of people in the given dataset
-	double countDataset(Dataset dataset) {
+	public double countDataset(Dataset dataset) {
 		double sum = 0.0;
 
 		double[] data = new double[dataset.RasterXSize * dataset.RasterYSize];
