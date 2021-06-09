@@ -50,10 +50,7 @@ public class MovableRawImage :
 	//Get a pixel on the texture from a screen coordinate
 	public Vector2 getPixelFromScreenCoord(Vector2 coord) {
 		//Convert it to be within the bounds of the image
-		Vector2 localPoint;
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(this.rectTransform, coord, (Camera)null, out localPoint);
-		//Move to the correct position
-		Vector2 ret = localPoint + (rectTransform.rect.size / 2.0f);
+		Vector2 ret = getLocalPositionInRectangle(coord);
 		//Scale accordingly
 		ret.x /= rectTransform.rect.width;
 		ret.y /= rectTransform.rect.height;
