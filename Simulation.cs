@@ -231,8 +231,8 @@ public class Simulation {
 
 			//Damage yourself
 			if (healthyPercentage < 1.0f) {
-				float factor = Mathf.Clamp01(Mathf.Pow(readCell.propensityForVirus, 3f));
-				writeCell.health -= (1.5f * (1.0f - healthyPercentage)) * factor;
+				float factor = 1.0f - healthyPercentage;
+				writeCell.health -= factor * 10.0f * readCell.propensityForVirus * readCell.propensityForVirus;
 				writeCell.health = Mathf.Clamp01(writeCell.health);
 			}
 
@@ -248,6 +248,9 @@ public class Simulation {
 
 			//Compute the color
 			Color color = Color.Lerp(Color.white, data.virusColor, 1.0f - writeCell.health);
+
+			float v = writeCell.propensityForVirus;
+			color = Color.Lerp(color, new Color(v,v,v, 1.0f), 0.3f);
 			color.a = 1f;
 
 			//Write back the data
