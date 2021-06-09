@@ -17,17 +17,27 @@ public class PopulationRasterHandler : RasterHandler {
 	string inputVrtFilename;
 	string outputVrtFilename;
 
+	//Which population to use
 	public enum PopulationType {
 		ChildrenUnderFive,
 		ElderlySixtyPlus,
 		Men,
-		FullPopulation
+		FullPopulation,
+		Women,
+		WomenOfReproductiveAge,
+		Youth15To24,
+		PopulationTypeCount
 	}
+	//Maps from the enum to the vrt files
+	//These should be changed to something within Unity when we do a release
 	private string[] populationTypeFilenameLookup = {
 		@"F:\Data\tif\ChildrenUnderFive\ChildrenUnderFive.vrt",
 		@"F:\Data\tif\ElderlySixtyPlus\ElderlySixtyPlus.vrt",
-		@"",
-		@"F:\Data\tif\FullPopulation\population_usa_2019-07-01.vrt"
+		@"F:\Data\tif\Men\Men.vrt",
+		@"F:\Data\tif\FullPopulation\population_usa_2019-07-01.vrt",
+		@"F:\Data\tif\Women\Women.vrt",
+		@"F:\Data\tif\WomenOfReproductiveAge\WomenOfReproductiveAge.vrt",
+		@"F:\Data\tif\Youth15To24\Youth15To24.vrt"
 	};
 
 	//The important band
