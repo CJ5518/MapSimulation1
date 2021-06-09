@@ -1,5 +1,10 @@
 ﻿//By Carson Rueber
 
+//So right now, pixel size has to be less than 10 or there is a noticebale scar
+//in the data because the rasters become too small
+//Possible solution is to combine the tiny rasters beforehand
+//There is also a scar at pixelSize=8
+
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,20 +14,36 @@ using System.Xml;
 //Population raster data handler
 public class PopulationRasterHandler : RasterHandler {
 	//File paths
-	const string inputVrtFilename = @"F:\Data\tif\out.vrt";
-	string outputVrtFilename = Application.temporaryCachePath + "/" + "WarpedPopulation.vrt";
+	string inputVrtFilename;
+	string outputVrtFilename;
+
+	public enum PopulationType {
+		ChildrenUnderFive,
+		ElderlySixtyPlus,
+		Men,
+		FullPopulation
+	}
+	private string[] populationTypeFilenameLookup = {
+		@"F:\Data\tif\ChildrenUnderFive\ChildrenUnderFive.vrt",
+		@"F:\Data\tif\ElderlySixtyPlus\ElderlySixtyPlus.vrt",
+		@"",
+		@"F:\Data\tif\FullPopulation\population_usa_2019-07-01.vrt"
+	};
 
 	//The important band
 	Band rasterBand;
 
-	//ShapeFileRenderer, needed for some render-space transformations
-	ShapeFileRenderer shapeFileRenderer;
-
 	//Default constructor
-	public PopulationRasterHandler() {}
+	public PopulationRasterHandler(PopulationType populationType) {
+		inputVrtFilename = populationTypeFilenameLookup[(int)populationType];
+		outputVrtFilename = Application.temporaryCachePath + "/Warped" + populationType.ToString() + ".vrt";
+	}
 
 	//Preprocess the input data
-	public void preprocessData(int width, int height, ShapeFileRenderer shapeFileRenderer) {
+	public override bool preprocessData(int pixelSize, ShapeFileRenderer shapeFileRenderer) {
+		//Innocent until proven guilty
+		dataHasBeenProcessed = true;
+
 		//Read the xml of the vrt
 		XmlDocument xmlDocument = new XmlDocument();
 		xmlDocument.Load(inputVrtFilename);
@@ -37,13 +58,8 @@ public class PopulationRasterHandler : RasterHandler {
 				//Filename of the tif
 				string filename = Directory.GetParent(inputVrtFilename) + "/" + node.SelectSingleNode("SourceFilename").InnerText;
 
-				//Open it
+				//Open the tif
 				Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
-
-				//Warp options
-
-				//We can set the raster pixel size here
-				int pixelSize = Screen.width / width;
 
 				//Get pixel size in lat long
 				Vector2 corner = new Vector2(0, 0) * pixelSize;
@@ -53,28 +69,33 @@ public class PopulationRasterHandler : RasterHandler {
 				Vector2 other = new Vector2(1, 0) * pixelSize;
 				Vector2Double projectedOtherCoords = shapeFileRenderer.renderSpaceToProjection(other);
 				Vector2Double worldOtherCoords = Projection.projectionToLatLongs(projectedOtherCoords);
-				//Diff is now the new size of a raster pixel
+
+				//Diff is now the size of a screen pixel in lat longs
 				double diff = System.Math.Abs(worldCornerCoords.x - worldOtherCoords.x);
 
+				//Set warp options
+
+				//Set the size of the pixels to diff, the size of a screen pixel
 				string options = "-tr " + diff + " " + diff + " -r sum -wm 500 -overwrite -wo \"INIT_DEST=NO_DATA\"";
-				Debug.Log(options);
 
-				//Take the options string and convert to GDALWarpAppOptions
-				string[] optionsStrings = options
-					.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-
-				GDALWarpAppOptions warpOptions = new GDALWarpAppOptions(optionsStrings);
+				GDALWarpAppOptions warpOptions = genWarpOptionsFromString(options);
 
 				//Output
 				string outputFilename = Application.temporaryCachePath +
 					"/Warped_" + Path.GetFileNameWithoutExtension(filename) + ".tif";
-				outputFilenames.Add(outputFilename);
 
-				//Warp drive
-				Gdal.Warp(
-					outputFilename,
-					new Dataset[] { dataset }, warpOptions, null, null
-				);
+				try {
+					//Warp drive
+					Gdal.Warp(
+						outputFilename,
+						new Dataset[] { dataset }, warpOptions, null, null
+					);
+					//Add it to the vrt list
+					outputFilenames.Add(outputFilename);
+				}
+				catch (System.Exception error) {
+					Debug.Log("An error occured in Gdal.Warp: " + error.Message);
+				}
 			}
 		}
 
@@ -92,10 +113,17 @@ public class PopulationRasterHandler : RasterHandler {
 
 		//Collect statistics while we're here
 		rasterBand.GetStatistics(0, 1, out datasetMin, out datasetMax, out datasetMean, out datasetStdDev);
+
+		//Success or failure
+		return dataHasBeenProcessed;
 	}
 
 	public override Texture2D loadToTexture(int width, int height, ShapeFileRenderer shapeFileRenderer) {
-		Debug.Log("Loading to texture");
+		//Make sure data has been processed
+		if (!dataHasBeenProcessed) {
+			preprocessData(Screen.height / height, shapeFileRenderer);
+		}
+
 		//Output texture
 		Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 
@@ -105,10 +133,6 @@ public class PopulationRasterHandler : RasterHandler {
 
 		//Calulcate the pixel size, in pixels
 		int pixelSize = Screen.width / width;
-
-
-		//The size of a raster pixel, scaled up to render space
-		Vector2Double rasterProjectedPixelSize = new Vector2Double(argout[1], argout[5]) * shapeFileRenderer.scalingFactor;
 
 		//The number of raster pixels that make up one of our texture pixels
 		//We set this to one because we BELIEVE that we warped it properly
@@ -157,9 +181,9 @@ public class PopulationRasterHandler : RasterHandler {
 				}
 
 				//Output the color
-				double val = (numberOfPeople / (datasetMax));
 
 				if (numberOfPeople != 0.0) {
+					double val = (numberOfPeople / (datasetMax));
 					val = System.Math.Sqrt(val);
 					float f = (float)val;
 					texture.SetPixel(x, y, new Color(f, f, f, 1.0f));

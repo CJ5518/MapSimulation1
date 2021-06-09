@@ -59,7 +59,7 @@ public class MapTest : MonoBehaviour {
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
 		//Texture scaling factor
-		int pixelSize = 1;
+		int pixelSize = 8;
 		finalTexture = new Texture2D(1920 / pixelSize, 1080 / pixelSize, TextureFormat.RGBA32, false);
 		for (int x = 0; x < finalTexture.width; x++) {
 			for (int y = 0; y < finalTexture.height; y++) {
@@ -80,12 +80,9 @@ public class MapTest : MonoBehaviour {
 		Gdal.SetCacheMax((int)System.Math.Pow(2, 30));
 		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
-		popRaster = new PopulationRasterHandler();
-		popRaster.preprocessData(finalTexture.width, finalTexture.height, shapeFileRenderer);
+		popRaster = new PopulationRasterHandler(PopulationRasterHandler.PopulationType.ElderlySixtyPlus);
+		popRaster.preprocessData(pixelSize, shapeFileRenderer);
 		finalTexture = popRaster.loadToTexture(finalTexture.width, finalTexture.height, shapeFileRenderer);
-		finalTexture.filterMode = FilterMode.Point;
-
-
 		finalTexture.filterMode = FilterMode.Point;
 
 		//simulation = new Simulation();
