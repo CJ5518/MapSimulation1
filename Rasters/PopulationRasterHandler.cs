@@ -3,7 +3,7 @@
 //So right now, pixel size has to be less than 10 or there is a noticebale scar
 //in the data because the rasters become too small
 //Possible solution is to combine the tiny rasters beforehand
-//There is also a scar at pixelSize=8
+//There is also a scar in maine at pixelSize=8
 
 using System.IO;
 using System.Collections.Generic;
@@ -72,16 +72,16 @@ public class PopulationRasterHandler : RasterHandler {
 				Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
 
 				//Get pixel size in lat long
-				Vector2 corner = new Vector2(0, 0) * pixelSize;
+				Vector2Double corner = new Vector2Double(0, 0) * pixelSize;
 				Vector2Double projectedCornerCoords = Projection.renderSpaceToProjection(corner);
 				Vector2Double worldCornerCoords = Projection.projectionToLatLongs(projectedCornerCoords);
 
-				Vector2 other = new Vector2(1, 0) * pixelSize;
+				Vector2Double other = new Vector2Double(100, 0) * pixelSize;
 				Vector2Double projectedOtherCoords = Projection.renderSpaceToProjection(other);
 				Vector2Double worldOtherCoords = Projection.projectionToLatLongs(projectedOtherCoords);
 
 				//Diff is now the size of a screen pixel in lat longs
-				double diff = System.Math.Abs(worldCornerCoords.x - worldOtherCoords.x);
+				double diff = System.Math.Abs(worldCornerCoords.x - worldOtherCoords.x) / 100;
 
 				//Set warp options
 
@@ -191,13 +191,10 @@ public class PopulationRasterHandler : RasterHandler {
 				}
 
 				//Output the color
+				Color32 color = Simulation.floatToColor((float)numberOfPeople);
 
-				if (numberOfPeople != 0.0) {
-					double val = (numberOfPeople / (datasetMax));
-					val = System.Math.Sqrt(val);
-					float f = (float)val;
-					texture.SetPixel(x, y, new Color(f, f, f, 1.0f));
-				}
+				texture.SetPixels32(x, y, 1, 1, new Color32[] { color });
+
 			}
 		}
 		texture.Apply();

@@ -1,10 +1,12 @@
 //By Carson Rueber
 
-using System;
+//TODO: Things should be based on chance, include some randomness
+
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
+using System;
 
 //Handles a cell based simulation of stuff
 public class Simulation {
@@ -24,9 +26,10 @@ public class Simulation {
 
 	//Cell struct, contains all the individual information for a cell
 	public struct Cell {
-		public float propensityForVirus; //How much we want virus
-		public float propensityToHeal; //how much we want to heal
-		public float health;
+		public float numberOfPeople;
+
+		public float susceptible, infected, recovered, dead;
+
 		public bool inMask; //Are we in the mask
 	}
 
@@ -41,17 +44,33 @@ public class Simulation {
 		public int height;
 		public float season; //Unused
 		public float seasonAdder;
-		public Color virusColor; //Colors for unhealthy/healthy cells
-		public Color healthyColor;
-		public float propensityForVirusModifier; //Added to propensity for virus
+		public Color infectedColor; //Colors
+		public Color deadColor;
+		public Color recoveredColor;
+
+		public bool drawInfected;
+		public bool drawDead;
+		public bool drawRecovered;
+
+		public float maxNumberOfPeople;
+		//R0, the number of people an infected person will infect
+		public float r0;
 	}
 	//Set the default values here
 	public SimulationDataStruct data = new SimulationDataStruct() {
 		season = 0.0f,
 		seasonAdder = 0.0005f,
-		virusColor = Color.red,
-		healthyColor = Color.green,
-		propensityForVirusModifier = 0.0f
+		infectedColor = Color.red,
+		deadColor = Color.blue,
+		recoveredColor = Color.green,
+
+		drawInfected = true,
+		drawDead = true,
+		drawRecovered = false,
+
+		maxNumberOfPeople = 0.0f,
+
+		r0 = 2.9f
 	};
 
 	//Cell buffers
@@ -170,15 +189,25 @@ public class Simulation {
 
 				//Set some default cell values
 				Cell readCell = readCells[index];
-				readCell.health = 1f;
 
-				//If it's in the mask, and therefore should be updated
+				//Innocent until proven guilty
 				readCell.inMask = true;
-				for (int q = 0; q < textureArray.Length; q++) {
-					if (textureArray[q].GetPixel(x, y).a < 0.2f) {
-						readCell.inMask = false;
-						break;
-					}
+
+				//Population
+				Texture2D popTexture = textureArray[0];
+				Color32 color = popTexture.GetPixel(x, y);
+				float numberOfPeople = colorToFloat(color);
+
+				if ((int)numberOfPeople == 0) readCell.inMask = false;
+				readCell.numberOfPeople = numberOfPeople;
+				readCell.susceptible = numberOfPeople;
+				readCell.recovered = 0.0f;
+				readCell.infected = 0.0f;
+				readCell.dead = 0.0f;
+
+				//Keep track of the maximum
+				if (numberOfPeople > data.maxNumberOfPeople) {
+					data.maxNumberOfPeople = numberOfPeople;
 				}
 				
 				//Write back the cell
@@ -216,50 +245,54 @@ public class Simulation {
 			//Color32* textureDataPointer = (Color32*)textureDataPointers[texIdx];
 			//Then just use it as an array
 
+			//Percentages
+			float infectedPercentage = readCell.infected / readCell.numberOfPeople;
+			float deadPercentage = readCell.dead / readCell.numberOfPeople;
+			float recoveredPercentage = readCell.recovered / readCell.numberOfPeople;
 
-			//Get a healthyness percentage
-			float sumHealth = 0.0f;
-			int numNeighbors = 0;
-			int[] neighborIndices = getNeighborIndices(index);
-			for (int q = 0; q < neighborIndices.Length; q++) {
-				if (cellIsValid(neighborIndices[q])) {
-					numNeighbors++;
-					sumHealth += readCells[neighborIndices[q]].health;
+			//Spread in this cell, because of this cell
+			writeCell.infected += Mathf.Clamp(data.r0 * readCell.infected, 0, readCell.susceptible);
+			//Handle deaths/recoveries
+			writeCell.infected -= readCell.infected;
+			writeCell.susceptible -= writeCell.infected;
+			writeCell.dead += readCell.infected * 0.01f;
+			writeCell.recovered += readCell.infected * 0.99f;
+
+			writeCell.susceptible = Mathf.Clamp(writeCell.susceptible, 0, readCell.numberOfPeople);
+
+			float surroundingInfected = 0.0f;
+			float surroundingSusceptible = 0.0f;
+			int surroundingCells = 0;
+			//Spread in this cell, because of other cells
+			foreach (int neighborIdx in getNeighborIndices(index)) {
+				if (cellIsValid(neighborIdx)) {
+					Cell neighborCell = readCells[neighborIdx];
+					surroundingInfected += neighborCell.infected;
+					surroundingSusceptible += neighborCell.susceptible;
+					surroundingCells++;
 				}
 			}
-			float healthyPercentage = sumHealth / (float)numNeighbors;
 
-			//Damage yourself
-			if (healthyPercentage < 1.0f) {
-				float factor = 1.0f - healthyPercentage;
-				writeCell.health -= factor * 10.0f * readCell.propensityForVirus * readCell.propensityForVirus;
-				writeCell.health = Mathf.Clamp01(writeCell.health);
+			float chanceToGetInfected = Mathf.Pow((surroundingInfected * readCell.susceptible) / 500000.0f, 2.0f);
+
+			if (chanceToGetInfected >= 5000.0f) {
+				if (writeCell.susceptible >= 1.0f) {
+					writeCell.susceptible--;
+					writeCell.infected++;
+				}
 			}
 
-			//Calculate the propensity for virus
-			float propensityForVirus = 0.0f;
-			for (int q = 0; q < textureDataPointers.Length; q++) {
-				Color32* textureDataPointer = (Color32*)textureDataPointers[q];
-				propensityForVirus += (textureDataPointer[index].r / (float)byte.MaxValue) * textureMetadataArray[q].weight;
-			}
-			//Set the values
-			writeCell.propensityForVirus = Mathf.Clamp01(propensityForVirus + this.data.propensityForVirusModifier);
-			writeCell.propensityToHeal = 1f - writeCell.propensityForVirus;
 
 			//Compute the color
-			Color color = Color.Lerp(Color.white, data.virusColor, 1.0f - writeCell.health);
+			Color color = new Color(Mathf.Sqrt(infectedPercentage), recoveredPercentage, deadPercentage);
 
-			float v = writeCell.propensityForVirus;
+			float v = Mathf.Pow(1.0f - (readCell.numberOfPeople / (float)data.maxNumberOfPeople), 2.0f);
 			color = Color.Lerp(color, new Color(v,v,v, 1.0f), 0.3f);
 			color.a = 1f;
-
+			
 			//Write back the data
 			drawTextureData[index] = color;
 			writeCells[index] = writeCell;
-		}
-		//Cell is in bounds and also in the mask
-		private bool cellIsValid(int index) {
-			return index >= 0 && index < (data.width * data.height) && readCells[index].inMask;
 		}
 
 		//Returns the indices of the neighbors to an index
@@ -272,9 +305,15 @@ public class Simulation {
 			ret[3] = index - data.width;
 			return ret;
 		}
+
+		//Verify if a cell is valid
+		//Cell is in bounds and also in the mask
+		public bool cellIsValid(int index) {
+			return index >= 0 && index < (data.width * data.height) && readCells[index].inMask;
+		}
 	}
 
-	//Functions for encoding integers into 
+	//Functions for encoding data into colors
 	public static Color32 intToColor(int n) {
 		Color32 color = new Color32();
 
@@ -296,6 +335,13 @@ public class Simulation {
 		ret |= color.r;
 		return ret;
 	}
+	public unsafe static Color32 floatToColor(float n) {
+		return intToColor(*(int*)&n);
+	}
+	public unsafe static float colorToFloat(Color32 color) {
+		int n = colorToInt(color);
+		return *(float*)&n;
+	}
 
 	//Coordinate system functions
 	public int coordToIndex(int x, int y) {
@@ -311,5 +357,11 @@ public class Simulation {
 		ret.x = index % data.width;
 		ret.y = (index - ret.x) / data.width;
 		return ret;
+	}
+	//Identical to the function in SimulationJob
+	//Verify if a cell is valid
+	//Cell is in bounds and also in the mask
+	public bool cellIsValid(int index) {
+		return index >= 0 && index < (data.width * data.height) && readCells[index].inMask;
 	}
 }

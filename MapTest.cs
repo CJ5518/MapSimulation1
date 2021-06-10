@@ -31,6 +31,8 @@ public class MapTest : MonoBehaviour {
 
 	Simulation simulation;
 
+	Text editInfoLabel;
+
 	void Start() {
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
@@ -51,7 +53,10 @@ public class MapTest : MonoBehaviour {
 		thicknessSlider.value = 1.0f;
 		thicknessSlider.onValueChanged.AddListener(OnThicknessSliderValueChanged);
 
+		//Find the background image object
 		movableRawImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
+
+		editInfoLabel = GameObject.Find("Canvas/EditInfoLabel").GetComponent<Text>();
 
 		//Generate the texture
 
@@ -77,7 +82,7 @@ public class MapTest : MonoBehaviour {
 		Gdal.SetCacheMax((int)System.Math.Pow(2, 30));
 		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
-		popRaster = new PopulationRasterHandler(PopulationRasterHandler.PopulationType.Youth15To24);
+		popRaster = new PopulationRasterHandler(PopulationRasterHandler.PopulationType.FullPopulation);
 		popRaster.preprocessData(pixelSize);
 		finalTexture = popRaster.loadToTexture(finalTexture.width, finalTexture.height);
 		finalTexture.filterMode = FilterMode.Point;
@@ -94,28 +99,71 @@ public class MapTest : MonoBehaviour {
 		shapeFileRenderer.bigLineListRenderer.setLineThickness(value);
 	}
 
-	float lastSimTime = 0.0f;
+	//Some vars for testing purposes
+	float lastSimTime = -100.0f;
+	float lastStatsTime = -100.0f;
+	bool autoPlay = false;
+	float totalSusceptible, totalInfected, totalRecovered, totalDead = 0.0f;
 	private void Update() {
 
-		//Tick the simulation every half second or so
-		if (Time.realtimeSinceStartup - lastSimTime >= 0.5f) {
+		//Tick the simulation every now and then
+		if (Time.realtimeSinceStartup - lastSimTime >= 0.1f && autoPlay) {
 			lastSimTime = Time.realtimeSinceStartup;
-			//simulation.tickSimulation();
+			simulation.tickSimulation();
 		}
-		simulation.tickSimulation();
 
-		//Kill cells on click
-		if (Input.GetMouseButtonDown(0)) {
-			Vector2 pixel = movableRawImage.getPixelFromScreenCoord(Input.mousePosition);
-			int index = simulation.coordToIndex(pixel);
+		if (Input.GetKeyDown(KeyCode.Space)) {
+			simulation.tickSimulation();
+		}
+		if (Input.GetKeyDown(KeyCode.Q)) autoPlay = !autoPlay;
 
+		Vector2 pixel = movableRawImage.getPixelFromScreenCoord(Input.mousePosition);
+		int index = simulation.coordToIndex(pixel);
+
+		if (simulation.cellIsValid(index)) {
+			//Report statistics
 
 			Simulation.Cell cell = simulation.readCells[index];
-			cell.health = 0.0f;
-			simulation.readCells[index] = cell;
+
+			//Gather statistics for the entire thing
+			if (Time.realtimeSinceStartup - lastStatsTime >= 0.01f) {
+				lastStatsTime = Time.realtimeSinceStartup;
+				totalSusceptible = 0.0f;
+				totalInfected = 0.0f;
+				totalRecovered = 0.0f;
+				totalDead = 0.0f;
+				for (int q = 0; q < simulation.readCells.Length; q++) {
+					Simulation.Cell readCell = simulation.readCells[q];
+					totalSusceptible += readCell.susceptible;
+					totalInfected += readCell.infected;
+					totalRecovered += readCell.recovered;
+					totalDead += readCell.dead;
+				}
+			}
+
+			//Set the string to the statistics
+			string finalString =
+				Mathf.FloorToInt(cell.susceptible + 0.5f) + "\n" +
+				Mathf.FloorToInt(cell.infected + 0.5f) + "\n" +
+				Mathf.FloorToInt(cell.recovered + 0.5f) + "\n" +
+				Mathf.FloorToInt(cell.dead + 0.5f) + "\n" +
+				"Totals:" + "\n" +
+				Mathf.FloorToInt(totalSusceptible + 0.5f) + "\n" +
+				Mathf.FloorToInt(totalInfected + 0.5f) + "\n" +
+				Mathf.FloorToInt(totalRecovered + 0.5f) + "\n" +
+				Mathf.FloorToInt(totalDead + 0.5f) + "\n";
+			editInfoLabel.text = finalString;
+
+			//Kill cells on click
+			if (Input.GetMouseButtonDown(0)) {
+				cell.infected++;
+				cell.susceptible--;
+				simulation.readCells[index] = cell;
+			}
 		}
 
 	}
+
 
 	void OnDestroy() {
 		simulation.deleteNativeArrays();
