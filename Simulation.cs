@@ -274,6 +274,29 @@ public class Simulation {
 		}
 	}
 
+	//Functions for encoding integers into 
+	public static Color32 intToColor(int n) {
+		Color32 color = new Color32();
+
+		color.r = (byte)n;
+		color.g = (byte)(n >> 8);
+		color.b = (byte)(n >> 16);
+		color.a = (byte)(n >> 24);
+
+		return color;
+	}
+	public static int colorToInt(Color32 color) {
+		int ret = 0;
+		ret |= color.a;
+		ret = ret << 8;
+		ret |= color.b;
+		ret = ret << 8;
+		ret |= color.g;
+		ret = ret << 8;
+		ret |= color.r;
+		return ret;
+	}
+
 	//Coordinate system functions
 	public int coordToIndex(int x, int y) {
 		return (y * data.width) + x;
