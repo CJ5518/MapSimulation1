@@ -50,7 +50,7 @@ public class PopulationRasterHandler : RasterHandler {
 	}
 
 	//Preprocess the input data
-	public override bool preprocessData(int pixelSize, ShapeFileRenderer shapeFileRenderer) {
+	public override bool preprocessData(int pixelSize) {
 		//Innocent until proven guilty
 		dataHasBeenProcessed = true;
 
@@ -73,11 +73,11 @@ public class PopulationRasterHandler : RasterHandler {
 
 				//Get pixel size in lat long
 				Vector2 corner = new Vector2(0, 0) * pixelSize;
-				Vector2Double projectedCornerCoords = shapeFileRenderer.renderSpaceToProjection(corner);
+				Vector2Double projectedCornerCoords = Projection.renderSpaceToProjection(corner);
 				Vector2Double worldCornerCoords = Projection.projectionToLatLongs(projectedCornerCoords);
 
 				Vector2 other = new Vector2(1, 0) * pixelSize;
-				Vector2Double projectedOtherCoords = shapeFileRenderer.renderSpaceToProjection(other);
+				Vector2Double projectedOtherCoords = Projection.renderSpaceToProjection(other);
 				Vector2Double worldOtherCoords = Projection.projectionToLatLongs(projectedOtherCoords);
 
 				//Diff is now the size of a screen pixel in lat longs
@@ -128,10 +128,10 @@ public class PopulationRasterHandler : RasterHandler {
 		return dataHasBeenProcessed;
 	}
 
-	public override Texture2D loadToTexture(int width, int height, ShapeFileRenderer shapeFileRenderer) {
+	public override Texture2D loadToTexture(int width, int height) {
 		//Make sure data has been processed
 		if (!dataHasBeenProcessed) {
-			preprocessData(Screen.height / height, shapeFileRenderer);
+			preprocessData(Screen.height / height);
 		}
 
 		//Output texture
@@ -158,7 +158,7 @@ public class PopulationRasterHandler : RasterHandler {
 
 				//Convert these coords to world coords
 				Vector2Double screenCoords = new Vector2Double(x * pixelSize, y * pixelSize);
-				Vector2Double projectedCoords = shapeFileRenderer.renderSpaceToProjection(screenCoords);
+				Vector2Double projectedCoords = Projection.renderSpaceToProjection(screenCoords);
 				Vector2Double worldCoords = Projection.projectionToLatLongs(projectedCoords);
 
 				//Get raster coords from the world coords

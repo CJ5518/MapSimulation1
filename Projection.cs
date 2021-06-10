@@ -1,9 +1,7 @@
 //By Carson Rueber
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
+using ShapeImporter;
 
 //Projects lat/longs into screen coordinates and back again
 //https://stackoverflow.com/a/4565555
@@ -64,5 +62,88 @@ public class Projection {
 		ret.x = projectionToLongitude(vector.x);
 		ret.y = projectionToLatitude(vector.y);
 		return ret;
+	}
+
+
+	//Render space information
+
+	//The smallest x,y coords of the projected lat/long area
+	//Defines the horizontal/vertical translation of render space
+	public static Vector2 renderSpaceProjectedMin;
+
+	//The scaling factor of render space from projection space
+	public static float renderSpaceScalingFactor;
+
+	//Set the render space parameters from a shape file
+	//The parameters will be set so that the shapefile is large and in charge
+	public static void setRenderSpaceByShapeFile(ShapeFile shapeFile) {
+		Vector2 min, max, projectedMin, projectedMax;
+		//Collect min and max
+		min.x = (float)shapeFile.FileHeader.XMin;
+		min.y = (float)shapeFile.FileHeader.YMin;
+		max.x = (float)shapeFile.FileHeader.XMax;
+		max.y = (float)shapeFile.FileHeader.YMax;
+
+		projectedMin = Projection.projectVector(min);
+		projectedMax = Projection.projectVector(max);
+
+		//Scaling factor
+		float factorX = Mathf.Abs(Screen.width / (projectedMax.x - projectedMin.x));
+		float factorY = Mathf.Abs(Screen.height / (projectedMax.y - projectedMin.y));
+
+		//Set our parameters
+
+		//Pick the smallest one
+		renderSpaceScalingFactor = factorX < factorY ? factorX : factorY;
+		renderSpaceProjectedMin = projectedMin;
+	}
+
+	public static void setRenderSpaceByShapeFile(string filename) {
+		ShapeFile shapeFile = new ShapeFile();
+		shapeFile.ReadShapes(filename);
+		setRenderSpaceByShapeFile(shapeFile);
+	}
+
+	public static Vector2 projectionToRenderSpace(Vector2 point) {
+		//Move to bottom left
+		point -= renderSpaceProjectedMin;
+		point.y = Screen.height - (point.y + Screen.height);
+
+		//Scale up
+		point *= renderSpaceScalingFactor;
+
+		return point;
+	}
+	public static Vector2Double projectionToRenderSpace(Vector2Double point) {
+		//Move to bottom left
+		point -= renderSpaceProjectedMin;
+		point.y = Screen.height - (point.y + Screen.height);
+
+		//Scale up
+		point *= renderSpaceScalingFactor;
+
+		return point;
+	}
+
+	public static Vector2 renderSpaceToProjection(Vector2 point) {
+		//Scale down
+		point /= renderSpaceScalingFactor;
+
+		//Move back to where it ought to be
+		point.y = -point.y;
+		point += renderSpaceProjectedMin;
+
+		return point;
+	}
+	//Render space to projected coords
+	public static Vector2Double renderSpaceToProjection(Vector2Double point) {
+		//Scale down
+		point /= renderSpaceScalingFactor;
+
+		//Move back to where it ought to be
+		point.y = -point.y;
+		point += renderSpaceProjectedMin;
+
+		return point;
 	}
 }

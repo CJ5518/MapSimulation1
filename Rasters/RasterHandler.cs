@@ -23,10 +23,10 @@ public abstract class RasterHandler : IDisposable {
 
 	//Load the raster data into a new resultant texture of width and height
 	//ShapeFileRenderer is needed because we do stuff in screen space
-	public abstract Texture2D loadToTexture(int width, int height, ShapeFileRenderer shapeFileRenderer);
+	public abstract Texture2D loadToTexture(int width, int height);
 
 	//Preprocess the data
-	public abstract bool preprocessData(int pixelSize, ShapeFileRenderer shapeFileRenderer);
+	public abstract bool preprocessData(int pixelSize);
 
 	virtual public void Dispose() {
 		if (dataset != null) {

@@ -17,11 +17,9 @@ public class ShapeFileRenderer {
 	//The non-projected shapes, directly extracted from the shape file
 	public List<Vector2Double[]> nonProjectedShapes;
 
-	public Vector2 min, max, projectedMin, projectedMax;
-	public float scalingFactor;
-
 	//Init ShapeFileRenderer with a loaded shapeFile
 	public ShapeFileRenderer(ShapeFile shapeFile, Transform parent) {
+		this.shapeFile = shapeFile;
 		Init(parent);
 	}
 	//Init ShapeFileRenderer with a filename to a shapeFile
@@ -40,21 +38,6 @@ public class ShapeFileRenderer {
 		renderShapes = new List<Vector2[]>();
 		nonProjectedShapes = new List<Vector2Double[]>();
 
-		//Collect min and max
-		min.x = (float)shapeFile.FileHeader.XMin;
-		min.y = (float)shapeFile.FileHeader.YMin;
-		max.x = (float)shapeFile.FileHeader.XMax;
-		max.y = (float)shapeFile.FileHeader.YMax;
-
-		projectedMin = Projection.projectVector(min);
-		projectedMax = Projection.projectVector(max);
-
-		//Scaling factor
-		float factorX = Mathf.Abs(Screen.width / (projectedMax.x - projectedMin.x));
-		float factorY = Mathf.Abs(Screen.height / (projectedMax.y - projectedMin.y));
-
-		//Pick the smallest one
-		scalingFactor = factorX < factorY ? factorX : factorY;
 
 		//Load the data
 		for (int shapeIndex = 0; shapeIndex < shapeFile.MyRecords.Count; shapeIndex++) {
@@ -69,7 +52,7 @@ public class ShapeFileRenderer {
 				point = Projection.projectVector(point);
 				Vector2 floatPoint = new Vector2((float)point.x, (float)point.y);
 
-				floatPoint = projectionToRenderSpace(floatPoint);
+				floatPoint = Projection.projectionToRenderSpace(floatPoint);
 
 				bigLineListRenderer.addPoint(floatPoint);
 				renderShapes[shapeIndex][q] = floatPoint;
@@ -77,50 +60,5 @@ public class ShapeFileRenderer {
 			}
 			bigLineListRenderer.finishLine();
 		}
-	}
-
-
-	//Coordinate transformations
-	public Vector2 projectionToRenderSpace(Vector2 point) {
-		//Move to bottom left
-		point -= projectedMin;
-		point.y = Screen.height - (point.y + Screen.height);
-
-		//Scale up
-		point *= scalingFactor;
-
-		return point;
-	}
-	public Vector2Double projectionToRenderSpace(Vector2Double point) {
-		//Move to bottom left
-		point -= projectedMin;
-		point.y = Screen.height - (point.y + Screen.height);
-
-		//Scale up
-		point *= scalingFactor;
-
-		return point;
-	}
-
-	public Vector2 renderSpaceToProjection(Vector2 point) {
-		//Scale down
-		point /= scalingFactor;
-
-		//Move back to where it ought to be
-		point.y = -point.y;
-		point += projectedMin;
-
-		return point;
-	}
-	//Render space to projected coords
-	public Vector2Double renderSpaceToProjection(Vector2Double point) {
-		//Scale down
-		point /= scalingFactor;
-
-		//Move back to where it ought to be
-		point.y = -point.y;
-		point += projectedMin;
-
-		return point;
 	}
 }

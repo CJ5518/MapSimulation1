@@ -24,7 +24,6 @@ public class MapTest : MonoBehaviour {
 
 	//Texture testing things
 	Texture2D finalTexture = null;
-	bool wantDraw = true;
 	//The background image
 	MovableRawImage movableRawImage;
 
@@ -37,9 +36,14 @@ public class MapTest : MonoBehaviour {
 
 		Application.targetFrameRate = 60;
 
+		string shapeFilePath = @"C:\Users\carso\Desktop\DataPart2\USA_Final.shp";
+
+		//Set up render space
+		Projection.setRenderSpaceByShapeFile(shapeFilePath);
+
 		//Set up the shape file renderer
 		shapeFileRenderer = new ShapeFileRenderer(
-			@"C:\Users\carso\Desktop\DataPart2\USA_Final.shp", GameObject.Find("Canvas/Background").transform
+			shapeFilePath, GameObject.Find("Canvas/Background").transform
 		);
 
 		//Set up thickness slider
@@ -74,8 +78,8 @@ public class MapTest : MonoBehaviour {
 		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
 		popRaster = new PopulationRasterHandler(PopulationRasterHandler.PopulationType.Youth15To24);
-		popRaster.preprocessData(pixelSize, shapeFileRenderer);
-		finalTexture = popRaster.loadToTexture(finalTexture.width, finalTexture.height, shapeFileRenderer);
+		popRaster.preprocessData(pixelSize);
+		finalTexture = popRaster.loadToTexture(finalTexture.width, finalTexture.height);
 		finalTexture.filterMode = FilterMode.Point;
 		finalTexture.Apply();
 
