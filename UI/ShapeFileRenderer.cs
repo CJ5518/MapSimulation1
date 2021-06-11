@@ -9,7 +9,7 @@ using ShapeImporter;
 //Also provides the shapes in their projected/scaled form
 public class ShapeFileRenderer {
 	//The shape file
-	private ShapeFile shapeFile;
+	public ShapeFile shapeFile;
 	//The rendering object
 	public BigLineListRenderer bigLineListRenderer;
 	//List of arrays holding the points of the projected and scaled shapes, for your pleasure
