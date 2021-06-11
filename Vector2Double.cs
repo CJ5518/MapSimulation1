@@ -68,4 +68,8 @@ public struct Vector2Double {
 	public static explicit operator Vector2(Vector2Double vec) {
 		return new Vector2((float)vec.x, (float)vec.y);
 	}
+	//Made explicit for the same reason as above
+	public static explicit operator Vector2Int(Vector2Double vec) {
+		return new Vector2Int((int)vec.x, (int)vec.y);
+	}
 }
