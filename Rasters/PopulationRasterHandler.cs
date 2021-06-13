@@ -76,17 +76,18 @@ public class PopulationRasterHandler : RasterHandler {
 				Vector2Double projectedCornerCoords = Projection.renderSpaceToProjection(corner);
 				Vector2Double worldCornerCoords = Projection.projectionToLatLongs(projectedCornerCoords);
 
-				Vector2Double other = new Vector2Double(100, 0) * pixelSize;
+				Vector2Double other = new Vector2Double(100, 100) * pixelSize;
 				Vector2Double projectedOtherCoords = Projection.renderSpaceToProjection(other);
 				Vector2Double worldOtherCoords = Projection.projectionToLatLongs(projectedOtherCoords);
 
 				//Diff is now the size of a screen pixel in lat longs
-				double diff = System.Math.Abs(worldCornerCoords.x - worldOtherCoords.x) / 100;
+				double diffX = System.Math.Abs(worldCornerCoords.x - worldOtherCoords.x) / 100;
+				double diffY = System.Math.Abs(worldCornerCoords.y - worldOtherCoords.y) / 100;
 
 				//Set warp options
 
 				//Set the size of the pixels to diff, the size of a screen pixel
-				string options = "-tr " + diff + " " + diff + " -r sum -wm 500 -overwrite -wo \"INIT_DEST=NO_DATA\"";
+				string options = "-tr " + diffX + " " + diffY + " -r sum -wm 500 -overwrite -wo \"INIT_DEST=NO_DATA\"";
 
 				GDALWarpAppOptions warpOptions = genWarpOptionsFromString(options);
 
@@ -150,19 +151,23 @@ public class PopulationRasterHandler : RasterHandler {
 		//Raster data buffer
 		double[] rasterData = new double[rasterPixelsPerImagePixel * rasterPixelsPerImagePixel];
 
+		//Get the corner coords of the screen
+		Vector2Double screenCoords = new Vector2Double(0, 0);
+		Vector2Double projectedCoords = Projection.renderSpaceToProjection(screenCoords);
+		Vector2Double worldCoords = Projection.projectionToLatLongs(projectedCoords);
+
+
+
 		//For every pixel in the image
 		for (int x = 0; x < texture.width; x++) {
 			for (int y = 0; y < texture.height; y++) {
 				//Default texture color
 				texture.SetPixel(x, y, Color.Lerp(Color.clear, Color.black, 0.1f));
 
-				//Convert these coords to world coords
-				Vector2Double screenCoords = new Vector2Double(x * pixelSize, y * pixelSize);
-				Vector2Double projectedCoords = Projection.renderSpaceToProjection(screenCoords);
-				Vector2Double worldCoords = Projection.projectionToLatLongs(projectedCoords);
-
 				//Get raster coords from the world coords
-				Vector2Double rasterCoords = worldToRasterSpace(worldCoords, dataset);
+				Vector2Int rasterCoords = (Vector2Int)worldToRasterSpace(worldCoords, dataset);
+				rasterCoords.x += x;
+				rasterCoords.y -= y;
 
 				//If not in bounds, skip
 				if (
