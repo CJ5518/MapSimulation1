@@ -1,5 +1,4 @@
 //By Carson Rueber
-//The only file to survive the purge
 
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +14,7 @@ using OSGeo.GDAL;
 using OSGeo.OGR;
 
 //Test class
-public class MapTest : MonoBehaviour {
+public class Main : MonoBehaviour {
 	//Our shape file renderer
 	ShapeFileRenderer shapeFileRenderer;
 
@@ -38,7 +37,7 @@ public class MapTest : MonoBehaviour {
 
 		Application.targetFrameRate = 60;
 
-		string shapeFilePath = @"C:\Users\carso\Desktop\DataPart2\USA_Final.shp";
+		string shapeFilePath = @"F:\Data\shp\USA_Reprojected.shp";
 
 		//Set up render space
 		Projection.setRenderSpaceByShapeFile(shapeFilePath);
@@ -47,6 +46,7 @@ public class MapTest : MonoBehaviour {
 		shapeFileRenderer = new ShapeFileRenderer(
 			shapeFilePath, GameObject.Find("Canvas/Background").transform
 		);
+		
 
 		//Set up thickness slider
 		thicknessSlider = GameObject.Find("Canvas/ThicknessSlider").GetComponent<Slider>();
