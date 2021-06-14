@@ -1,31 +1,32 @@
-// Decompiled with JetBrains decompiler
-// Type: DraggableButton
-// Assembly: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: DADC71AF-6ED1-41B5-9B7D-530B78799929
-// Assembly location: C:\Users\carso\Desktop\Build\MapSimulation0_Data\Managed\Assembly-CSharp.dll
+//By Carson Rueber
 
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+//Draggable button
 internal class DraggableButton : Button {
+	//Variables
 	private Vector3 offset;
 	private bool dragging;
 
+	//Set dragging to be true, and offset accordingly
 	public override void OnPointerDown(PointerEventData eventData) {
 		base.OnPointerDown(eventData);
-		this.offset = Input.mousePosition - this.GetComponent<RectTransform>().position;
-		this.dragging = true;
+		offset = Input.mousePosition - GetComponent<RectTransform>().position;
+		dragging = true;
 	}
 
+	//Set dragging to be false
 	public override void OnPointerUp(PointerEventData eventData) {
 		base.OnPointerUp(eventData);
-		this.dragging = false;
+		dragging = false;
 	}
 
+	//Move the button if we're dragging it
 	public void Update() {
-		if (!this.dragging)
+		if (!dragging)
 			return;
-		this.GetComponent<RectTransform>().position = Input.mousePosition - this.offset;
+		GetComponent<RectTransform>().position = Input.mousePosition - offset;
 	}
 }
