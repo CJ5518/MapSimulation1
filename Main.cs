@@ -15,18 +15,18 @@ using OSGeo.OGR;
 
 //Test class
 public class Main : MonoBehaviour {
+	//Texture scaling factor
+	int pixelSize = 4;
+
+
 	//Our shape file renderer
 	ShapeFileRenderer shapeFileRenderer;
 
 	//Controls the thickness of the lines of the shape file renderer
 	Slider thicknessSlider;
 
-	//Texture testing things
-	Texture2D finalTexture = null;
 	//The background image
-	MovableRawImage movableRawImage;
-
-	PopulationRasterHandler popRaster;
+	MovableRawImage backgroundMovableImage;
 
 	Simulation simulation;
 
@@ -46,50 +46,38 @@ public class Main : MonoBehaviour {
 		shapeFileRenderer = new ShapeFileRenderer(
 			shapeFilePath, GameObject.Find("Canvas/Background").transform
 		);
-		
 
-		//Set up thickness slider
+		//Find some unity components
+		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
+		editInfoLabel = GameObject.Find("Canvas/EditInfoLabel").GetComponent<Text>();
 		thicknessSlider = GameObject.Find("Canvas/ThicknessSlider").GetComponent<Slider>();
+
+		//Set up said components
 		thicknessSlider.value = 1.0f;
 		thicknessSlider.onValueChanged.AddListener(OnThicknessSliderValueChanged);
-
-		//Find the background image object
-		movableRawImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
-
-		editInfoLabel = GameObject.Find("Canvas/EditInfoLabel").GetComponent<Text>();
-
-		//Generate the texture
-
-		//Texture scaling factor
-		int pixelSize = 4;
-		finalTexture = new Texture2D(1920 / pixelSize, 1080 / pixelSize, TextureFormat.RGBA32, false);
-		for (int x = 0; x < finalTexture.width; x++) {
-			for (int y = 0; y < finalTexture.height; y++) {
-				bool isInShape = IsPointInPolygon(
-					shapeFileRenderer.renderShapes[2], //FIX: Bit of a hack
-					new Vector2(x * pixelSize, y * pixelSize)
-				);
-				finalTexture.SetPixel(x, y, isInShape ? Color.gray : Color.Lerp(Color.clear, Color.black, 0.1f));
-			}
-		}
-		finalTexture.filterMode = FilterMode.Point;
-		finalTexture.Apply();
-		
-
 
 		//Init GDAL
 		Gdal.AllRegister();
 		Gdal.SetCacheMax((int)System.Math.Pow(2, 30));
 		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
-		popRaster = new PopulationRasterHandler(PopulationRasterHandler.PopulationType.FullPopulation);
-		popRaster.preprocessData(pixelSize);
-		finalTexture = popRaster.loadToTexture(finalTexture.width, finalTexture.height);
-		finalTexture.filterMode = FilterMode.Point;
-		finalTexture.Apply();
+		Texture2D[] populationTextures = new Texture2D[(int)PopulationRasterHandler.PopulationType.PopulationTypeCount];
 
-		simulation = new Simulation(new Texture2D[] { finalTexture });
-		movableRawImage.texture = simulation.drawTexture;
+		int width = Screen.width / pixelSize;
+		int height = Screen.height / pixelSize;
+
+		for (int q = 0; q < populationTextures.Length; q++) {
+			RasterHandler rasterHandler = new PopulationRasterHandler((PopulationRasterHandler.PopulationType)q);
+			populationTextures[q] = rasterHandler.loadToTexture(width, height);
+			populationTextures[q].Apply();
+		}
+		//Set up the simulation
+		simulation = new Simulation(
+			populationTextures,
+			new Texture2D[] { populationTextures[(int)PopulationRasterHandler.PopulationType.FullPopulation]}
+		);
+
+		backgroundMovableImage.texture = simulation.drawTexture;
 
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds to run the start function");
 	}
@@ -117,7 +105,7 @@ public class Main : MonoBehaviour {
 		}
 		if (Input.GetKeyDown(KeyCode.Q)) autoPlay = !autoPlay;
 
-		Vector2 pixel = movableRawImage.getPixelFromScreenCoord(Input.mousePosition);
+		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
 		int index = simulation.coordToIndex(pixel);
 
 		if (simulation.cellIsValid(index)) {

@@ -10,8 +10,11 @@ using System;
 
 //Handles a cell based simulation of stuff
 public class Simulation {
-	//Array of input textures
-	public Texture2D[] textureArray;
+	//Array of textures needed in the simulation itself
+	private Texture2D[] simulationTextures;
+
+	private Texture2D[] populationTextures;
+
 	//Metadata for the textures
 	public NativeArray<TextureMetadata> textureMetadataArray;
 	//Pointers to the texutreArray that are almost never valid
@@ -82,8 +85,9 @@ public class Simulation {
 
 	//Constructor
 	//All textures must be of the same width and height, different formats are allowed
-	public Simulation(Texture2D[] textures) {
-		textureArray = textures;
+	public Simulation(Texture2D[] populationTextures, Texture2D[] simulationTextures) {
+		this.populationTextures = populationTextures;
+		this.simulationTextures = simulationTextures;
 		Init();
 	}
 
@@ -92,19 +96,19 @@ public class Simulation {
 	public unsafe void tickSimulation() {
 		//The unsafe part
 		//Get pointers to the raw texture data
-		for (int q = 0; q < textureArray.Length; q++) {
+		for (int q = 0; q < simulationTextures.Length; q++) {
 			textureDataPointers[q] = new IntPtr(
-				NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(textureArray[q].GetRawTextureData<Color32>())
+				NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(simulationTextures[q].GetRawTextureData<Color32>())
 			);
 		}
 		//Create and start the simulation
 		var job = new SimulationJob() {
 			readCells = readCells,
 			writeCells = writeCells,
-			drawTextureData = this.drawTexture.GetRawTextureData<Color32>(),
-			data = this.data,
-			textureDataPointers = this.textureDataPointers,
-			textureMetadataArray = this.textureMetadataArray
+			drawTextureData = drawTexture.GetRawTextureData<Color32>(),
+			data = data,
+			textureDataPointers = textureDataPointers,
+			textureMetadataArray = textureMetadataArray
 		};
 
 		JobHandle jobHandle = job.Schedule(data.width * data.height, 13755);
@@ -136,8 +140,8 @@ public class Simulation {
 	//Init everything
 	public void Init() {
 		//Native arrays
-		textureMetadataArray = new NativeArray<TextureMetadata>(textureArray.Length, Allocator.Persistent);
-		textureDataPointers = new NativeArray<IntPtr>(textureArray.Length, Allocator.Persistent);
+		textureMetadataArray = new NativeArray<TextureMetadata>(simulationTextures.Length, Allocator.Persistent);
+		textureDataPointers = new NativeArray<IntPtr>(simulationTextures.Length, Allocator.Persistent);
 
 		//Default initialization for textureMetadata
 		for (int q = 0; q < textureMetadataArray.Length; q++) {
@@ -146,21 +150,11 @@ public class Simulation {
 			textureMetadataArray[q] = textureMetadata;
 		}
 		//We make the first one the example
-		data.width = textureArray[0].width;
-		data.height = textureArray[0].height;
+		data.width = simulationTextures[0].width;
+		data.height = simulationTextures[0].height;
 
-		//Converting the texture formats
-		for (int q = 0; q < textureArray.Length; q++) {
-			//Verify that it's the same size
-			if (textureArray[q].width != data.width || textureArray[q].height != data.height)
-				throw new Exception("Texture #" + q.ToString() + " is not of the same height and width as the other textures");
-
-			//Create dummy texture to copy the data in a new format
-			Texture2D dummy = new Texture2D(data.width, data.height, TextureFormat.RGBA32, false);
-			dummy.SetPixels(textureArray[q].GetPixels());
-			dummy.Apply();
-			textureArray[q] = dummy;
-		}
+		convertTextureArrayFormats(simulationTextures);
+		convertTextureArrayFormats(populationTextures);
 		
 		//Create drawTexture
 		drawTexture = new Texture2D(data.width, data.height, TextureFormat.RGBA32, false);
@@ -194,7 +188,7 @@ public class Simulation {
 				readCell.inMask = true;
 
 				//Population
-				Texture2D popTexture = textureArray[0];
+				Texture2D popTexture = populationTextures[(int)PopulationRasterHandler.PopulationType.FullPopulation];
 				Color32 color = popTexture.GetPixel(x, y);
 				float numberOfPeople = colorToFloat(color);
 
@@ -363,5 +357,22 @@ public class Simulation {
 	//Cell is in bounds and also in the mask
 	public bool cellIsValid(int index) {
 		return index >= 0 && index < (data.width * data.height) && readCells[index].inMask;
+	}
+
+
+	//Converts an array of textures to RGBA32
+	//Uses data.width/height so make sure those are set properly
+	private void convertTextureArrayFormats(Texture2D[] array) {
+		for (int q = 0; q < array.Length; q++) {
+			//Verify that it's the same size
+			if (array[q].width != data.width || array[q].height != data.height)
+				throw new Exception("Texture #" + q.ToString() + " is not of the same height and width as the other textures");
+
+			//Create dummy texture to copy the data in a new format
+			Texture2D dummy = new Texture2D(data.width, data.height, TextureFormat.RGBA32, false);
+			dummy.SetPixels(array[q].GetPixels());
+			dummy.Apply();
+			array[q] = dummy;
+		}
 	}
 }
