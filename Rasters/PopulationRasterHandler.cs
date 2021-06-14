@@ -11,23 +11,24 @@ using UnityEngine;
 using OSGeo.GDAL;
 using System.Xml;
 
+//Enum for the different population rasters
+public enum PopulationRasterType {
+	ChildrenUnderFive,
+	ElderlySixtyPlus,
+	Men,
+	FullPopulation,
+	Women,
+	WomenOfReproductiveAge,
+	Youth15To24,
+	PopulationTypeCount
+}
+
 //Population raster data handler
 public class PopulationRasterHandler : RasterHandler {
 	//File paths
 	string inputVrtFilename;
 	string outputVrtFilename;
 
-	//Which population to use
-	public enum PopulationType {
-		ChildrenUnderFive,
-		ElderlySixtyPlus,
-		Men,
-		FullPopulation,
-		Women,
-		WomenOfReproductiveAge,
-		Youth15To24,
-		PopulationTypeCount
-	}
 	//Maps from the enum to the vrt files
 	//These should be changed to something within Unity when we do a release
 	private string[] populationTypeFilenameLookup = {
@@ -44,7 +45,7 @@ public class PopulationRasterHandler : RasterHandler {
 	Band rasterBand;
 
 	//Default constructor
-	public PopulationRasterHandler(PopulationType populationType) {
+	public PopulationRasterHandler(PopulationRasterType populationType) {
 		inputVrtFilename = populationTypeFilenameLookup[(int)populationType];
 		outputVrtFilename = Application.temporaryCachePath + "/Warped" + populationType.ToString() + ".vrt";
 	}
