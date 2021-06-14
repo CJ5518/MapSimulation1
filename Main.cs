@@ -32,6 +32,8 @@ public class Main : MonoBehaviour {
 
 	Text editInfoLabel;
 
+	int targetDemographic = (int)PopulationRasterType.FullPopulation;
+
 	void Start() {
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
@@ -61,20 +63,20 @@ public class Main : MonoBehaviour {
 		Gdal.SetCacheMax((int)System.Math.Pow(2, 30));
 		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
-		Texture2D[] populationTextures = new Texture2D[(int)PopulationRasterHandler.PopulationType.PopulationTypeCount];
+		Texture2D[] populationTextures = new Texture2D[(int)PopulationRasterType.PopulationTypeCount];
 
 		int width = Screen.width / pixelSize;
 		int height = Screen.height / pixelSize;
 
 		for (int q = 0; q < populationTextures.Length; q++) {
-			RasterHandler rasterHandler = new PopulationRasterHandler((PopulationRasterHandler.PopulationType)q);
+			RasterHandler rasterHandler = new PopulationRasterHandler((PopulationRasterType)q);
 			populationTextures[q] = rasterHandler.loadToTexture(width, height);
 			populationTextures[q].Apply();
 		}
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,
-			new Texture2D[] { populationTextures[(int)PopulationRasterHandler.PopulationType.FullPopulation]}
+			new Texture2D[] { populationTextures[(int)PopulationRasterType.FullPopulation]}
 		);
 
 		backgroundMovableImage.texture = simulation.drawTexture;
@@ -92,7 +94,7 @@ public class Main : MonoBehaviour {
 	float lastStatsTime = -100.0f;
 	bool autoPlay = false;
 	float totalSusceptible, totalInfected, totalRecovered, totalDead = 0.0f;
-	private void Update() {
+	private unsafe void Update() {
 
 		//Tick the simulation every now and then
 		if (Time.realtimeSinceStartup - lastSimTime >= 0.1f && autoPlay) {
@@ -122,19 +124,19 @@ public class Main : MonoBehaviour {
 				totalDead = 0.0f;
 				for (int q = 0; q < simulation.readCells.Length; q++) {
 					Simulation.Cell readCell = simulation.readCells[q];
-					totalSusceptible += readCell.susceptible;
-					totalInfected += readCell.infected;
-					totalRecovered += readCell.recovered;
-					totalDead += readCell.dead;
+					totalSusceptible += readCell.susceptible[targetDemographic];
+					totalInfected += readCell.infected[targetDemographic];
+					totalRecovered += readCell.recovered[targetDemographic];
+					totalDead += readCell.dead[targetDemographic];
 				}
 			}
-
+			
 			//Set the string to the statistics
 			string finalString =
-				Mathf.FloorToInt(cell.susceptible + 0.5f) + "\n" +
-				Mathf.FloorToInt(cell.infected + 0.5f) + "\n" +
-				Mathf.FloorToInt(cell.recovered + 0.5f) + "\n" +
-				Mathf.FloorToInt(cell.dead + 0.5f) + "\n" +
+				Mathf.FloorToInt(cell.susceptible[targetDemographic] + 0.5f) + "\n" +
+				Mathf.FloorToInt(cell.infected[targetDemographic] + 0.5f) + "\n" +
+				Mathf.FloorToInt(cell.recovered[targetDemographic] + 0.5f) + "\n" +
+				Mathf.FloorToInt(cell.dead[targetDemographic] + 0.5f) + "\n" +
 				"Totals:" + "\n" +
 				Mathf.FloorToInt(totalSusceptible + 0.5f) + "\n" +
 				Mathf.FloorToInt(totalInfected + 0.5f) + "\n" +
@@ -144,8 +146,8 @@ public class Main : MonoBehaviour {
 
 			//Kill cells on click
 			if (Input.GetMouseButtonDown(0)) {
-				cell.infected++;
-				cell.susceptible--;
+				cell.infected[targetDemographic]++;
+				cell.susceptible[targetDemographic]--;
 				simulation.readCells[index] = cell;
 			}
 		}

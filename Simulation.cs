@@ -28,10 +28,13 @@ public class Simulation {
 	private const int batchCount = 13755;
 
 	//Cell struct, contains all the individual information for a cell
-	public struct Cell {
-		public float numberOfPeople;
-
-		public float susceptible, infected, recovered, dead;
+	public unsafe struct Cell {
+		//buffers for the different counts of people in this cell
+		public fixed float numberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed float susceptible[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed float infected[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed float recovered[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed float dead[(int)PopulationRasterType.PopulationTypeCount];
 
 		public bool inMask; //Are we in the mask
 	}
@@ -171,12 +174,13 @@ public class Simulation {
 		InitCells();
 	}
 
-	private void InitCells() {
+	//Initialize the cell arrays
+	private unsafe void InitCells() {
 		//Native arrays
 		readCells = new NativeArray<Cell>(data.width * data.height, Allocator.Persistent);
 		writeCells = new NativeArray<Cell>(data.width * data.height, Allocator.Persistent);
 
-		//For every cell
+		//Init every cell
 		for (int x = 0; x < data.width; x++) {
 			for (int y = 0; y < data.height; y++) {
 				int index = coordToIndex(x, y);
@@ -188,20 +192,23 @@ public class Simulation {
 				readCell.inMask = true;
 
 				//Population
-				Texture2D popTexture = populationTextures[(int)PopulationRasterHandler.PopulationType.FullPopulation];
-				Color32 color = popTexture.GetPixel(x, y);
-				float numberOfPeople = colorToFloat(color);
+				for (int q = 0; q < (int)PopulationRasterType.PopulationTypeCount; q++) {
+					Texture2D texture = populationTextures[(int)PopulationRasterType.FullPopulation];
+					Color32 color = texture.GetPixel(x, y);
+					float numberOfPeople = colorToFloat(color);
 
-				if ((int)numberOfPeople == 0) readCell.inMask = false;
-				readCell.numberOfPeople = numberOfPeople;
-				readCell.susceptible = numberOfPeople;
-				readCell.recovered = 0.0f;
-				readCell.infected = 0.0f;
-				readCell.dead = 0.0f;
+					if ((int)numberOfPeople == 0) readCell.inMask = false;
 
-				//Keep track of the maximum
-				if (numberOfPeople > data.maxNumberOfPeople) {
-					data.maxNumberOfPeople = numberOfPeople;
+					readCell.numberOfPeople[q] = numberOfPeople;
+					readCell.susceptible[q] = numberOfPeople;
+					readCell.infected[q] = 0.0f;
+					readCell.recovered[q] = 0.0f;
+					readCell.dead[q] = 0.0f;
+
+					//Keep track of the maximum
+					if (numberOfPeople > data.maxNumberOfPeople) {
+						data.maxNumberOfPeople = numberOfPeople;
+					}
 				}
 				
 				//Write back the cell
@@ -239,20 +246,22 @@ public class Simulation {
 			//Color32* textureDataPointer = (Color32*)textureDataPointers[texIdx];
 			//Then just use it as an array
 
+			int targetDemographic = (int)PopulationRasterType.FullPopulation;
+
 			//Percentages
-			float infectedPercentage = readCell.infected / readCell.numberOfPeople;
-			float deadPercentage = readCell.dead / readCell.numberOfPeople;
-			float recoveredPercentage = readCell.recovered / readCell.numberOfPeople;
+			float infectedPercentage = readCell.infected[targetDemographic] / readCell.numberOfPeople[targetDemographic];
+			float deadPercentage = readCell.dead[targetDemographic] / readCell.numberOfPeople[targetDemographic];
+			float recoveredPercentage = readCell.recovered[targetDemographic] / readCell.numberOfPeople[targetDemographic];
 
 			//Spread in this cell, because of this cell
-			writeCell.infected += Mathf.Clamp(data.r0 * readCell.infected, 0, readCell.susceptible);
+			writeCell.infected[targetDemographic] += Mathf.Clamp(data.r0 * readCell.infected[targetDemographic], 0, readCell.susceptible[targetDemographic]);
 			//Handle deaths/recoveries
-			writeCell.infected -= readCell.infected;
-			writeCell.susceptible -= writeCell.infected;
-			writeCell.dead += readCell.infected * 0.01f;
-			writeCell.recovered += readCell.infected * 0.99f;
+			writeCell.infected[targetDemographic] -= readCell.infected[targetDemographic];
+			writeCell.susceptible[targetDemographic] -= writeCell.infected[targetDemographic];
+			writeCell.dead[targetDemographic] += readCell.infected[targetDemographic] * 0.01f;
+			writeCell.recovered[targetDemographic] += readCell.infected[targetDemographic] * 0.99f;
 
-			writeCell.susceptible = Mathf.Clamp(writeCell.susceptible, 0, readCell.numberOfPeople);
+			writeCell.susceptible[targetDemographic] = Mathf.Clamp(writeCell.susceptible[targetDemographic], 0, readCell.numberOfPeople[targetDemographic]);
 
 			float surroundingInfected = 0.0f;
 			float surroundingSusceptible = 0.0f;
@@ -261,18 +270,18 @@ public class Simulation {
 			foreach (int neighborIdx in getNeighborIndices(index)) {
 				if (cellIsValid(neighborIdx)) {
 					Cell neighborCell = readCells[neighborIdx];
-					surroundingInfected += neighborCell.infected;
-					surroundingSusceptible += neighborCell.susceptible;
+					surroundingInfected += neighborCell.infected[targetDemographic];
+					surroundingSusceptible += neighborCell.susceptible[targetDemographic];
 					surroundingCells++;
 				}
 			}
 
-			float chanceToGetInfected = Mathf.Pow((surroundingInfected * readCell.susceptible) / 500000.0f, 2.0f);
+			float chanceToGetInfected = Mathf.Pow((surroundingInfected * readCell.susceptible[targetDemographic]) / 500000.0f, 2.0f);
 
 			if (chanceToGetInfected >= 5000.0f) {
-				if (writeCell.susceptible >= 1.0f) {
-					writeCell.susceptible--;
-					writeCell.infected++;
+				if (writeCell.susceptible[targetDemographic] >= 1.0f) {
+					writeCell.susceptible[targetDemographic]--;
+					writeCell.infected[targetDemographic]++;
 				}
 			}
 
@@ -280,7 +289,7 @@ public class Simulation {
 			//Compute the color
 			Color color = new Color(Mathf.Sqrt(infectedPercentage), recoveredPercentage, deadPercentage);
 
-			float v = Mathf.Pow(1.0f - (readCell.numberOfPeople / (float)data.maxNumberOfPeople), 2.0f);
+			float v = Mathf.Pow(1.0f - (readCell.numberOfPeople[targetDemographic] / (float)data.maxNumberOfPeople), 2.0f);
 			color = Color.Lerp(color, new Color(v,v,v, 1.0f), 0.3f);
 			color.a = 1f;
 			
