@@ -69,9 +69,6 @@ public class PopulationRasterHandler : RasterHandler {
 				//Filename of the tif
 				string filename = Directory.GetParent(inputVrtFilename) + "/" + node.SelectSingleNode("SourceFilename").InnerText;
 
-				//Open the tif
-				Dataset dataset = Gdal.Open(filename, Access.GA_ReadOnly);
-
 				//Get pixel size in lat long
 				Vector2Double corner = new Vector2Double(0, 0) * pixelSize;
 				Vector2Double projectedCornerCoords = Projection.renderSpaceToProjection(corner);

@@ -20,23 +20,34 @@ public abstract class RasterHandler : IDisposable {
 	//Has the data been processed and is ready to load into a texture?
 	protected bool dataHasBeenProcessed;
 
+	//Preprocess the data
+	public abstract bool preprocessData(int pixelSize);
 
 	//Load the raster data into a new resultant texture of width and height
 	//ShapeFileRenderer is needed because we do stuff in screen space
 	public abstract Texture2D loadToTexture(int width, int height);
-
-	//Preprocess the data
-	public abstract bool preprocessData(int pixelSize);
 
 	virtual public void Dispose() {
 		if (dataset != null) {
 			dataset.Dispose();
 		}
 	}
+
+	//Warps a vrt file by first warping all of the
+	protected static Dataset warpVrt(string inputFilename, string outputFilenameHeader) {
+		throw new System.NotImplementedException();
+	}
+
+
+	//Warp options
+	public static string buildSuggestedWarpOptionsString(string pixelSizeX, string pixelSizeY, string algorithm) {
+		throw new System.NotImplementedException();
+	}
+
 	//Take an options string and converts it to GDALWarpAppOptions
-	//string should be in the format "-tr 1 4 -override," as in how one 
+	//string should be in the format "-tr 1 4 -override," as in how one
 	//would pass these options on the command line
-	protected GDALWarpAppOptions genWarpOptionsFromString(string options) {
+	public static GDALWarpAppOptions genWarpOptionsFromString(string options) {
 		//Take the options string and convert to GDALWarpAppOptions
 		string[] optionsStrings = options
 			.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -45,12 +56,12 @@ public abstract class RasterHandler : IDisposable {
 	}
 
 	//Convert from raster space to lat/longs and vice versa
-	public Vector2Double rasterSpaceToWorld(Vector2Double rasterPixel, Dataset dataset) {
+	public static Vector2Double rasterSpaceToWorld(Vector2Double rasterPixel, Dataset dataset) {
 		double[] argout = new double[6];
 		dataset.GetGeoTransform(argout);
 		return new Vector2Double(argout[0] + (argout[1] * rasterPixel.x), argout[3] + (argout[5] * rasterPixel.y));
 	}
-	public Vector2Double worldToRasterSpace(Vector2Double coords, Dataset dataset) {
+	public static Vector2Double worldToRasterSpace(Vector2Double coords, Dataset dataset) {
 		double[] argout = new double[6];
 		dataset.GetGeoTransform(argout);
 		return new Vector2Double((coords.x - argout[0]) / argout[1], (coords.y - argout[3]) / argout[5]);

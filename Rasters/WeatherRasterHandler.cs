@@ -1,0 +1,15 @@
+﻿using System.IO;
+using System.Collections.Generic;
+using UnityEngine;
+using OSGeo.GDAL;
+using System.Xml;
+
+class WeatherRasterHandler : RasterHandler {
+
+	public override bool preprocessData(int pixelSize) {
+		throw new System.NotImplementedException();
+	}
+	public override Texture2D loadToTexture(int width, int height) {
+		throw new System.NotImplementedException();
+	}
+}
