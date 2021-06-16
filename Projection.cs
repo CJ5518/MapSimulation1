@@ -146,4 +146,23 @@ public class Projection {
 
 		return point;
 	}
+
+	//Returns pixel size in lat long given pixel size in screen space
+	public static Vector2Double getPixelSizeInLatLong(int pixelSize) {
+		//Get two screen pixels and convert them to lat longs
+		Vector2Double corner = new Vector2Double(0, 0) * pixelSize;
+		Vector2Double projectedCornerCoords = renderSpaceToProjection(corner);
+		Vector2Double worldCornerCoords = projectionToLatLongs(projectedCornerCoords);
+
+		Vector2Double other = new Vector2Double(1, 1) * pixelSize;
+		Vector2Double projectedOtherCoords = renderSpaceToProjection(other);
+		Vector2Double worldOtherCoords = projectionToLatLongs(projectedOtherCoords);
+
+		//Take the absolute value of their difference
+		Vector2Double ret = new Vector2Double(
+			System.Math.Abs(worldCornerCoords.x - worldOtherCoords.x),
+			System.Math.Abs(worldCornerCoords.y - worldOtherCoords.y)
+		);
+		return ret;
+	}
 }
