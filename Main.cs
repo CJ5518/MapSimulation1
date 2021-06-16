@@ -68,9 +68,23 @@ public class Main : MonoBehaviour {
 		int width = Screen.width / pixelSize;
 		int height = Screen.height / pixelSize;
 
+		double preprocessTime = 0;
+		double textureLoadTime = 0;
+
 		for (int q = 0; q < populationTextures.Length; q++) {
 			RasterHandler rasterHandler = new PopulationRasterHandler((PopulationRasterType)q);
+
+			double localStartTime = Time.realtimeSinceStartupAsDouble;
+
+			rasterHandler.preprocessData(pixelSize);
+
+			preprocessTime += Time.realtimeSinceStartupAsDouble - localStartTime;
+			localStartTime = Time.realtimeSinceStartupAsDouble;
+
 			populationTextures[q] = rasterHandler.loadToTexture(width, height);
+
+			textureLoadTime += Time.realtimeSinceStartupAsDouble - localStartTime;
+
 			populationTextures[q].Apply();
 		}
 		//Set up the simulation
@@ -81,7 +95,12 @@ public class Main : MonoBehaviour {
 
 		backgroundMovableImage.texture = simulation.drawTexture;
 
-		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + " seconds to run the start function");
+		//Log time
+		Debug.Log("Preprocess time: " + preprocessTime);
+		Debug.Log("Texture load time: " + textureLoadTime);
+
+		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + 
+			" seconds to run the Main.cs start function");
 	}
 
 
