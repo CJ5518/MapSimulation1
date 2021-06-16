@@ -41,9 +41,6 @@ public abstract class RasterHandler : IDisposable {
 	//TODO: Change that, there is a thing in the xml that says whether or not the tif path is
 	//relative to the vrt or not
 	protected Dataset warpVrt(string inputVrtFilename, string outputVrtFilename, int pixelSize, string algorithm) {
-		//Innocent until proven guilty
-		dataHasBeenProcessed = true;
-
 		//Read the xml of the vrt
 		XmlDocument xmlDocument = new XmlDocument();
 		xmlDocument.Load(inputVrtFilename);
@@ -74,10 +71,11 @@ public abstract class RasterHandler : IDisposable {
 
 				try {
 					//Warp drive
-					Gdal.Warp(
+					Dataset ds = Gdal.Warp(
 						outputFilename,
-						new Dataset[] { dataset }, warpOptions, null, null
+						new Dataset[] { Gdal.Open(filename, Access.GA_ReadOnly) }, warpOptions, null, null
 					);
+					ds.Dispose();
 					//Add it to the vrt list
 					outputFilenames.Add(outputFilename);
 				}
@@ -95,6 +93,8 @@ public abstract class RasterHandler : IDisposable {
 		);
 	}
 
+
+	//public static Dataset
 
 	//Creates the suggested warp options string based on the suggested editable factors
 	public static string buildSuggestedWarpOptionsString(string pixelSizeX, string pixelSizeY, string algorithm) {

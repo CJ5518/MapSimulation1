@@ -60,6 +60,10 @@ public class PopulationRasterHandler : RasterHandler {
 		//Collect statistics while we're here
 		rasterBand.GetStatistics(0, 1, out datasetMin, out datasetMax, out datasetMean, out datasetStdDev);
 
+		//If the above lines didn't error, things probably worked out
+		//Isn't my error handling just perfect?
+		dataHasBeenProcessed = true;
+
 		//Success or failure
 		return dataHasBeenProcessed;
 	}
