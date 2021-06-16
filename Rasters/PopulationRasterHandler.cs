@@ -52,70 +52,7 @@ public class PopulationRasterHandler : RasterHandler {
 
 	//Preprocess the input data
 	public override bool preprocessData(int pixelSize) {
-		//Innocent until proven guilty
-		dataHasBeenProcessed = true;
-
-		//Read the xml of the vrt
-		XmlDocument xmlDocument = new XmlDocument();
-		xmlDocument.Load(inputVrtFilename);
-
-		//List of the resultant filenames for building the new vrt
-		List<string> outputFilenames = new List<string>();
-
-		//Iterate over all the band nodes
-		foreach (XmlNode node in xmlDocument.DocumentElement.SelectSingleNode("VRTRasterBand").ChildNodes) {
-			//If it is a tif
-			if (node.Name == "ComplexSource") {
-				//Filename of the tif
-				string filename = Directory.GetParent(inputVrtFilename) + "/" + node.SelectSingleNode("SourceFilename").InnerText;
-
-				//Get pixel size in lat long
-				Vector2Double corner = new Vector2Double(0, 0) * pixelSize;
-				Vector2Double projectedCornerCoords = Projection.renderSpaceToProjection(corner);
-				Vector2Double worldCornerCoords = Projection.projectionToLatLongs(projectedCornerCoords);
-
-				Vector2Double other = new Vector2Double(100, 100) * pixelSize;
-				Vector2Double projectedOtherCoords = Projection.renderSpaceToProjection(other);
-				Vector2Double worldOtherCoords = Projection.projectionToLatLongs(projectedOtherCoords);
-
-				//Diff is now the size of a screen pixel in lat longs
-				double diffX = System.Math.Abs(worldCornerCoords.x - worldOtherCoords.x) / 100;
-				double diffY = System.Math.Abs(worldCornerCoords.y - worldOtherCoords.y) / 100;
-
-				//Set warp options
-
-				//Set the size of the pixels to diff, the size of a screen pixel
-				string options = "-tr " + diffX + " " + diffY + " -r sum -wm 500 -overwrite -wo \"INIT_DEST=NO_DATA\"";
-
-				GDALWarpAppOptions warpOptions = genWarpOptionsFromString(options);
-
-				//Output
-				string outputFilename = Application.temporaryCachePath +
-					"/Warped_" + Path.GetFileNameWithoutExtension(filename) + ".tif";
-
-				try {
-					//Warp drive
-					Gdal.Warp(
-						outputFilename,
-						new Dataset[] { dataset }, warpOptions, null, null
-					);
-					//Add it to the vrt list
-					outputFilenames.Add(outputFilename);
-				}
-				catch (System.Exception error) {
-					Debug.Log("An error occured in Gdal.Warp: " + error.Message);
-				}
-			}
-		}
-
-		//Build the vrt and set it as our dataset
-		dataset = Gdal.wrapper_GDALBuildVRT_names(
-			outputVrtFilename,
-			outputFilenames.ToArray(),
-			new GDALBuildVRTOptions(new string[] { "-overwrite" }),
-			null, null
-		);
-
+		dataset = warpVrt(inputVrtFilename, outputVrtFilename, pixelSize, "sum");
 
 		//The population data only has 1 band
 		rasterBand = dataset.GetRasterBand(1);
