@@ -45,7 +45,7 @@ public class Simulation {
 	}
 
 	//Struct that holds all the data needed by the simulation
-	public struct SimulationDataStruct {
+	public unsafe struct SimulationDataStruct {
 		public int width; //Dimensions of input/output textures
 		public int height;
 		public float season; //Unused
@@ -58,12 +58,15 @@ public class Simulation {
 		public bool drawDead;
 		public bool drawRecovered;
 
-		public float maxNumberOfPeople;
+		public fixed float maxNumberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
 		//R0, the number of people an infected person will infect
 		public float r0;
 
 		//The number of times the tick function has been run
 		public uint runCount;
+
+		//The demographic to influence the output pixel color
+		public int drawDemographic;
 	}
 	//Set the default values here
 	public SimulationDataStruct data = new SimulationDataStruct() {
@@ -77,11 +80,11 @@ public class Simulation {
 		drawDead = true,
 		drawRecovered = false,
 
-		maxNumberOfPeople = 0.0f,
-
 		r0 = 2.9f,
 
-		runCount = 0
+		runCount = 0,
+
+		drawDemographic = 0
 	};
 
 	//Cell buffers
@@ -187,6 +190,11 @@ public class Simulation {
 		readCells = new NativeArray<Cell>(data.width * data.height, Allocator.Persistent);
 		writeCells = new NativeArray<Cell>(data.width * data.height, Allocator.Persistent);
 
+		//Set the maximum per demographic to 0
+		for (int q = 0; q < (int)PopulationRasterType.PopulationTypeCount; q++) {
+			data.maxNumberOfPeople[q] = 0;
+		}
+
 		//Init every cell
 		for (int x = 0; x < data.width; x++) {
 			for (int y = 0; y < data.height; y++) {
@@ -200,7 +208,7 @@ public class Simulation {
 
 				//Population
 				for (int q = 0; q < (int)PopulationRasterType.PopulationTypeCount; q++) {
-					Texture2D texture = populationTextures[(int)PopulationRasterType.FullPopulation];
+					Texture2D texture = populationTextures[q];
 					Color32 color = texture.GetPixel(x, y);
 					float numberOfPeople = colorToFloat(color);
 
@@ -213,8 +221,8 @@ public class Simulation {
 					readCell.dead[q] = 0.0f;
 
 					//Keep track of the maximum
-					if (numberOfPeople > data.maxNumberOfPeople) {
-						data.maxNumberOfPeople = numberOfPeople;
+					if (numberOfPeople > data.maxNumberOfPeople[q]) {
+						data.maxNumberOfPeople[q] = numberOfPeople;
 					}
 				}
 				
@@ -294,7 +302,6 @@ public class Simulation {
 				}
 			}
 
-
 			//If we should get infected
 			if (random.NextFloat() < cValue * numInfectedNeighbors && writeCell.susceptible[FullPop] >= 1.0f) {
 				writeCell.infected[FullPop]++;
@@ -305,7 +312,10 @@ public class Simulation {
 			//Compute the color
 			Color color = new Color(Mathf.Sqrt(infectedPercentage), recoveredPercentage, deadPercentage);
 
-			float v = Mathf.Pow(1.0f - (readCell.numberOfPeople[FullPop] / data.maxNumberOfPeople), 2.0f);
+			float v = Mathf.Pow(
+				1.0f - (readCell.numberOfPeople[data.drawDemographic] / data.maxNumberOfPeople[data.drawDemographic]),
+				3.0f
+			);
 			color = Color.Lerp(color, new Color(v,v,v, 1.0f), 0.3f);
 			color.a = 1f;
 			

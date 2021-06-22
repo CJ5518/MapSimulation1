@@ -30,8 +30,9 @@ public class Main : MonoBehaviour {
 
 	Simulation simulation;
 
-	Text editInfoLabel;
+	Text statisticsEditLabel;
 
+	//The demographic we are currently looking at statistics for
 	int targetDemographic = (int)PopulationRasterType.FullPopulation;
 
 	void Start() {
@@ -51,7 +52,7 @@ public class Main : MonoBehaviour {
 
 		//Find some unity components
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
-		editInfoLabel = GameObject.Find("Canvas/EditInfoLabel").GetComponent<Text>();
+		statisticsEditLabel = GameObject.Find("Canvas/StatisticsEditLabel").GetComponent<Text>();
 		thicknessSlider = GameObject.Find("Canvas/ThicknessSlider").GetComponent<Slider>();
 
 		//Set up said components
@@ -121,17 +122,58 @@ public class Main : MonoBehaviour {
 			simulation.tickSimulation();
 		}
 
+		//Change the targetDemographic on keypress
+		if (Input.GetKeyDown(KeyCode.LeftArrow))
+			targetDemographic--;
+		if (Input.GetKeyDown(KeyCode.RightArrow))
+			targetDemographic++;
+
+		//Make sure targetDemographic is in range
+		if (targetDemographic < 0)
+			targetDemographic = (int)PopulationRasterType.PopulationTypeCount - 1;
+		if (targetDemographic >= (int)PopulationRasterType.PopulationTypeCount)
+			targetDemographic = 0;
+
+		simulation.data.drawDemographic = targetDemographic;
+
+		updateStatisticsLabel();
+
+		//Step once on space pressed
 		if (Input.GetKeyDown(KeyCode.Space)) {
 			simulation.tickSimulation();
 		}
+		//Toggle autoplay on q pressed
 		if (Input.GetKeyDown(KeyCode.Q)) autoPlay = !autoPlay;
 
+		//Pixel coord on the draw texture
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
 		int index = simulation.coordToIndex(pixel);
 
 		if (simulation.cellIsValid(index)) {
-			//Report statistics
 
+			Simulation.Cell cell = simulation.readCells[index];
+
+			//Kill cells on click
+			if (Input.GetMouseButtonDown(0)) {
+				cell.infected[targetDemographic]++;
+				cell.susceptible[targetDemographic]--;
+				simulation.readCells[index] = cell;
+			}
+		}
+
+	}
+
+	void OnDestroy() {
+		simulation.deleteNativeArrays();
+	}
+
+	//Updates the statistics label based on the pixel the mouse is over, and targetDemographic
+	unsafe void updateStatisticsLabel() {
+		//Pixel coord on the draw texture
+		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
+		int index = simulation.coordToIndex(pixel);
+
+		if (simulation.cellIsValid(index)) {
 			Simulation.Cell cell = simulation.readCells[index];
 
 			//Gather statistics for the entire thing
@@ -149,9 +191,9 @@ public class Main : MonoBehaviour {
 					totalDead += readCell.dead[targetDemographic];
 				}
 			}
-			
 			//Set the string to the statistics
 			string finalString =
+				((PopulationRasterType)targetDemographic).ToString() + "\n" +
 				Mathf.FloorToInt(cell.susceptible[targetDemographic] + 0.5f) + "\n" +
 				Mathf.FloorToInt(cell.infected[targetDemographic] + 0.5f) + "\n" +
 				Mathf.FloorToInt(cell.recovered[targetDemographic] + 0.5f) + "\n" +
@@ -161,21 +203,8 @@ public class Main : MonoBehaviour {
 				Mathf.FloorToInt(totalInfected + 0.5f) + "\n" +
 				Mathf.FloorToInt(totalRecovered + 0.5f) + "\n" +
 				Mathf.FloorToInt(totalDead + 0.5f) + "\n";
-			editInfoLabel.text = finalString;
-
-			//Kill cells on click
-			if (Input.GetMouseButtonDown(0)) {
-				cell.infected[targetDemographic]++;
-				cell.susceptible[targetDemographic]--;
-				simulation.readCells[index] = cell;
-			}
+			statisticsEditLabel.text = finalString;
 		}
-
-	}
-
-
-	void OnDestroy() {
-		simulation.deleteNativeArrays();
 	}
 
 	//https://stackoverflow.com/a/14998816

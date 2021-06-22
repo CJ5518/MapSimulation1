@@ -7,6 +7,7 @@ using ShapeImporter;
 
 //Renders a shape file using BigLineListRenderer
 //Also provides the shapes in their projected/scaled form
+//Render space must be set up before creating this
 public class ShapeFileRenderer {
 	//The shape file
 	public ShapeFile shapeFile;
