@@ -104,6 +104,8 @@ public class Projection {
 		setRenderSpaceByShapeFile(shapeFile);
 	}
 
+	//Project to render space
+
 	public static Vector2 projectionToRenderSpace(Vector2 point) {
 		//Move to bottom left
 		point -= renderSpaceProjectedMin;
@@ -125,6 +127,8 @@ public class Projection {
 		return point;
 	}
 
+	//Render space to projection
+
 	public static Vector2 renderSpaceToProjection(Vector2 point) {
 		//Scale down
 		point /= renderSpaceScalingFactor;
@@ -135,7 +139,7 @@ public class Projection {
 
 		return point;
 	}
-	//Render space to projected coords
+
 	public static Vector2Double renderSpaceToProjection(Vector2Double point) {
 		//Scale down
 		point /= renderSpaceScalingFactor;
@@ -146,6 +150,16 @@ public class Projection {
 
 		return point;
 	}
+
+	//Render space to lat/longs
+	public static Vector2Double renderSpaceToLatLongs(Vector2Double point) {
+		return projectionToLatLongs(renderSpaceToProjection(point));
+	}
+
+	public static Vector2 renderSpaceToLatLongs(Vector2 point) {
+		return projectionToLatLongs(renderSpaceToProjection(point));
+	}
+
 
 	//Returns pixel size in lat long given pixel size in screen space
 	public static Vector2Double getPixelSizeInLatLong(int pixelSize) {
