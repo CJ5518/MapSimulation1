@@ -79,6 +79,7 @@ public abstract class RasterHandler : IDisposable {
 			(worldPixelSize.x / 5).ToString(), (worldPixelSize.y / 5).ToString(), "sum"
 		));
 
+		//First warp
 		Dataset intermediate = Gdal.Warp(
 			Application.temporaryCachePath + "/temp.tif",
 			datasets, options, null, null
@@ -88,13 +89,13 @@ public abstract class RasterHandler : IDisposable {
 			worldPixelSize.x.ToString(), worldPixelSize.y.ToString(), "sum"
 		));
 
+		//Second warp
 		Dataset ret = Gdal.Warp(outputTifFilename, new Dataset[] { intermediate }, options, null, null);
 
 		intermediate.Dispose();
 
 		return ret;
 	}
-
 
 
 	//Creates the suggested warp options string based on the suggested editable factors

@@ -1,9 +1,5 @@
 //By Carson Rueber
 
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
@@ -17,7 +13,6 @@ using OSGeo.OGR;
 public class Main : MonoBehaviour {
 	//Texture scaling factor
 	int pixelSize = 4;
-
 
 	//Our shape file renderer
 	ShapeFileRenderer shapeFileRenderer;
@@ -45,11 +40,6 @@ public class Main : MonoBehaviour {
 		//Set up render space
 		Projection.setRenderSpaceByShapeFile(shapeFilePath);
 
-		//Set up the shape file renderer
-		shapeFileRenderer = new ShapeFileRenderer(
-			shapeFilePath, GameObject.Find("Canvas/Background").transform
-		);
-
 		//Find some unity components
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
 		statisticsEditLabel = GameObject.Find("Canvas/StatisticsEditLabel").GetComponent<Text>();
@@ -64,13 +54,14 @@ public class Main : MonoBehaviour {
 		Gdal.SetCacheMax((int)System.Math.Pow(2, 30));
 		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
-		Texture2D[] populationTextures = new Texture2D[(int)PopulationRasterType.PopulationTypeCount];
-
 		int width = Screen.width / pixelSize;
 		int height = Screen.height / pixelSize;
 
 		double preprocessTime = 0;
 		double textureLoadTime = 0;
+
+		//Load in the population data
+		Texture2D[] populationTextures = new Texture2D[(int)PopulationRasterType.PopulationTypeCount];
 
 		for (int q = 0; q < populationTextures.Length; q++) {
 			RasterHandler rasterHandler = new PopulationRasterHandler((PopulationRasterType)q);

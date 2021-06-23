@@ -1,10 +1,5 @@
 ﻿//By Carson Rueber
 
-//So right now, pixel size has to be less than 10 or there is a noticebale scar
-//in the data because the rasters become too small
-//Possible solution is to combine the tiny rasters beforehand
-//There is also a scar in maine at pixelSize=8
-
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
@@ -143,7 +138,6 @@ public class PopulationRasterHandler : RasterHandler {
 		texture.Apply();
 		return texture;
 	}
-
 
 
 	//Count the number of people in the given dataset
