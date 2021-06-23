@@ -80,7 +80,7 @@ public abstract class RasterHandler : IDisposable {
 		));
 
 		Dataset intermediate = Gdal.Warp(
-			Application.temporaryCachePath + "/ultraTemp" + (int)UnityEngine.Random.Range(1.0f,100.0f),
+			Application.temporaryCachePath + "/temp.tif",
 			datasets, options, null, null
 		);
 
@@ -88,7 +88,11 @@ public abstract class RasterHandler : IDisposable {
 			worldPixelSize.x.ToString(), worldPixelSize.y.ToString(), "sum"
 		));
 
-		return Gdal.Warp(outputTifFilename, new Dataset[] { intermediate }, options, null, null);
+		Dataset ret = Gdal.Warp(outputTifFilename, new Dataset[] { intermediate }, options, null, null);
+
+		intermediate.Dispose();
+
+		return ret;
 	}
 
 
@@ -103,7 +107,7 @@ public abstract class RasterHandler : IDisposable {
 		string ret = "-tr " + pixelSizeX + " " + pixelSizeY + " -r " + algorithm +
 			" -te " + extentMin.x.ToString() + " " + extentMin.y.ToString() +
 			" " + extentMax.x.ToString() + " " + extentMax.y.ToString() +
-			" -wm 500 -overwrite -co \"TILED=YES\" -co \"COMPRESS=LZW\" -wo \"INIT_DEST=NO_DATA\"";
+			" -wm 500 -multi -overwrite -co \"TILED=YES\" -co \"COMPRESS=LZW\" -wo \"INIT_DEST=NO_DATA\"";
 
 		return ret;
 	}
