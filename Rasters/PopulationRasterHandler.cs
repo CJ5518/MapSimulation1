@@ -47,7 +47,7 @@ public class PopulationRasterHandler : RasterHandler {
 	//Default constructor
 	public PopulationRasterHandler(PopulationRasterType populationType) {
 		inputVrtFilename = populationTypeFilenameLookup[(int)populationType];
-		outputVrtFilename = Application.temporaryCachePath + "/Warped" + populationType.ToString() + ".vrt";
+		outputVrtFilename = Application.temporaryCachePath + "/Warped" + populationType.ToString() + ".tif";
 	}
 
 	//Preprocess the input data
@@ -95,8 +95,6 @@ public class PopulationRasterHandler : RasterHandler {
 		Vector2Double projectedCoords = Projection.renderSpaceToProjection(screenCoords);
 		Vector2Double worldCoords = Projection.projectionToLatLongs(projectedCoords);
 
-
-
 		//For every pixel in the image
 		for (int x = 0; x < texture.width; x++) {
 			for (int y = 0; y < texture.height; y++) {
@@ -104,7 +102,8 @@ public class PopulationRasterHandler : RasterHandler {
 				texture.SetPixel(x, y, Color.Lerp(Color.clear, Color.black, 0.1f));
 
 				//Get raster coords from the world coords
-				Vector2Int rasterCoords = (Vector2Int)worldToRasterSpace(worldCoords, dataset);
+				Vector2Int rasterCoords = (Vector2Int)
+					(worldToRasterSpace(worldCoords, dataset) + new Vector2Double(0.5,0.5));
 				rasterCoords.x += x;
 				rasterCoords.y -= y;
 
