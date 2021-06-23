@@ -76,7 +76,7 @@ public abstract class RasterHandler : IDisposable {
 		Vector2Double worldPixelSize = Projection.getPixelSizeInLatLong(pixelSize);
 
 		GDALWarpAppOptions options = genWarpOptionsFromString(buildSuggestedWarpOptionsString(
-			(worldPixelSize.x / 10).ToString(), (worldPixelSize.y / 10).ToString(), "sum"
+			(worldPixelSize.x / 5).ToString(), (worldPixelSize.y / 5).ToString(), "sum"
 		));
 
 		Dataset intermediate = Gdal.Warp(
