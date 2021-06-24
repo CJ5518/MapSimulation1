@@ -14,12 +14,6 @@ public class Main : MonoBehaviour {
 	//Texture scaling factor
 	int pixelSize = 4;
 
-	//Our shape file renderer
-	ShapeFileRenderer shapeFileRenderer;
-
-	//Controls the thickness of the lines of the shape file renderer
-	Slider thicknessSlider;
-
 	//The background image
 	MovableRawImage backgroundMovableImage;
 
@@ -43,11 +37,6 @@ public class Main : MonoBehaviour {
 		//Find some unity components
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
 		statisticsEditLabel = GameObject.Find("Canvas/StatisticsEditLabel").GetComponent<Text>();
-		thicknessSlider = GameObject.Find("Canvas/ThicknessSlider").GetComponent<Slider>();
-
-		//Set up said components
-		thicknessSlider.value = 1.0f;
-		thicknessSlider.onValueChanged.AddListener(OnThicknessSliderValueChanged);
 
 		//Init GDAL
 		Gdal.AllRegister();
@@ -93,11 +82,6 @@ public class Main : MonoBehaviour {
 
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + 
 			" seconds to run the Main.cs start function");
-	}
-
-
-	void OnThicknessSliderValueChanged(float value) {
-		shapeFileRenderer.bigLineListRenderer.setLineThickness(value);
 	}
 
 	//Some vars for testing purposes
