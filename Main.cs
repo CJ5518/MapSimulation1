@@ -2,6 +2,8 @@
 
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI.Extensions;
 using Unity.Jobs;
 using Unity.Collections;
@@ -21,6 +23,21 @@ public class Main : MonoBehaviour {
 
 	Text statisticsEditLabel;
 
+	//Slider/button combos
+	Slider r0Slider;
+	Text r0Text;
+
+	Slider mortalitySlider;
+	Text mortalityText;
+
+	//Toggles
+	Toggle drawInfectedToggle;
+	Toggle drawRecoveredToggle;
+	Toggle drawDeadToggle;
+
+	Toggle drawProportionToggle;
+
+
 	//The demographic we are currently looking at statistics for
 	int targetDemographic = (int)PopulationRasterType.FullPopulation;
 
@@ -37,6 +54,19 @@ public class Main : MonoBehaviour {
 		//Find some unity components
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
 		statisticsEditLabel = GameObject.Find("Canvas/StatisticsEditLabel").GetComponent<Text>();
+
+		r0Slider = GameObject.Find("Canvas/R0Slider").GetComponent<Slider>();
+		r0Text = GameObject.Find("Canvas/R0Text").GetComponent<Text>();
+
+		mortalitySlider = GameObject.Find("Canvas/MortalitySlider").GetComponent<Slider>();
+		mortalityText = GameObject.Find("Canvas/MortalityText").GetComponent<Text>();
+
+		drawInfectedToggle = GameObject.Find("Canvas/DrawInfectedToggle").GetComponent<Toggle>();
+		drawRecoveredToggle = GameObject.Find("Canvas/DrawRecoveredToggle").GetComponent<Toggle>();
+		drawDeadToggle = GameObject.Find("Canvas/DrawDeadToggle").GetComponent<Toggle>();
+
+		drawProportionToggle = GameObject.Find("Canvas/DrawProportionToggle").GetComponent<Toggle>();
+
 
 		//Init GDAL
 		Gdal.AllRegister();
@@ -90,12 +120,23 @@ public class Main : MonoBehaviour {
 	bool autoPlay = false;
 	float totalSusceptible, totalInfected, totalRecovered, totalDead = 0.0f;
 	private unsafe void Update() {
+		//Sliders and buttons
 
-		//Tick the simulation every now and then
-		if (Time.realtimeSinceStartup - lastSimTime >= 0.1f && autoPlay) {
-			lastSimTime = Time.realtimeSinceStartup;
-			simulation.tickSimulation();
-		}
+		//r0
+		r0Text.text = "r0: " + r0Slider.value.ToString("f2");
+		simulation.data.r0 = r0Slider.value;
+
+		//Mortality
+		mortalityText.text = "Mortality Rate: " + mortalitySlider.value.ToString("f2");
+		simulation.data.mortalityRate = mortalitySlider.value;
+
+		//Draw toggles
+		simulation.data.drawRecovered = drawRecoveredToggle.isOn;
+		simulation.data.drawInfected = drawInfectedToggle.isOn;
+		simulation.data.drawDead = drawDeadToggle.isOn;
+
+		simulation.data.drawProportion = drawProportionToggle.isOn;
+
 
 		//Change the targetDemographic on keypress
 		if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -113,13 +154,6 @@ public class Main : MonoBehaviour {
 
 		updateStatisticsLabel();
 
-		//Step once on space pressed
-		if (Input.GetKeyDown(KeyCode.Space)) {
-			simulation.tickSimulation();
-		}
-		//Toggle autoplay on q pressed
-		if (Input.GetKeyDown(KeyCode.Q)) autoPlay = !autoPlay;
-
 		//Pixel coord on the draw texture
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
 		int index = simulation.coordToIndex(pixel);
@@ -129,13 +163,25 @@ public class Main : MonoBehaviour {
 			Simulation.Cell cell = simulation.readCells[index];
 
 			//Kill cells on click
-			if (Input.GetMouseButtonDown(0)) {
+			if (Input.GetMouseButtonDown(0) && EventSystem.current.currentSelectedGameObject == null) {
 				cell.infected[targetDemographic]++;
 				cell.susceptible[targetDemographic]--;
 				simulation.readCells[index] = cell;
 			}
 		}
 
+		//Step once on space pressed
+		if (Input.GetKeyDown(KeyCode.Space)) {
+			simulation.tickSimulation();
+		}
+		//Toggle autoplay on q pressed
+		if (Input.GetKeyDown(KeyCode.Q)) autoPlay = !autoPlay;
+
+		//Tick the simulation every now and then
+		if (Time.realtimeSinceStartup - lastSimTime >= 0.1f && autoPlay) {
+			lastSimTime = Time.realtimeSinceStartup;
+			simulation.tickSimulation();
+		}
 	}
 
 	void OnDestroy() {

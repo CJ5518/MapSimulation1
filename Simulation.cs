@@ -54,13 +54,19 @@ public class Simulation {
 		public Color deadColor;
 		public Color recoveredColor;
 
+		//Should we allow these factors to be involved in the color of the pixels
 		public bool drawInfected;
 		public bool drawDead;
 		public bool drawRecovered;
+		//Draw proportionally to the cell or not, i don't really know what this means/does/why
+		//It is but the boss requested it so here we are
+		public bool drawProportion;
 
 		public fixed float maxNumberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
 		//R0, the number of people an infected person will infect
 		public float r0;
+		//Percentage of people who die from the disease
+		public float mortalityRate;
 
 		//The number of times the tick function has been run
 		public uint runCount;
@@ -81,6 +87,7 @@ public class Simulation {
 		drawRecovered = false,
 
 		r0 = 2.9f,
+		mortalityRate = 0.1f,
 
 		runCount = 0,
 
@@ -92,6 +99,11 @@ public class Simulation {
 	//Externally: writeCells is fairly useless, read/write to readCells if you want to read/change state
 	public NativeArray<Cell> writeCells;
 	public NativeArray<Cell> readCells;
+
+
+	//Random seeds for the simulation, because UnityEngine.Random doesn't work in jobs
+	//And we need seeds for the other random generators
+	private NativeArray<uint> randomSeeds;
 
 
 	//Constructor
@@ -121,7 +133,8 @@ public class Simulation {
 			drawTextureData = drawTexture.GetRawTextureData<Color32>(),
 			data = data,
 			textureDataPointers = textureDataPointers,
-			textureMetadataArray = textureMetadataArray
+			textureMetadataArray = textureMetadataArray,
+			randomSeeds = randomSeeds
 		};
 
 		JobHandle jobHandle = job.Schedule(data.width * data.height, 13755);
@@ -148,10 +161,11 @@ public class Simulation {
 		writeCells.Dispose();
 		textureDataPointers.Dispose();
 		textureMetadataArray.Dispose();
+		randomSeeds.Dispose();
 	}
 
 	//Init everything
-	public void Init() {
+	public unsafe void Init() {
 		//Native arrays
 		textureMetadataArray = new NativeArray<TextureMetadata>(simulationTextures.Length, Allocator.Persistent);
 		textureDataPointers = new NativeArray<IntPtr>(simulationTextures.Length, Allocator.Persistent);
@@ -180,6 +194,15 @@ public class Simulation {
 				drawTexture.SetPixel(x, y, backgroundColor);
 			}
 		}
+
+		//Init the random seeds
+		randomSeeds = new NativeArray<uint>(data.width * data.height, Allocator.Persistent);
+
+		for (int q = 0; q < randomSeeds.Length; q++) {
+			int val = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+			randomSeeds[q] = *(uint*)&val;
+		}
+
 		//Fire off a different init function
 		InitCells();
 	}
@@ -250,9 +273,10 @@ public class Simulation {
 		public NativeArray<IntPtr> textureDataPointers;
 		[ReadOnly]
 		public NativeArray<TextureMetadata> textureMetadataArray;
+		[ReadOnly]
+		public NativeArray<uint> randomSeeds;
 
 		const int FullPop = (int)PopulationRasterType.FullPopulation;
-		const float cValue = 0.22f;
 
 		//The function that gets called for every index
 		public unsafe void Execute(int index) {
@@ -270,47 +294,88 @@ public class Simulation {
 			float recoveredPercentage = readCell.recovered[FullPop] / readCell.numberOfPeople[FullPop];
 
 			//Random numbers
-			Unity.Mathematics.Random random = new Unity.Mathematics.Random((uint)index * data.runCount);
+			Unity.Mathematics.Random random = new Unity.Mathematics.Random(randomSeeds[index] * data.runCount);
 
 			//Spread in this cell, because of this cell
 			if (readCell.infected[FullPop] >= 1.0f) {
 				//Infection
-				float newInfected = round(Mathf.Clamp(data.r0 * readCell.infected[FullPop], 0, readCell.susceptible[FullPop]));
+				float newInfected = Mathf.Clamp(data.r0 * readCell.infected[FullPop], 0, readCell.susceptible[FullPop]);
 				float oldInfected = readCell.infected[FullPop];
+
+				//Fix newInfected
+				newInfected += (random.NextFloat() < getFractionalPart(newInfected) ? 1.0f : 0.0f);
+
+				//Death and recovery
+				float newRecovered = oldInfected * (1.0f - data.mortalityRate);
+				float newDead = oldInfected * data.mortalityRate;
+
+				//Handle fractions
+				if (getFractionalPart(newRecovered) != 0.0f || getFractionalPart(newDead) != 0.0f) {
+					//Truncate the values
+					newRecovered = (int)newRecovered;
+					newDead = (int)newDead;
+
+					//Give the dropped person to one of the categories
+					if (random.NextFloat() < data.mortalityRate)
+						newDead++;
+					else
+						newRecovered++;
+				}
 
 				//Update the values
 				writeCell.infected[FullPop] = newInfected;
 				writeCell.susceptible[FullPop] -= newInfected;
-				writeCell.recovered[FullPop] += oldInfected;
+				writeCell.recovered[FullPop] += newRecovered;
+				writeCell.dead[FullPop] += newDead;
 
 			}
 
-			//Number of people a cell needs to spread the disease
-			float spreadThreshold = 1.0f;
-
-			//The number of neighbors that can spread the virus to us
-			int numInfectedNeighbors = 0;
+			float chanceToSpread = 0.0f;
 
 			//Spread in this cell, because of other cells
 			foreach (int neighborIdx in getNeighborIndices(index)) {
 				if (cellIsValid(neighborIdx)) {
 					Cell neighborCell = readCells[neighborIdx];
 
-					if (neighborCell.infected[FullPop] >= spreadThreshold) {
-						numInfectedNeighbors++;
-					}
+					float newSpreaders = neighborCell.infected[FullPop] * data.r0;
+					chanceToSpread += newSpreaders / readCell.susceptible[FullPop];
 				}
 			}
 
-			//If we should get infected
-			if (random.NextFloat() < cValue * numInfectedNeighbors && writeCell.susceptible[FullPop] >= 1.0f) {
-				writeCell.infected[FullPop]++;
-				writeCell.susceptible[FullPop]--;
+			float newArrivals = (int)chanceToSpread + (random.NextFloat() < getFractionalPart(chanceToSpread) ? 1.0f : 0.0f);
+
+
+			if (writeCell.susceptible[FullPop] >= newArrivals) {
+				writeCell.infected[FullPop] += newArrivals;
+				writeCell.susceptible[FullPop] -= newArrivals;
+			}
+			else {
+				writeCell.infected[FullPop] = writeCell.susceptible[FullPop];
+				writeCell.susceptible[FullPop] = 0;
 			}
 
+			writeCell.infected[FullPop] = Mathf.Clamp(writeCell.infected[FullPop], 0, float.MaxValue);
 
 			//Compute the color
-			Color color = new Color(Mathf.Sqrt(infectedPercentage), recoveredPercentage, deadPercentage);
+			Color color;
+
+			if (data.drawProportion) {
+				color = new Color(infectedPercentage, recoveredPercentage, deadPercentage);
+			}
+			else {
+				color = new Color(
+					writeCell.infected[FullPop] / data.maxNumberOfPeople[FullPop],
+					writeCell.recovered[FullPop] / data.maxNumberOfPeople[FullPop],
+					writeCell.dead[FullPop] / data.maxNumberOfPeople[FullPop]
+				);
+			}
+
+			if (!data.drawInfected)
+				color.r = 0.0f;
+			if (!data.drawRecovered)
+				color.g = 0.0f;
+			if (!data.drawDead)
+				color.b = 0.0f;
 
 			float v = Mathf.Pow(
 				1.0f - (readCell.numberOfPeople[data.drawDemographic] / data.maxNumberOfPeople[data.drawDemographic]),
@@ -344,6 +409,10 @@ public class Simulation {
 		//Rounds a float
 		public float round(float n) {
 			return Mathf.Floor(n + 0.5f);
+		}
+		//Gets the fractional part of a float, [0,1)
+		public float getFractionalPart(float n) {
+			return n - (int)n;
 		}
 	}
 
