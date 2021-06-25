@@ -164,6 +164,7 @@ public class Main : MonoBehaviour {
 
 			//Kill cells on click
 			if (Input.GetMouseButtonDown(0) && EventSystem.current.currentSelectedGameObject == null) {
+				Debug.Log(cell.susceptible[targetDemographic]);
 				cell.infected[targetDemographic]++;
 				cell.susceptible[targetDemographic]--;
 				simulation.readCells[index] = cell;

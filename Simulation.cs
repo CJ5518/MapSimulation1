@@ -288,11 +288,6 @@ public class Simulation {
 			//Color32* textureDataPointer = (Color32*)textureDataPointers[texIdx];
 			//Then just use it as an array
 
-			//Percentages
-			float infectedPercentage = readCell.infected[FullPop] / readCell.numberOfPeople[FullPop];
-			float deadPercentage = readCell.dead[FullPop] / readCell.numberOfPeople[FullPop];
-			float recoveredPercentage = readCell.recovered[FullPop] / readCell.numberOfPeople[FullPop];
-
 			//Random numbers
 			Unity.Mathematics.Random random = new Unity.Mathematics.Random(randomSeeds[index] * data.runCount);
 
@@ -338,23 +333,22 @@ public class Simulation {
 					Cell neighborCell = readCells[neighborIdx];
 
 					float newSpreaders = neighborCell.infected[FullPop] * data.r0;
-					chanceToSpread += newSpreaders / readCell.susceptible[FullPop];
+
+					chanceToSpread += newSpreaders / 400.0f;
 				}
 			}
 
 			float newArrivals = (int)chanceToSpread + (random.NextFloat() < getFractionalPart(chanceToSpread) ? 1.0f : 0.0f);
 
 
-			if (writeCell.susceptible[FullPop] >= newArrivals) {
-				writeCell.infected[FullPop] += newArrivals;
-				writeCell.susceptible[FullPop] -= newArrivals;
-			}
-			else {
-				writeCell.infected[FullPop] = writeCell.susceptible[FullPop];
-				writeCell.susceptible[FullPop] = 0;
-			}
+			writeCell.infected[FullPop] += newArrivals;
+			writeCell.susceptible[FullPop] -= newArrivals;
 
-			writeCell.infected[FullPop] = Mathf.Clamp(writeCell.infected[FullPop], 0, float.MaxValue);
+
+			//Percentages
+			float infectedPercentage = writeCell.infected[FullPop] / writeCell.numberOfPeople[FullPop];
+			float deadPercentage = writeCell.dead[FullPop] / writeCell.numberOfPeople[FullPop];
+			float recoveredPercentage = writeCell.recovered[FullPop] / writeCell.numberOfPeople[FullPop];
 
 			//Compute the color
 			Color color;
@@ -405,14 +399,32 @@ public class Simulation {
 		public bool cellIsValid(int index) {
 			return index >= 0 && index < (data.width * data.height) && readCells[index].inMask;
 		}
-		
+
+		//TODO: Update to use demographic
+		public unsafe void infectReadCell(int index, int infectionCount) {
+			int demographic = (int)PopulationRasterType.FullPopulation;
+
+			Cell readCell = readCells[index];
+			int num = Mathf.Clamp(infectionCount, 0, (int)readCell.susceptible[demographic]);
+			readCell.susceptible[demographic] -= num;
+			readCell.infected[demographic] += num;
+		}
+		public unsafe void infectWriteCell(int index, int infectionCount) {
+			int demographic = (int)PopulationRasterType.FullPopulation;
+
+			Cell writeCell = writeCells[index];
+			int num = Mathf.Clamp(infectionCount, 0, (int)writeCell.susceptible[demographic]);
+			writeCell.susceptible[demographic] -= num;
+			writeCell.infected[demographic] += num;
+		}
+
 		//Rounds a float
 		public float round(float n) {
 			return Mathf.Floor(n + 0.5f);
 		}
 		//Gets the fractional part of a float, [0,1)
 		public float getFractionalPart(float n) {
-			return n - (int)n;
+			return n - Mathf.FloorToInt(n);
 		}
 	}
 
