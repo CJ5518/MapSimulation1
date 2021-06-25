@@ -30,11 +30,11 @@ public class Simulation {
 	//Cell struct, contains all the individual information for a cell
 	public unsafe struct Cell {
 		//buffers for the different counts of people in this cell
-		public fixed float numberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float susceptible[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float infected[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float recovered[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float dead[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed int numberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed int susceptible[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed int infected[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed int recovered[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed int dead[(int)PopulationRasterType.PopulationTypeCount];
 
 		public bool inMask; //Are we in the mask
 	}
@@ -61,8 +61,9 @@ public class Simulation {
 		//Draw proportionally to the cell or not, i don't really know what this means/does/why
 		//It is but the boss requested it so here we are
 		public bool drawProportion;
-
-		public fixed float maxNumberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
+		
+		//Max number of people in a cell per demographic
+		public fixed int maxNumberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
 		//R0, the number of people an infected person will infect
 		public float r0;
 		//Percentage of people who die from the disease
@@ -233,20 +234,23 @@ public class Simulation {
 				for (int q = 0; q < (int)PopulationRasterType.PopulationTypeCount; q++) {
 					Texture2D texture = populationTextures[q];
 					Color32 color = texture.GetPixel(x, y);
-					float numberOfPeople = colorToFloat(color);
-
-					if ((int)numberOfPeople == 0) readCell.inMask = false;
+					int numberOfPeople = colorToInt(color);
 
 					readCell.numberOfPeople[q] = numberOfPeople;
 					readCell.susceptible[q] = numberOfPeople;
-					readCell.infected[q] = 0.0f;
-					readCell.recovered[q] = 0.0f;
-					readCell.dead[q] = 0.0f;
+					readCell.infected[q] = 0;
+					readCell.recovered[q] = 0;
+					readCell.dead[q] = 0;
 
 					//Keep track of the maximum
 					if (numberOfPeople > data.maxNumberOfPeople[q]) {
 						data.maxNumberOfPeople[q] = numberOfPeople;
 					}
+				}
+
+				//If there's nobody here
+				if (readCell.numberOfPeople[(int)PopulationRasterType.FullPopulation] == 0) {
+					readCell.inMask = false;
 				}
 				
 				//Write back the cell
@@ -292,7 +296,7 @@ public class Simulation {
 			Unity.Mathematics.Random random = new Unity.Mathematics.Random(randomSeeds[index] * data.runCount);
 
 			//Spread in this cell, because of this cell
-			if (readCell.infected[FullPop] >= 1.0f) {
+			if (readCell.infected[FullPop] >= 1) {
 				//Infection
 				float newInfected = Mathf.Clamp(data.r0 * readCell.infected[FullPop], 0, readCell.susceptible[FullPop]);
 				float oldInfected = readCell.infected[FullPop];
@@ -318,11 +322,23 @@ public class Simulation {
 				}
 
 				//Update the values
-				writeCell.infected[FullPop] = newInfected;
-				writeCell.susceptible[FullPop] -= newInfected;
-				writeCell.recovered[FullPop] += newRecovered;
-				writeCell.dead[FullPop] += newDead;
+				writeCell.infected[FullPop] = (int)round(newInfected);
+				writeCell.susceptible[FullPop] -= (int)round(newInfected);
+				writeCell.recovered[FullPop] += (int)round(newRecovered);
+				writeCell.dead[FullPop] += (int)round(newDead);
 
+			}
+
+			//Collect neighbor stats
+
+			int maxNeighborSize = 0;
+
+			foreach (int neighborIdx in getNeighborIndices(index)) {
+				if (cellIsValid(neighborIdx)) {
+					Cell neighborCell = readCells[neighborIdx];
+					if (neighborCell.numberOfPeople[FullPop] > maxNeighborSize)
+						maxNeighborSize = neighborCell.numberOfPeople[FullPop];
+				}
 			}
 
 			float chanceToSpread = 0.0f;
@@ -333,22 +349,22 @@ public class Simulation {
 					Cell neighborCell = readCells[neighborIdx];
 
 					float newSpreaders = neighborCell.infected[FullPop] * data.r0;
+					float relativeNeighborSize = (float)neighborCell.numberOfPeople[FullPop] / maxNeighborSize;
+					float ourRelativeSize = (float)readCell.numberOfPeople[FullPop] / maxNeighborSize;
 
-					chanceToSpread += newSpreaders / 400.0f;
+					chanceToSpread += (newSpreaders * relativeNeighborSize * ourRelativeSize) / 4.0f;
 				}
 			}
+			//Handle the actual infection
+			int newArrivals = (int)chanceToSpread + (random.NextFloat() < getFractionalPart(chanceToSpread) ? 1 : 0);
 
-			float newArrivals = (int)chanceToSpread + (random.NextFloat() < getFractionalPart(chanceToSpread) ? 1.0f : 0.0f);
-
-
-			writeCell.infected[FullPop] += newArrivals;
-			writeCell.susceptible[FullPop] -= newArrivals;
+			writeCell = infectCell(writeCell, newArrivals);
 
 
 			//Percentages
-			float infectedPercentage = writeCell.infected[FullPop] / writeCell.numberOfPeople[FullPop];
-			float deadPercentage = writeCell.dead[FullPop] / writeCell.numberOfPeople[FullPop];
-			float recoveredPercentage = writeCell.recovered[FullPop] / writeCell.numberOfPeople[FullPop];
+			float infectedPercentage = (float)writeCell.infected[FullPop] / writeCell.numberOfPeople[FullPop];
+			float deadPercentage = (float)writeCell.dead[FullPop] / writeCell.numberOfPeople[FullPop];
+			float recoveredPercentage = (float)writeCell.recovered[FullPop] / writeCell.numberOfPeople[FullPop];
 
 			//Compute the color
 			Color color;
@@ -357,11 +373,7 @@ public class Simulation {
 				color = new Color(infectedPercentage, recoveredPercentage, deadPercentage);
 			}
 			else {
-				color = new Color(
-					writeCell.infected[FullPop] / data.maxNumberOfPeople[FullPop],
-					writeCell.recovered[FullPop] / data.maxNumberOfPeople[FullPop],
-					writeCell.dead[FullPop] / data.maxNumberOfPeople[FullPop]
-				);
+				color = new Color(infectedPercentage, recoveredPercentage, deadPercentage);
 			}
 
 			if (!data.drawInfected)
@@ -372,7 +384,7 @@ public class Simulation {
 				color.b = 0.0f;
 
 			float v = Mathf.Pow(
-				1.0f - (readCell.numberOfPeople[data.drawDemographic] / data.maxNumberOfPeople[data.drawDemographic]),
+				1.0f - ((float)readCell.numberOfPeople[data.drawDemographic] / data.maxNumberOfPeople[data.drawDemographic]),
 				3.0f
 			);
 			color = Color.Lerp(color, new Color(v,v,v, 1.0f), 0.3f);
@@ -409,13 +421,13 @@ public class Simulation {
 			readCell.susceptible[demographic] -= num;
 			readCell.infected[demographic] += num;
 		}
-		public unsafe void infectWriteCell(int index, int infectionCount) {
+		public unsafe Cell infectCell(Cell cell, int infectionCount) {
 			int demographic = (int)PopulationRasterType.FullPopulation;
 
-			Cell writeCell = writeCells[index];
-			int num = Mathf.Clamp(infectionCount, 0, (int)writeCell.susceptible[demographic]);
-			writeCell.susceptible[demographic] -= num;
-			writeCell.infected[demographic] += num;
+			int num = Mathf.Clamp(infectionCount, 0, cell.susceptible[demographic]);
+			cell.susceptible[demographic] -= num;
+			cell.infected[demographic] += num;
+			return cell;
 		}
 
 		//Rounds a float

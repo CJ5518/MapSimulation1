@@ -94,7 +94,7 @@ public class PopulationRasterHandler : RasterHandler {
 		for (int x = 0; x < texture.width; x++) {
 			for (int y = 0; y < texture.height; y++) {
 				//Default texture color
-				texture.SetPixel(x, y, Color.Lerp(Color.clear, Color.black, 0.1f));
+				texture.SetPixel(x, y, new Color(0,0,0,0));
 
 				//Get raster coords from the world coords
 				Vector2Int rasterCoords = (Vector2Int)
@@ -129,10 +129,10 @@ public class PopulationRasterHandler : RasterHandler {
 				}
 
 				//Output the color
-				Color32 color = Simulation.floatToColor((float)numberOfPeople);
+				Color32 color = Simulation.intToColor((int)System.Math.Floor(numberOfPeople + 0.5));
 
+				//Just to make sure the color is set just right
 				texture.SetPixels32(x, y, 1, 1, new Color32[] { color });
-
 			}
 		}
 		texture.Apply();

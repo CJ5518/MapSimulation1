@@ -108,7 +108,7 @@ public abstract class RasterHandler : IDisposable {
 		string ret = "-tr " + pixelSizeX + " " + pixelSizeY + " -r " + algorithm +
 			" -te " + extentMin.x.ToString() + " " + extentMin.y.ToString() +
 			" " + extentMax.x.ToString() + " " + extentMax.y.ToString() +
-			" -wm 500 -multi -overwrite -co \"TILED=YES\" -co \"COMPRESS=LZW\" -wo \"INIT_DEST=NO_DATA\"";
+			" -wm 500 -multi -overwrite -tap -et 0 -co \"TILED=YES\" -co \"COMPRESS=LZW\" -wo \"INIT_DEST=NO_DATA\"";
 
 		return ret;
 	}

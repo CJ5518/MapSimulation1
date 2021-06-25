@@ -118,7 +118,7 @@ public class Main : MonoBehaviour {
 	float lastSimTime = -100.0f;
 	float lastStatsTime = -100.0f;
 	bool autoPlay = false;
-	float totalSusceptible, totalInfected, totalRecovered, totalDead = 0.0f;
+	int totalSusceptible, totalInfected, totalRecovered, totalDead = 0;
 	private unsafe void Update() {
 		//Sliders and buttons
 
@@ -201,10 +201,10 @@ public class Main : MonoBehaviour {
 			//Gather statistics for the entire thing
 			if (Time.realtimeSinceStartup - lastStatsTime >= 0.01f) {
 				lastStatsTime = Time.realtimeSinceStartup;
-				totalSusceptible = 0.0f;
-				totalInfected = 0.0f;
-				totalRecovered = 0.0f;
-				totalDead = 0.0f;
+				totalSusceptible = 0;
+				totalInfected = 0;
+				totalRecovered = 0;
+				totalDead = 0;
 				for (int q = 0; q < simulation.readCells.Length; q++) {
 					Simulation.Cell readCell = simulation.readCells[q];
 					totalSusceptible += readCell.susceptible[targetDemographic];
@@ -216,15 +216,15 @@ public class Main : MonoBehaviour {
 			//Set the string to the statistics
 			string finalString =
 				((PopulationRasterType)targetDemographic).ToString() + "\n" +
-				Mathf.FloorToInt(cell.susceptible[targetDemographic] + 0.5f) + "\n" +
-				Mathf.FloorToInt(cell.infected[targetDemographic] + 0.5f) + "\n" +
-				Mathf.FloorToInt(cell.recovered[targetDemographic] + 0.5f) + "\n" +
-				Mathf.FloorToInt(cell.dead[targetDemographic] + 0.5f) + "\n" +
+				cell.susceptible[targetDemographic] + "\n" +
+				cell.infected[targetDemographic] + "\n" +
+				cell.recovered[targetDemographic] + "\n" +
+				cell.dead[targetDemographic] + "\n" +
 				"Totals:" + "\n" +
-				Mathf.FloorToInt(totalSusceptible + 0.5f) + "\n" +
-				Mathf.FloorToInt(totalInfected + 0.5f) + "\n" +
-				Mathf.FloorToInt(totalRecovered + 0.5f) + "\n" +
-				Mathf.FloorToInt(totalDead + 0.5f) + "\n";
+				totalSusceptible + "\n" +
+				totalInfected + "\n" +
+				totalRecovered + "\n" +
+				totalDead + "\n";
 			statisticsEditLabel.text = finalString;
 		}
 	}
