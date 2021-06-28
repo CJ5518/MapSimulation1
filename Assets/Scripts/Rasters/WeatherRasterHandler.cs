@@ -5,7 +5,9 @@ using OSGeo.GDAL;
 using System.Xml;
 
 class WeatherRasterHandler : RasterHandler {
-
+	public override bool downloadData() {
+		throw new System.NotImplementedException();
+	}
 	public override bool preprocessData(int pixelSize) {
 		throw new System.NotImplementedException();
 	}

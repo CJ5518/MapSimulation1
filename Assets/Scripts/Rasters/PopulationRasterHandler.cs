@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OSGeo.GDAL;
 using System.Xml;
+using NLua;
 
 //Enum for the different population rasters
 public enum PopulationRasterType {
@@ -25,7 +26,7 @@ public class PopulationRasterHandler : RasterHandler {
 	string outputVrtFilename;
 
 	//Maps from the enum to the vrt files
-	//These should be changed to something within Unity when we do a release
+	//Starts at a Data folder so you'll need to prepend the rest of the file path
 	private string[] populationTypeFilenameLookup = {
 		@"F:\Data\tif\ChildrenUnderFive\ChildrenUnderFive.vrt",
 		@"F:\Data\tif\ElderlySixtyPlus\ElderlySixtyPlus.vrt",
@@ -45,8 +46,18 @@ public class PopulationRasterHandler : RasterHandler {
 		outputVrtFilename = Application.temporaryCachePath + "/Warped" + populationType.ToString() + ".tif";
 	}
 
+
+
 	//Preprocess the input data
 	public override bool preprocessData(int pixelSize) {
+		//First check if the data has already been processed
+		bool dataHasAlreadyBeenProcessed = false;
+
+		Lua lua = new Lua();
+		lua.LoadCLRPackage();
+		lua.DoFile(@"F:\UnityProjects\MapSimulation1\Assets\Scripts\Lua\RasterUtilities.lua");
+		lua.Dispose();
+
 		dataset = warpVrt(inputVrtFilename, outputVrtFilename, pixelSize, "sum");
 
 		//The population data only has 1 band
@@ -55,12 +66,17 @@ public class PopulationRasterHandler : RasterHandler {
 		//Collect statistics while we're here
 		rasterBand.GetStatistics(0, 1, out datasetMin, out datasetMax, out datasetMean, out datasetStdDev);
 
+
 		//If the above lines didn't error, things probably worked out
 		//Isn't my error handling just perfect?
 		dataHasBeenProcessed = true;
 
 		//Success or failure
 		return dataHasBeenProcessed;
+	}
+
+	public override bool downloadData() {
+		throw new System.NotImplementedException();
 	}
 
 	public override Texture2D loadToTexture(int width, int height) {

@@ -26,6 +26,9 @@ public abstract class RasterHandler : IDisposable {
 	//Has the data been processed and is ready to load into a texture?
 	protected bool dataHasBeenProcessed;
 
+	//Downloads missing data
+	public abstract bool downloadData();
+
 	//Preprocess the data
 	public abstract bool preprocessData(int pixelSize);
 
