@@ -36,95 +36,12 @@ public abstract class RasterHandler : IDisposable {
 	//ShapeFileRenderer is needed because we do stuff in screen space
 	public abstract Texture2D loadToTexture(int width, int height);
 
+
+	//Disposes of the dataset
 	virtual public void Dispose() {
 		if (dataset != null) {
 			dataset.Dispose();
 		}
-	}
-
-	
-
-	//Warps a vrt file by first warping all of the files listed in it
-	//Returns the resultant dataset
-	//Assumes all the tifs are in the same folder as the vrt
-	//TODO: Change that, there is a thing in the xml that says whether or not the tif path is
-	//relative to the vrt or not
-	protected static Dataset warpVrt(string inputVrtFilename, string outputTifFilename, int pixelSize, string algorithm) {
-		
-		//Read the xml of the vrt
-		XmlDocument xmlDocument = new XmlDocument();
-		xmlDocument.Load(inputVrtFilename);
-
-		//List of the resultant filenames for building the new vrt
-		List<string> inputFilenames = new List<string>();
-
-		//Iterate over all the band nodes
-		foreach (XmlNode node in xmlDocument.DocumentElement.SelectSingleNode("VRTRasterBand").ChildNodes) {
-			//If it is a tif
-			if (node.Name == "ComplexSource") {
-				//Filename of the tif
-				string filename = Directory.GetParent(inputVrtFilename) + "/" + node.SelectSingleNode("SourceFilename").InnerText;
-
-				inputFilenames.Add(filename);
-			}
-		}
-
-		Dataset[] datasets = new Dataset[inputFilenames.Count];
-		for (int q = 0; q < inputFilenames.Count; q++) {
-			datasets[q] = Gdal.Open(inputFilenames[q], Access.GA_ReadOnly);
-		}
-
-		//Warp drive
-
-		Vector2Double worldPixelSize = Projection.getPixelSizeInLatLong(pixelSize);
-
-		GDALWarpAppOptions options = genWarpOptionsFromString(buildSuggestedWarpOptionsString(
-			(worldPixelSize.x / 5).ToString(), (worldPixelSize.y / 5).ToString(), "sum"
-		));
-
-		//First warp
-		Dataset intermediate = Gdal.Warp(
-			Application.temporaryCachePath + "/temp.tif",
-			datasets, options, null, null
-		);
-
-		options = genWarpOptionsFromString(buildSuggestedWarpOptionsString(
-			worldPixelSize.x.ToString(), worldPixelSize.y.ToString(), "sum"
-		));
-
-		//Second warp
-		Dataset ret = Gdal.Warp(outputTifFilename, new Dataset[] { intermediate }, options, null, null);
-
-		intermediate.Dispose();
-
-		return ret;
-	}
-
-
-	//Creates the suggested warp options string based on the suggested editable factors
-	public static string buildSuggestedWarpOptionsString(string pixelSizeX, string pixelSizeY, string algorithm) {
-		//Stolen from the women poplation data
-		//It works so we'll keep it here
-		Vector2Double extentMin = new Vector2Double(-152.5876388888889039, 24.4918631200275598);
-		Vector2Double extentMax = new Vector2Double(-66.9981474405200288, 62.5851388888888920);
-
-		string ret = "-tr " + pixelSizeX + " " + pixelSizeY + " -r " + algorithm +
-			" -te " + extentMin.x.ToString() + " " + extentMin.y.ToString() +
-			" " + extentMax.x.ToString() + " " + extentMax.y.ToString() +
-			" -wm 500 -multi -overwrite -tap -et 0 -co \"TILED=YES\" -co \"COMPRESS=LZW\" -wo \"INIT_DEST=NO_DATA\"";
-
-		return ret;
-	}
-
-	//Take an options string and converts it to GDALWarpAppOptions
-	//string should be in the format "-tr 1 4 -override," as in how one
-	//would pass these options on the command line
-	public static GDALWarpAppOptions genWarpOptionsFromString(string options) {
-		//Take the options string and convert to GDALWarpAppOptions
-		string[] optionsStrings = options
-			.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-
-		return new GDALWarpAppOptions(optionsStrings);
 	}
 
 	//Convert from raster space to lat/longs and vice versa

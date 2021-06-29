@@ -23,7 +23,7 @@ public enum PopulationRasterType {
 public class PopulationRasterHandler : RasterHandler {
 	//File paths
 	string inputVrtFilename;
-	string outputVrtFilename;
+	string outputTifFilename;
 
 	//Maps from the enum to the vrt files
 	//Starts at a Data folder so you'll need to prepend the rest of the file path
@@ -40,10 +40,17 @@ public class PopulationRasterHandler : RasterHandler {
 	//The important band
 	Band rasterBand;
 
+	Lua lua;
+
 	//Default constructor
 	public PopulationRasterHandler(PopulationRasterType populationType) {
 		inputVrtFilename = populationTypeFilenameLookup[(int)populationType];
-		outputVrtFilename = Application.temporaryCachePath + "/Warped" + populationType.ToString() + ".tif";
+		outputTifFilename = Application.temporaryCachePath + "/Warped" + populationType.ToString() + ".tif";
+
+		//Init Lua
+		lua = new Lua();
+		lua.LoadCLRPackage();
+		lua.DoFile(Application.streamingAssetsPath + @"\Lua\RasterUtilities.lua");
 	}
 
 
@@ -53,12 +60,10 @@ public class PopulationRasterHandler : RasterHandler {
 		//First check if the data has already been processed
 		bool dataHasAlreadyBeenProcessed = false;
 
-		Lua lua = new Lua();
-		lua.LoadCLRPackage();
-		lua.DoFile(@"F:\UnityProjects\MapSimulation1\Assets\Scripts\Lua\RasterUtilities.lua");
-		lua.Dispose();
+		LuaFunction warpVrt = lua.GetFunction("warpVrt");
+		warpVrt.Call(inputVrtFilename, outputTifFilename, pixelSize, "sum");
 
-		dataset = warpVrt(inputVrtFilename, outputVrtFilename, pixelSize, "sum");
+		dataset = Gdal.Open(outputTifFilename, Access.GA_ReadOnly);
 
 		//The population data only has 1 band
 		rasterBand = dataset.GetRasterBand(1);
@@ -155,6 +160,12 @@ public class PopulationRasterHandler : RasterHandler {
 		return texture;
 	}
 
+
+	//Dispose method
+	public override void Dispose() {
+		base.Dispose();
+		lua.Dispose();
+	}
 
 	//Count the number of people in the given dataset
 	public double countDataset(Dataset dataset) {
