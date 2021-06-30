@@ -100,9 +100,6 @@ public class PopulationRasterHandler : RasterHandler {
 		double[] argout = new double[6];
 		dataset.GetGeoTransform(argout);
 
-		//Calulcate the pixel size, in pixels
-		int pixelSize = Screen.width / width;
-
 		//The number of raster pixels that make up one of our texture pixels
 		//We set this to one because we BELIEVE that we warped it properly
 		int rasterPixelsPerImagePixel = 1;
