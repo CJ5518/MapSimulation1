@@ -74,6 +74,10 @@ public class Projection {
 	//The scaling factor of render space from projection space
 	public static float renderSpaceScalingFactor;
 
+	//The number of pixels that make up an actual pixel
+	//Set this one yourself, there are not functions to do it for you
+	public static int pixelSize;
+
 	//Set the render space parameters from a shape file
 	//The parameters will be set so that the shapefile is large and in charge
 	public static void setRenderSpaceByShapeFile(ShapeFile shapeFile) {
@@ -162,7 +166,7 @@ public class Projection {
 
 
 	//Returns pixel size in lat long given pixel size in screen space
-	public static Vector2Double getPixelSizeInLatLong(int pixelSize) {
+	public static Vector2Double getPixelSizeInLatLong() {
 		//Get two screen pixels and convert them to lat longs
 		Vector2Double corner = new Vector2Double(0, 0) * pixelSize;
 		Vector2Double projectedCornerCoords = renderSpaceToProjection(corner);

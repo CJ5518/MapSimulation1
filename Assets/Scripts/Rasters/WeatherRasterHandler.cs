@@ -8,7 +8,7 @@ class WeatherRasterHandler : RasterHandler {
 	public override bool downloadData() {
 		throw new System.NotImplementedException();
 	}
-	public override bool preprocessData(int pixelSize) {
+	public override bool preprocessData() {
 		throw new System.NotImplementedException();
 	}
 	public override Texture2D loadToTexture(int width, int height) {

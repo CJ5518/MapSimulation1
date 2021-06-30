@@ -20,7 +20,7 @@ public abstract class RasterHandler : IDisposable {
 	public double datasetMin, datasetMax, datasetMean, datasetStdDev;
 
 	//Extents to force the new rasters into
-	//Automatically set to
+	//Automatically set to, in the future
 	Vector2Double minExtents, maxExtents;
 
 	//Has the data been processed and is ready to load into a texture?
@@ -30,10 +30,9 @@ public abstract class RasterHandler : IDisposable {
 	public abstract bool downloadData();
 
 	//Preprocess the data
-	public abstract bool preprocessData(int pixelSize);
+	public abstract bool preprocessData();
 
 	//Load the raster data into a new resultant texture of width and height
-	//ShapeFileRenderer is needed because we do stuff in screen space
 	public abstract Texture2D loadToTexture(int width, int height);
 
 

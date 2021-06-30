@@ -56,12 +56,12 @@ public class PopulationRasterHandler : RasterHandler {
 
 
 	//Preprocess the input data
-	public override bool preprocessData(int pixelSize) {
+	public override bool preprocessData() {
 		//First check if the data has already been processed
 		bool dataHasAlreadyBeenProcessed = false;
 
 		LuaFunction warpVrt = lua.GetFunction("warpVrt");
-		warpVrt.Call(inputVrtFilename, outputTifFilename, pixelSize, "sum");
+		warpVrt.Call(inputVrtFilename, outputTifFilename, "sum");
 
 		dataset = Gdal.Open(outputTifFilename, Access.GA_ReadOnly);
 
@@ -87,7 +87,7 @@ public class PopulationRasterHandler : RasterHandler {
 	public override Texture2D loadToTexture(int width, int height) {
 		//Make sure data has been processed
 		if (!dataHasBeenProcessed) {
-			preprocessData(Screen.height / height);
+			preprocessData();
 		}
 
 		//Output texture

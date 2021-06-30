@@ -50,6 +50,7 @@ public class Main : MonoBehaviour {
 
 		//Set up render space
 		Projection.setRenderSpaceByShapeFile(shapeFilePath);
+		Projection.pixelSize = pixelSize;
 
 		//Find some unity components
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
@@ -87,7 +88,7 @@ public class Main : MonoBehaviour {
 
 			double localStartTime = Time.realtimeSinceStartupAsDouble;
 
-			rasterHandler.preprocessData(pixelSize);
+			rasterHandler.preprocessData();
 
 			preprocessTime += Time.realtimeSinceStartupAsDouble - localStartTime;
 			localStartTime = Time.realtimeSinceStartupAsDouble;

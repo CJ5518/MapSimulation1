@@ -29,6 +29,15 @@ More Lua and features for downloading/saving the datasets
 
 
 
+--Checks if the outputTifFilename is already warped
+--string outputTifFilename should be an absolute file path
+--int pixelSize - size of a pixel in screen space
+function checkIfDatasetIsReady(outputTifFilename, pixelSize)
+	if File.Exists(outputTifFilename) then
+		local dataset = Gdal.Open(outputTifFilename);
+
+	end
+end
 
 
 -------------
@@ -47,6 +56,7 @@ function buildSuggestedWarpOptionsString(pixelSizeX, pixelSizeY, algorithm)
 		tostring(extentMin.x), tostring(extentMin.y), tostring(extentMax.x), tostring(extentMax.y)
 	)
 end
+
 --Take an options string and converts it to a GDALWarpAppOptions object
 --string should be in the format "-tr 1 4 -override," as in how one
 --would pass these options on the command line
@@ -60,11 +70,13 @@ function genWarpOptionsFromString(options)
 	
 	return GDALWarpAppOptions(luanet.make_array(String, t));
 end
+
 --For whatever reason warping is faster if you do it on a list of the datasets and not on the actual vrt
 --Warps a dataset
+--strings Input/output names should be absolute file paths
 --int pixelSize - size of a pixel in screen space
 --string algorithm - the algorithm used, eg "sum" or "average" see gdalwarp docs for more
-function warpVrt(inputVrtFilename, outputTifFilename, pixelSize, algorithm)
+function warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 	local datasets = {};
 
 	--parse the xml
@@ -79,7 +91,7 @@ function warpVrt(inputVrtFilename, outputTifFilename, pixelSize, algorithm)
 
 	--Warp drive
 
-	local worldPixelSize = Projection.getPixelSizeInLatLong(pixelSize);
+	local worldPixelSize = Projection.getPixelSizeInLatLong();
 
 	local options = genWarpOptionsFromString(buildSuggestedWarpOptionsString(
 		worldPixelSize.x / 5, worldPixelSize.y / 5, "sum"
