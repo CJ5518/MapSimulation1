@@ -1,4 +1,4 @@
-//By Carson Rueber
+﻿//By Carson Rueber
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,11 +24,16 @@ public class Main : MonoBehaviour {
 	Text statisticsEditLabel;
 
 	//Slider/button combos
-	Slider r0Slider;
-	Text r0Text;
+	Slider alphaSlider;
+	Text alphaText;
 
-	Slider mortalitySlider;
-	Text mortalityText;
+	Slider gammaSlider;
+	Text gammaText;
+
+	Slider betaSlider;
+	Text betaText;
+
+	Text r0Text;
 
 	//Toggles
 	Toggle drawInfectedToggle;
@@ -56,11 +61,17 @@ public class Main : MonoBehaviour {
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
 		statisticsEditLabel = GameObject.Find("Canvas/StatisticsEditLabel").GetComponent<Text>();
 
-		r0Slider = GameObject.Find("Canvas/R0Slider").GetComponent<Slider>();
+
 		r0Text = GameObject.Find("Canvas/R0Text").GetComponent<Text>();
 
-		mortalitySlider = GameObject.Find("Canvas/MortalitySlider").GetComponent<Slider>();
-		mortalityText = GameObject.Find("Canvas/MortalityText").GetComponent<Text>();
+		alphaSlider = GameObject.Find("Canvas/AlphaSlider").GetComponent<Slider>();
+		alphaText = GameObject.Find("Canvas/AlphaText").GetComponent<Text>();
+
+		gammaSlider = GameObject.Find("Canvas/GammaSlider").GetComponent<Slider>();
+		gammaText = GameObject.Find("Canvas/GammaText").GetComponent<Text>();
+
+		betaSlider = GameObject.Find("Canvas/BetaSlider").GetComponent<Slider>();
+		betaText = GameObject.Find("Canvas/BetaText").GetComponent<Text>();
 
 		drawInfectedToggle = GameObject.Find("Canvas/DrawInfectedToggle").GetComponent<Toggle>();
 		drawRecoveredToggle = GameObject.Find("Canvas/DrawRecoveredToggle").GetComponent<Toggle>();
@@ -119,17 +130,22 @@ public class Main : MonoBehaviour {
 	float lastSimTime = -100.0f;
 	float lastStatsTime = -100.0f;
 	bool autoPlay = false;
-	int totalSusceptible, totalInfected, totalRecovered, totalDead = 0;
+	int totalSusceptible, totalInfected, totalRecovered, totalExposed = 0;
 	private unsafe void Update() {
 		//Sliders and buttons
 
 		//r0
-		r0Text.text = "r0: " + r0Slider.value.ToString("f2");
-		simulation.data.r0 = r0Slider.value;
+		r0Text.text = "r0: " + (simulation.data.beta / simulation.data.gamma).ToString("f2");
 
-		//Mortality
-		mortalityText.text = "Mortality Rate: " + mortalitySlider.value.ToString("f2");
-		simulation.data.mortalityRate = mortalitySlider.value;
+		//Alpha, beta, gamma
+		alphaText.text = "α: " + alphaSlider.value.ToString("f2");
+		simulation.data.alpha = alphaSlider.value;
+
+		betaText.text = "β: " + betaSlider.value.ToString("f2");
+		simulation.data.beta = betaSlider.value;
+
+		gammaText.text = "γ: " + gammaSlider.value.ToString("f2");
+		simulation.data.gamma = gammaSlider.value;
 
 		//Draw toggles
 		simulation.data.drawRecovered = drawRecoveredToggle.isOn;
@@ -205,13 +221,13 @@ public class Main : MonoBehaviour {
 				totalSusceptible = 0;
 				totalInfected = 0;
 				totalRecovered = 0;
-				totalDead = 0;
+				totalExposed = 0;
 				for (int q = 0; q < simulation.readCells.Length; q++) {
 					Simulation.Cell readCell = simulation.readCells[q];
 					totalSusceptible += readCell.susceptible[targetDemographic];
 					totalInfected += readCell.infected[targetDemographic];
 					totalRecovered += readCell.recovered[targetDemographic];
-					totalDead += readCell.dead[targetDemographic];
+					totalExposed += readCell.exposed[targetDemographic];
 				}
 			}
 			//Set the string to the statistics
@@ -220,12 +236,12 @@ public class Main : MonoBehaviour {
 				cell.susceptible[targetDemographic] + "\n" +
 				cell.infected[targetDemographic] + "\n" +
 				cell.recovered[targetDemographic] + "\n" +
-				cell.dead[targetDemographic] + "\n" +
+				cell.exposed[targetDemographic] + "\n" +
 				"Totals:" + "\n" +
 				totalSusceptible + "\n" +
 				totalInfected + "\n" +
 				totalRecovered + "\n" +
-				totalDead + "\n";
+				totalExposed + "\n";
 			statisticsEditLabel.text = finalString;
 		}
 	}

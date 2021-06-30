@@ -34,6 +34,7 @@ public class Simulation {
 		public fixed int susceptible[(int)PopulationRasterType.PopulationTypeCount];
 		public fixed int infected[(int)PopulationRasterType.PopulationTypeCount];
 		public fixed int recovered[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed int exposed[(int)PopulationRasterType.PopulationTypeCount];
 		public fixed int dead[(int)PopulationRasterType.PopulationTypeCount];
 
 		public bool inMask; //Are we in the mask
@@ -64,10 +65,9 @@ public class Simulation {
 		
 		//Max number of people in a cell per demographic
 		public fixed int maxNumberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
-		//R0, the number of people an infected person will infect
-		public float r0;
-		//Percentage of people who die from the disease
-		public float mortalityRate;
+
+		//Parameters
+		public float beta, alpha, gamma;
 
 		//The number of times the tick function has been run
 		public uint runCount;
@@ -86,9 +86,7 @@ public class Simulation {
 		drawInfected = true,
 		drawDead = true,
 		drawRecovered = false,
-
-		r0 = 2.9f,
-		mortalityRate = 0.1f,
+		beta = 1.0f, alpha = 1.0f, gamma = 1.0f,
 
 		runCount = 0,
 
@@ -296,70 +294,41 @@ public class Simulation {
 			Unity.Mathematics.Random random = new Unity.Mathematics.Random(randomSeeds[index] * data.runCount);
 
 			//Spread in this cell, because of this cell
-			if (readCell.infected[FullPop] >= 1) {
-				//Infection
-				float newInfected = Mathf.Clamp(data.r0 * readCell.infected[FullPop], 0, readCell.susceptible[FullPop]);
-				float oldInfected = readCell.infected[FullPop];
+			int newExposed = Mathf.FloorToInt(data.beta * 
+				((readCell.susceptible[FullPop] * readCell.infected[FullPop]) / (float)readCell.numberOfPeople[FullPop]));
+			int newInfected = Mathf.FloorToInt(data.alpha * readCell.exposed[FullPop]);
+			int newRecovered = Mathf.FloorToInt(data.gamma * readCell.infected[FullPop]);
 
-				//Fix newInfected
-				newInfected += (random.NextFloat() < getFractionalPart(newInfected) ? 1.0f : 0.0f);
-
-				//Death and recovery
-				float newRecovered = oldInfected * (1.0f - data.mortalityRate);
-				float newDead = oldInfected * data.mortalityRate;
-
-				//Handle fractions
-				if (getFractionalPart(newRecovered) != 0.0f || getFractionalPart(newDead) != 0.0f) {
-					//Truncate the values
-					newRecovered = (int)newRecovered;
-					newDead = (int)newDead;
-
-					//Give the dropped person to one of the categories
-					if (random.NextFloat() < data.mortalityRate)
-						newDead++;
-					else
-						newRecovered++;
-				}
-
-				//Update the values
-				writeCell.infected[FullPop] = (int)round(newInfected);
-				writeCell.susceptible[FullPop] -= (int)round(newInfected);
-				writeCell.recovered[FullPop] += (int)round(newRecovered);
-				writeCell.dead[FullPop] += (int)round(newDead);
-
-			}
-
-			//Collect neighbor stats
-
-			int maxNeighborSize = 0;
-
-			foreach (int neighborIdx in getNeighborIndices(index)) {
-				if (cellIsValid(neighborIdx)) {
-					Cell neighborCell = readCells[neighborIdx];
-					if (neighborCell.numberOfPeople[FullPop] > maxNeighborSize)
-						maxNeighborSize = neighborCell.numberOfPeople[FullPop];
-				}
-			}
-
-			float chanceToSpread = 0.0f;
+			writeCell.susceptible[FullPop] -= newExposed;
+			writeCell.exposed[FullPop] += newExposed - newInfected;
+			writeCell.infected[FullPop] += newInfected - newRecovered;
+			writeCell.recovered[FullPop] += newRecovered;
 
 			//Spread in this cell, because of other cells
-			foreach (int neighborIdx in getNeighborIndices(index)) {
-				if (cellIsValid(neighborIdx)) {
-					Cell neighborCell = readCells[neighborIdx];
 
-					float newSpreaders = neighborCell.infected[FullPop] * data.r0;
-					float relativeNeighborSize = (float)neighborCell.numberOfPeople[FullPop] / maxNeighborSize;
-					float ourRelativeSize = (float)readCell.numberOfPeople[FullPop] / maxNeighborSize;
+			int exposedToBeTaken = 0;
 
-					chanceToSpread += (newSpreaders * relativeNeighborSize * ourRelativeSize) / 4.0f;
+			int[] neighborIndices = getNeighborIndices(index);
+			for (int q = 0; q < neighborIndices.Length; q++) {
+				if (cellIsValid(neighborIndices[q])) {
+					Cell neighborCell = readCells[neighborIndices[q]];
+					int newExposedNeighbor = Mathf.FloorToInt(data.beta *
+						((neighborCell.susceptible[FullPop] * neighborCell.infected[FullPop])
+						/ (float)neighborCell.numberOfPeople[FullPop]));
+					exposedToBeTaken += (int)(newExposedNeighbor / 4.0f);
 				}
 			}
-			//Handle the actual infection
-			int newArrivals = (int)chanceToSpread + (random.NextFloat() < getFractionalPart(chanceToSpread) ? 1 : 0);
 
-			writeCell = infectCell(writeCell, newArrivals);
+			if (exposedToBeTaken > writeCell.susceptible[FullPop])
+				exposedToBeTaken = writeCell.susceptible[FullPop];
+			writeCell.susceptible[FullPop] -= exposedToBeTaken;
+			writeCell.exposed[FullPop] += exposedToBeTaken;
 
+			//Clamp the numbers
+			writeCell.susceptible[FullPop] = Mathf.Clamp(writeCell.susceptible[FullPop], 0, int.MaxValue);
+			writeCell.exposed[FullPop] = Mathf.Clamp(writeCell.exposed[FullPop], 0, int.MaxValue);
+			writeCell.infected[FullPop] = Mathf.Clamp(writeCell.infected[FullPop], 0, int.MaxValue);
+			writeCell.recovered[FullPop] = Mathf.Clamp(writeCell.recovered[FullPop], 0, int.MaxValue);
 
 			//Percentages
 			float infectedPercentage = (float)writeCell.infected[FullPop] / writeCell.numberOfPeople[FullPop];
