@@ -59,8 +59,8 @@ public class PopulationRasterHandler : RasterHandler {
 	public override bool preprocessData() {
 		//First check if the data has already been processed
 
-		LuaFunction checkIfDatasetIsReady = lua.GetFunction("checkIfDatasetIsReady");
-		bool needToWarp = !(bool)checkIfDatasetIsReady.Call(outputTifFilename)[0];
+		LuaFunction checkIfDatasetIsWarped = lua.GetFunction("checkIfDatasetIsWarped");
+		bool needToWarp = !(bool)checkIfDatasetIsWarped.Call(outputTifFilename)[0];
 
 		if (needToWarp) {
 			LuaFunction warpVrt = lua.GetFunction("warpVrt");
