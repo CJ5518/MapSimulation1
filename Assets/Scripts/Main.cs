@@ -130,7 +130,6 @@ public class Main : MonoBehaviour {
 	float lastSimTime = -100.0f;
 	float lastStatsTime = -100.0f;
 	bool autoPlay = false;
-	int totalSusceptible, totalInfected, totalRecovered, totalExposed = 0;
 	private unsafe void Update() {
 		//Sliders and buttons
 
@@ -208,6 +207,11 @@ public class Main : MonoBehaviour {
 
 	//Updates the statistics label based on the pixel the mouse is over, and targetDemographic
 	unsafe void updateStatisticsLabel() {
+		float totalSusceptible = 0.0f;
+		float totalInfected = 0.0f;
+		float totalRecovered = 0.0f;
+		float totalExposed = 0.0f;
+
 		//Pixel coord on the draw texture
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
 		int index = simulation.coordToIndex(pixel);
@@ -233,15 +237,15 @@ public class Main : MonoBehaviour {
 			//Set the string to the statistics
 			string finalString =
 				((PopulationRasterType)targetDemographic).ToString() + "\n" +
-				cell.susceptible[targetDemographic] + "\n" +
-				cell.infected[targetDemographic] + "\n" +
-				cell.recovered[targetDemographic] + "\n" +
-				cell.exposed[targetDemographic] + "\n" +
+				cell.susceptible[targetDemographic].ToString("F0") + "\n" +
+				cell.infected[targetDemographic].ToString("F0") + "\n" +
+				cell.recovered[targetDemographic].ToString("F0") + "\n" +
+				cell.exposed[targetDemographic].ToString("F0") + "\n" +
 				"Totals:" + "\n" +
-				totalSusceptible + "\n" +
-				totalInfected + "\n" +
-				totalRecovered + "\n" +
-				totalExposed + "\n";
+				totalSusceptible.ToString("F0") + "\n" +
+				totalInfected.ToString("F0") + "\n" +
+				totalRecovered.ToString("F0") + "\n" +
+				totalExposed.ToString("F0") + "\n";
 			statisticsEditLabel.text = finalString;
 		}
 	}
