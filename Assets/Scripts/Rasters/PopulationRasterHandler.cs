@@ -63,6 +63,9 @@ public class PopulationRasterHandler : RasterHandler {
 		LuaFunction warpVrt = lua.GetFunction("warpVrt");
 		warpVrt.Call(inputVrtFilename, outputTifFilename, "sum");
 
+		LuaFunction checkIfDatasetIsReady = lua.GetFunction("checkIfDatasetIsReady");
+		Debug.Log((bool)checkIfDatasetIsReady.Call(outputTifFilename)[0]);
+
 		dataset = Gdal.Open(outputTifFilename, Access.GA_ReadOnly);
 
 		//The population data only has 1 band
@@ -70,7 +73,6 @@ public class PopulationRasterHandler : RasterHandler {
 
 		//Collect statistics while we're here
 		rasterBand.GetStatistics(0, 1, out datasetMin, out datasetMax, out datasetMean, out datasetStdDev);
-
 
 		//If the above lines didn't error, things probably worked out
 		//Isn't my error handling just perfect?

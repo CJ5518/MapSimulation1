@@ -33,10 +33,32 @@ More Lua and features for downloading/saving the datasets
 --string outputTifFilename should be an absolute file path
 --int pixelSize - size of a pixel in screen space
 function checkIfDatasetIsReady(outputTifFilename, pixelSize)
+	local ret = false;
 	if File.Exists(outputTifFilename) then
-		local dataset = Gdal.Open(outputTifFilename);
+		local dataset = Gdal.Open(outputTifFilename, Access.GA_ReadOnly);
 
+		--Create the array of size 6
+		local argout = luanet.make_array(Double, {1,2,3,4,5,6});
+		dataset:GetGeoTransform(argout);
+
+		local sizeX = argout[1];
+		local sizeY = argout[5];
+
+		local correctSize = Projection.getPixelSizeInLatLong();
+
+		--Checks if the values are close enough for government work
+		local function isCloseEnough(x,y)
+			return math.floor((math.abs(x) * 1000) + 0.5) == math.floor((math.abs(y) * 1000) + 0.5)
+		end
+
+		if isCloseEnough(sizeX, correctSize.x) and isCloseEnough(sizeY, correctSize.y) then
+			ret = true;
+		end
+
+
+		dataset:Dispose();
 	end
+	return ret;
 end
 
 
@@ -79,6 +101,8 @@ end
 function warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 	local datasets = {};
 
+	local tempFilePath = Application.temporaryCachePath .. "/temp.tif";
+
 	--parse the xml
 	parser:parse(xml2lua.loadFile(inputVrtFilename));
 	for i, v in pairs(handler.root.VRTDataset.VRTRasterBand.ComplexSource) do
@@ -99,7 +123,7 @@ function warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 
 	--First warp
 	local intermediate = Gdal.Warp(
-		Application.temporaryCachePath .. "/temp.tif",
+		tempFilePath,
 		luanet.make_array(Dataset, datasets), options, nil, nil
 	);
 
@@ -111,7 +135,9 @@ function warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 	--Second warp
 	local ret = Gdal.Warp(outputTifFilename, luanet.make_array(Dataset, {intermediate}), options, nil, nil);
 	
+	--Clean up the temp file
 	intermediate:Dispose();
+	File.Delete(tempFilePath);
 	
 	return ret;
 end
