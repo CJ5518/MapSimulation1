@@ -58,13 +58,14 @@ public class PopulationRasterHandler : RasterHandler {
 	//Preprocess the input data
 	public override bool preprocessData() {
 		//First check if the data has already been processed
-		bool dataHasAlreadyBeenProcessed = false;
-
-		LuaFunction warpVrt = lua.GetFunction("warpVrt");
-		warpVrt.Call(inputVrtFilename, outputTifFilename, "sum");
 
 		LuaFunction checkIfDatasetIsReady = lua.GetFunction("checkIfDatasetIsReady");
-		Debug.Log((bool)checkIfDatasetIsReady.Call(outputTifFilename)[0]);
+		bool needToWarp = !(bool)checkIfDatasetIsReady.Call(outputTifFilename)[0];
+
+		if (needToWarp) {
+			LuaFunction warpVrt = lua.GetFunction("warpVrt");
+			warpVrt.Call(inputVrtFilename, outputTifFilename, "sum");
+		}
 
 		dataset = Gdal.Open(outputTifFilename, Access.GA_ReadOnly);
 
