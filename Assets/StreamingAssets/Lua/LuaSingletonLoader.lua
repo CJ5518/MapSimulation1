@@ -6,8 +6,7 @@ import("UnityEngine");
 import("Assembly-CSharp"); --Our very own assembly
 
 --Set the package path
-LUA_PATH = Application.streamingAssetsPath .. "/Lua/?.lua";
-package.path = LUA_PATH;
+package.path = Application.streamingAssetsPath .. "/Lua/?.lua";
 
 
 --Add your files to this table to run them and register them with the global state on init

@@ -38,26 +38,26 @@ RasterDataFolderLocation = "F:\\Data";
 --The following fields are added at runtime under certain conditions/after running certain functions
 --outputPath - File path to the output (warped) data
 RasterTypes = {
-	"Population" = {
-		"ChildrenUnderFive" = {
+	Population = {
+		ChildrenUnderFive = {
 			inputPath = "\\tif\\ChildrenUnderFive\\ChildrenUnderFive.vrt"
 		},
-		"ElderlySixtyPlus" = {
+		ElderlySixtyPlus = {
 			inputPath = "\\tif\\ElderlySixtyPlus\\ElderlySixtyPlus.vrt";
 		},
-		"Men" = {
+		Men = {
 			inputPath = "\\tif\\Men\\Men.vrt";
 		},
-		"FullPopulation" = {
+		FullPopulation = {
 			inputPath = "\\tif\\FullPopulation\\population_usa_2019-07-01.vrt";
 		},
-		"Women" = {
+		Women = {
 			inputPath = "\\tif\\Women\\Women.vrt";
 		},
-		"WomenOfReproductiveAge" = {
+		WomenOfReproductiveAge = {
 			inputPath = "\\tif\\WomenOfReproductiveAge\\WomenOfReproductiveAge.vrt";
 		},
-		"Youth15To24" = {
+		Youth15To24 = {
 			inputPath = "\\tif\\Youth15To24\\Youth15To24.vrt";
 		}
 	};
