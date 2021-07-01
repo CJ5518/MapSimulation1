@@ -40,17 +40,11 @@ public class PopulationRasterHandler : RasterHandler {
 	//The important band
 	Band rasterBand;
 
-	Lua lua;
-
 	//Default constructor
 	public PopulationRasterHandler(PopulationRasterType populationType) {
 		inputVrtFilename = populationTypeFilenameLookup[(int)populationType];
 		outputTifFilename = Application.temporaryCachePath + "/Warped" + populationType.ToString() + ".tif";
 
-		//Init Lua
-		lua = new Lua();
-		lua.LoadCLRPackage();
-		lua.DoFile(Application.streamingAssetsPath + @"\Lua\RasterUtilities.lua");
 	}
 
 
@@ -59,11 +53,11 @@ public class PopulationRasterHandler : RasterHandler {
 	public override bool preprocessData() {
 		//First check if the data has already been processed
 
-		LuaFunction checkIfDatasetIsWarped = lua.GetFunction("checkIfDatasetIsWarped");
+		LuaFunction checkIfDatasetIsWarped = LuaSingleton.lua.GetFunction("RasterUtilities.checkIfDatasetIsWarped");
 		bool needToWarp = !(bool)checkIfDatasetIsWarped.Call(outputTifFilename)[0];
 
 		if (needToWarp) {
-			LuaFunction warpVrt = lua.GetFunction("warpVrt");
+			LuaFunction warpVrt = LuaSingleton.lua.GetFunction("RasterUtilities.warpVrt");
 			warpVrt.Call(inputVrtFilename, outputTifFilename, "sum");
 		}
 
@@ -158,13 +152,6 @@ public class PopulationRasterHandler : RasterHandler {
 		}
 		texture.Apply();
 		return texture;
-	}
-
-
-	//Dispose method
-	public override void Dispose() {
-		base.Dispose();
-		lua.Dispose();
 	}
 
 	//Count the number of people in the given dataset

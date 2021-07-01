@@ -338,8 +338,14 @@ public class Simulation {
 			//Compute the color
 			Color color;
 
+			//Need to do more with this
 			if (data.drawProportion) {
-				color = new Color(infectedPercentage, recoveredPercentage, deadPercentage);
+				float max = Mathf.Log10(data.maxNumberOfPeople[FullPop]);
+				color = new Color(
+					Mathf.Log10(writeCell.infected[FullPop] / max),
+					Mathf.Log10(writeCell.recovered[FullPop] / max),
+					Mathf.Log10(writeCell.dead[FullPop] / max)
+				);
 			}
 			else {
 				color = new Color(infectedPercentage, recoveredPercentage, deadPercentage);

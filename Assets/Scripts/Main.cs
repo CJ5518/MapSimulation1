@@ -51,11 +51,20 @@ public class Main : MonoBehaviour {
 
 		Application.targetFrameRate = 60;
 
-		string shapeFilePath = @"F:\Data\shp\USA_Reprojected.shp";
+		//Init GDAL
+		Gdal.AllRegister();
+		Gdal.SetCacheMax((int)System.Math.Pow(2, 30));
+		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
 		//Set up render space
+		string shapeFilePath = @"F:\Data\shp\USA_Reprojected.shp";
+
 		Projection.setRenderSpaceByShapeFile(shapeFilePath);
 		Projection.pixelSize = pixelSize;
+
+		//Init the Lua singleton
+		LuaSingleton.initLua();
+
 
 		//Find some unity components
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
@@ -78,12 +87,6 @@ public class Main : MonoBehaviour {
 		drawDeadToggle = GameObject.Find("Canvas/DrawDeadToggle").GetComponent<Toggle>();
 
 		drawProportionToggle = GameObject.Find("Canvas/DrawProportionToggle").GetComponent<Toggle>();
-
-
-		//Init GDAL
-		Gdal.AllRegister();
-		Gdal.SetCacheMax((int)System.Math.Pow(2, 30));
-		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
 		int width = Screen.width / pixelSize;
 		int height = Screen.height / pixelSize;
