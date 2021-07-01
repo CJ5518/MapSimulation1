@@ -64,10 +64,10 @@ local function printableInternal(tb, level)
   local spaces = string.rep(' ', level*2)
   for k,v in pairs(tb) do
       if type(v) == "table" then
-         print(spaces .. k)
+         Debug.Log(spaces .. k)
          printableInternal(v, level+1)
       else
-         print(spaces .. k..'='..v)
+         Debug.Log(spaces .. k..'='..v)
       end
   end  
 end
