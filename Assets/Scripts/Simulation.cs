@@ -342,9 +342,9 @@ public class Simulation {
 			if (data.drawProportion) {
 				float max = Mathf.Log10(data.maxNumberOfPeople[FullPop]);
 				color = new Color(
-					Mathf.Log10(writeCell.infected[FullPop] / max),
-					Mathf.Log10(writeCell.recovered[FullPop] / max),
-					Mathf.Log10(writeCell.dead[FullPop] / max)
+					Mathf.Log10(writeCell.infected[FullPop]) / max,
+					Mathf.Log10(writeCell.recovered[FullPop]) / max,
+					Mathf.Log10(writeCell.dead[FullPop]) / max
 				);
 			}
 			else {
@@ -358,11 +358,6 @@ public class Simulation {
 			if (!data.drawDead)
 				color.b = 0.0f;
 
-			float v = Mathf.Pow(
-				1.0f - (readCell.numberOfPeople[data.drawDemographic] / data.maxNumberOfPeople[data.drawDemographic]),
-				3.0f
-			);
-			color = Color.Lerp(color, new Color(v,v,v, 1.0f), 0.3f);
 			color.a = 1f;
 			
 			//Write back the data
