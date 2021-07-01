@@ -1,5 +1,6 @@
 ﻿--By Carson Rueber
 --For use with LuaSingleton
+--Contains functions for dealing with rasters
 
 import("System");
 import("System.IO");
@@ -15,9 +16,53 @@ local handler = require("XML.tree");
 --TODO:
 --[[
 More Lua and features for downloading/saving the datasets
+Edit warpVrt to just be warpDataset and then use the file extension to decide how to warp
 ]]
 
 RasterUtilities = {};
+
+------------------------
+-- Raster Definitions --
+------------------------
+
+
+--The Data folder, which contains all things raster
+RasterDataFolderLocation = "F:\\Data";
+
+--A specific raster type (lowest level item) contains the following fields:
+--inputPath - File path to the input data, relative to the Data folder
+
+--The following fields are added at runtime:
+--ID - unique (among a subset) integer identifier
+
+--The following fields are added at runtime under certain conditions/after running certain functions
+--outputPath - File path to the output (warped) data
+RasterTypes = {
+	"Population" = {
+		"ChildrenUnderFive" = {
+			inputPath = "\\tif\\ChildrenUnderFive\\ChildrenUnderFive.vrt"
+		},
+		"ElderlySixtyPlus" = {
+			inputPath = "\\tif\\ElderlySixtyPlus\\ElderlySixtyPlus.vrt";
+		},
+		"Men" = {
+			inputPath = "\\tif\\Men\\Men.vrt";
+		},
+		"FullPopulation" = {
+			inputPath = "\\tif\\FullPopulation\\population_usa_2019-07-01.vrt";
+		},
+		"Women" = {
+			inputPath = "\\tif\\Women\\Women.vrt";
+		},
+		"WomenOfReproductiveAge" = {
+			inputPath = "\\tif\\WomenOfReproductiveAge\\WomenOfReproductiveAge.vrt";
+		},
+		"Youth15To24" = {
+			inputPath = "\\tif\\Youth15To24\\Youth15To24.vrt";
+		}
+	};
+};
+
 
 -----------------------
 -- Dataset Functions --
@@ -101,8 +146,6 @@ function RasterUtilities.warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 	local datasets = {};
 
 	local tempFilePath = Application.temporaryCachePath .. "/temp.tif";
-
-	Debug.Log(inputVrtFilename);
 
 	--parse the xml
 	local xmlHandlerObj = handler:new();
