@@ -9,9 +9,8 @@ import("gdal_csharp"); --Gdal needs to be loaded by this
 import("OSGeo.GDAL");
 
 --Xml parser things
-local xml2lua = require("XML.xml2lua")
-local handler = require("XML.tree")
-local parser = xml2lua.parser(handler)
+local xml2lua = require("XML.xml2lua");
+local handler = require("XML.tree");
 
 --TODO:
 --[[
@@ -104,9 +103,12 @@ function RasterUtilities.warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 	local tempFilePath = Application.temporaryCachePath .. "/temp.tif";
 
 	Debug.Log(inputVrtFilename);
+
 	--parse the xml
+	local xmlHandlerObj = handler:new();
+	local parser = xml2lua.parser(xmlHandlerObj);
 	parser:parse(xml2lua.loadFile(inputVrtFilename));
-	for i, v in pairs(handler.root.VRTDataset.VRTRasterBand.ComplexSource) do
+	for i, v in pairs(xmlHandlerObj.root.VRTDataset.VRTRasterBand.ComplexSource) do
 		--Found the filename, but need to make it absolute
 		--Also here's where we assume that the tif is relative to the vrt
 		local filename = Directory.GetParent(inputVrtFilename).FullName .. "/" .. v.SourceFilename[1];
