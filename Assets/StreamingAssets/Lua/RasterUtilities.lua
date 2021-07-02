@@ -77,7 +77,7 @@ function RasterUtilities.checkIfDatasetIsWarped(dataset)
 		if not File.Exists(dataset) then return false end
 		dataset = Gdal.Open(dataset, Access.GA_ReadOnly);
 	end
-	--Create the array of size 6
+	--Create the array of size 6 to get argout
 	local argout = luanet.make_array(Double, {1,2,3,4,5,6});
 	dataset:GetGeoTransform(argout);
 
@@ -100,7 +100,65 @@ function RasterUtilities.checkIfDatasetIsWarped(dataset)
 		dataset:Dispose();
 	end
 
-	return ret and false;
+	return ret;
+end
+
+--Convers a warped raster into a texture of width and height
+--Returns the newly created Raster
+--Dataset must be an opened dataset
+function RasterUtilities.loadRasterToTexture(dataset, width, height)
+	--The population data only has 1 band
+	rasterBand = dataset:GetRasterBand(1);
+
+	local texture = Texture2D(width, height, TextureFormat.RGBA32, false);
+
+	--Create the array of size 6 to get argout
+	local argout = luanet.make_array(Double, {1,2,3,4,5,6});
+	dataset:GetGeoTransform(argout);
+
+	--Array of size 1
+	local rasterDataArray = luanet.make_array(Double, {1});
+
+	--Get the corner coords of the screen
+	local screenCoords = Vector2Double(0, 0);
+	local projectedCoords = Projection.renderSpaceToProjection(screenCoords);
+	local worldCoords = Projection.projectionToLatLongs(projectedCoords);
+	local originalRasterCoords = Projection.worldToRasterSpace(worldCoords, dataset);
+	local rasterCoords = originalRasterCoords;
+
+
+
+	for x = 0, width - 1 do
+		rasterCoords.x = rasterCoords.x + 1;
+		rasterCoords.y = originalRasterCoords.y;
+		for y = 0, height - 1 do
+			--Default texture color
+			local c = LuaSingleton.color32ToColor(Simulation.floatToColor(0));
+			texture:SetPixel(x, y, c);
+			rasterCoords.y = rasterCoords.y - 1;
+
+			--Check if it's in bounds
+			if rasterCoords.x >= 0 and rasterCoords.y >= 0 and
+			rasterCoords.x < dataset.RasterXSize and rasterCoords.y < dataset.RasterYSize then
+				--Read in the raster data
+				rasterBand:ReadRaster(
+					math.floor(rasterCoords.x + 0.5), math.floor(rasterCoords.y + 0.5),
+					1, 1, rasterDataArray, 1, 1, 0, 0
+				);
+				local numberOfPeople = not Double.IsNaN(rasterDataArray[0]) and rasterDataArray[0] or 0.0;
+				--Output the color
+				local color = Simulation.floatToColor(numberOfPeople);
+
+				--We set the color in this manner just to be sure
+				texture:SetPixels32(x, y, 1, 1, luanet.make_array(Color32, {color}));
+			end
+		end
+	end
+
+	Debug.Log(os.clock() - startTime);
+
+	texture:Apply()
+	return texture;
 end
 
 

@@ -2,6 +2,7 @@
 
 using UnityEngine;
 using ShapeImporter;
+using OSGeo.GDAL;
 
 //Projects lat/longs into screen coordinates and back again
 //https://stackoverflow.com/a/4565555
@@ -182,5 +183,18 @@ public class Projection {
 			System.Math.Abs(worldCornerCoords.y - worldOtherCoords.y)
 		);
 		return ret;
+	}
+
+	//Raster coordinate functions
+	//Convert from raster space to lat/longs and vice versa
+	public static Vector2Double rasterSpaceToWorld(Vector2Double rasterPixel, Dataset dataset) {
+		double[] argout = new double[6];
+		dataset.GetGeoTransform(argout);
+		return new Vector2Double(argout[0] + (argout[1] * rasterPixel.x), argout[3] + (argout[5] * rasterPixel.y));
+	}
+	public static Vector2Double worldToRasterSpace(Vector2Double coords, Dataset dataset) {
+		double[] argout = new double[6];
+		dataset.GetGeoTransform(argout);
+		return new Vector2Double((coords.x - argout[0]) / argout[1], (coords.y - argout[3]) / argout[5]);
 	}
 }

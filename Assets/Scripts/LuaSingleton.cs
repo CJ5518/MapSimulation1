@@ -5,6 +5,7 @@ using UnityEngine;
 
 //A Lua state for all your static Lua needs
 //Useful for registering functions/configuration data
+//Also used to help glue lua and c# together, when something is too difficult in Nlua
 //Try not to pollute the global namespace too much
 public class LuaSingleton {
 	//The state
@@ -17,5 +18,11 @@ public class LuaSingleton {
 		lua = new Lua();
 		lua.LoadCLRPackage();
 		lua.DoFile(luaFolderPath + "LuaSingletonLoader.lua");
+	}
+
+
+	//Functions designed to be called from Lua
+	public static Color color32ToColor(Color32 c) {
+		return c;
 	}
 }
