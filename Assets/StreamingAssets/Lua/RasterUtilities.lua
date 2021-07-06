@@ -2,6 +2,10 @@
 --For use with LuaSingleton
 --Contains functions for dealing with rasters
 
+--Calling functions which take rasterIdentifiers information:
+--if rasterIdentifierMinor is nil, major must be a full name like "Population.Women"
+--To use both parameters, major would be "Population" and minor would be "Women"
+
 import("System");
 import("System.IO");
 import("System.Reflection");
@@ -19,49 +23,34 @@ More Lua and features for downloading/saving the datasets
 Edit warpVrt to just be warpDataset and then use the file extension to decide how to warp
 ]]
 
+--Public
 RasterUtilities = {};
-
-------------------------
--- Raster Definitions --
-------------------------
+--Private
+RasterPrivate = {};
 
 
 --The Data folder, which contains all things raster
 RasterDataFolderLocation = "F:\\Data";
 
---A specific raster type (lowest level item) contains the following fields:
---inputPath - File path to the input data, relative to the Data folder
+---------------------------------
+-- High Level Raster Interface --
+---------------------------------
 
---The following fields are added at runtime:
---ID - unique (among a subset) integer identifier
 
---The following fields are added at runtime under certain conditions/after running certain functions
---outputPath - File path to the output (warped) data
-RasterTypes = {
-	Population = {
-		ChildrenUnderFive = {
-			inputPath = "\\tif\\ChildrenUnderFive\\ChildrenUnderFive.vrt"
-		},
-		ElderlySixtyPlus = {
-			inputPath = "\\tif\\ElderlySixtyPlus\\ElderlySixtyPlus.vrt";
-		},
-		Men = {
-			inputPath = "\\tif\\Men\\Men.vrt";
-		},
-		FullPopulation = {
-			inputPath = "\\tif\\FullPopulation\\population_usa_2019-07-01.vrt";
-		},
-		Women = {
-			inputPath = "\\tif\\Women\\Women.vrt";
-		},
-		WomenOfReproductiveAge = {
-			inputPath = "\\tif\\WomenOfReproductiveAge\\WomenOfReproductiveAge.vrt";
-		},
-		Youth15To24 = {
-			inputPath = "\\tif\\Youth15To24\\Youth15To24.vrt";
-		}
-	};
-};
+function RasterUtilities.getFilenames(major, minor)
+	local majorName = major:ToString();
+	local minorName = luanet.enum(_G[majorName], minor):ToString();
+	local inputFilename = 
+		RasterDataFolderLocation .. "/tif/" .. majorName .. "/" .. minorName .. "/" .. minorName .. ".vrt";
+	local outputFilename = RasterDataFolderLocation .. "/tif/Warped/" .. majorName .. "_" .. minorName .. ".tif";
+	return inputFilename, outputFilename;
+end
+
+--if rasterIdentifierMinor is nil, major must be a full name like "Population.Women"
+--To use both parameters, major would be "Population" and minor would be "Women"
+function RasterUtilities.preprocessRaster(rasterIdentifierMajor, rasterIdentifierMinor)
+	
+end
 
 
 -----------------------
@@ -103,64 +92,6 @@ function RasterUtilities.checkIfDatasetIsWarped(dataset)
 	return ret;
 end
 
---Convers a warped raster into a texture of width and height
---Returns the newly created Raster
---Dataset must be an opened dataset
-function RasterUtilities.loadRasterToTexture(dataset, width, height)
-	--The population data only has 1 band
-	rasterBand = dataset:GetRasterBand(1);
-
-	local texture = Texture2D(width, height, TextureFormat.RGBA32, false);
-
-	--Create the array of size 6 to get argout
-	local argout = luanet.make_array(Double, {1,2,3,4,5,6});
-	dataset:GetGeoTransform(argout);
-
-	--Array of size 1
-	local rasterDataArray = luanet.make_array(Double, {1});
-
-	--Get the corner coords of the screen
-	local screenCoords = Vector2Double(0, 0);
-	local projectedCoords = Projection.renderSpaceToProjection(screenCoords);
-	local worldCoords = Projection.projectionToLatLongs(projectedCoords);
-	local originalRasterCoords = Projection.worldToRasterSpace(worldCoords, dataset);
-	local rasterCoords = originalRasterCoords;
-
-
-
-	for x = 0, width - 1 do
-		rasterCoords.x = rasterCoords.x + 1;
-		rasterCoords.y = originalRasterCoords.y;
-		for y = 0, height - 1 do
-			--Default texture color
-			local c = LuaSingleton.color32ToColor(Simulation.floatToColor(0));
-			texture:SetPixel(x, y, c);
-			rasterCoords.y = rasterCoords.y - 1;
-
-			--Check if it's in bounds
-			if rasterCoords.x >= 0 and rasterCoords.y >= 0 and
-			rasterCoords.x < dataset.RasterXSize and rasterCoords.y < dataset.RasterYSize then
-				--Read in the raster data
-				rasterBand:ReadRaster(
-					math.floor(rasterCoords.x + 0.5), math.floor(rasterCoords.y + 0.5),
-					1, 1, rasterDataArray, 1, 1, 0, 0
-				);
-				local numberOfPeople = not Double.IsNaN(rasterDataArray[0]) and rasterDataArray[0] or 0.0;
-				--Output the color
-				local color = Simulation.floatToColor(numberOfPeople);
-
-				--We set the color in this manner just to be sure
-				texture:SetPixels32(x, y, 1, 1, luanet.make_array(Color32, {color}));
-			end
-		end
-	end
-
-	Debug.Log(os.clock() - startTime);
-
-	texture:Apply()
-	return texture;
-end
-
 
 -------------
 -- Warping --
@@ -200,6 +131,7 @@ end
 --strings Input/output names should be absolute file paths
 --int pixelSize - size of a pixel in screen space
 --string algorithm - the algorithm used, eg "sum" or "average" see gdalwarp docs for more
+--returns the warped dataset
 function RasterUtilities.warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 	local datasets = {};
 

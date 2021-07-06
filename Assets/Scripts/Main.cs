@@ -10,6 +10,7 @@ using Unity.Collections;
 using OSGeo.OSR;
 using OSGeo.GDAL;
 using OSGeo.OGR;
+using NLua;
 
 //Test class
 public class Main : MonoBehaviour {
@@ -44,7 +45,7 @@ public class Main : MonoBehaviour {
 
 
 	//The demographic we are currently looking at statistics for
-	int targetDemographic = (int)PopulationRasterType.FullPopulation;
+	int targetDemographic = (int)Population.FullPopulation;
 
 	void Start() {
 		double startTime = Time.realtimeSinceStartupAsDouble;
@@ -95,11 +96,11 @@ public class Main : MonoBehaviour {
 		double textureLoadTime = 0;
 
 		//Load in the population data
-		Texture2D[] populationTextures = new Texture2D[(int)PopulationRasterType.PopulationTypeCount];
+		Texture2D[] populationTextures = new Texture2D[(int)Population.PopulationCount];
 
 		for (int q = 0; q < populationTextures.Length; q++) {
-			RasterHandler rasterHandler = new PopulationRasterHandler((PopulationRasterType)q);
-
+			RasterHandler rasterHandler = new RasterHandler(RasterType.Population, q);
+			
 			double localStartTime = Time.realtimeSinceStartupAsDouble;
 
 			rasterHandler.preprocessData();
@@ -108,6 +109,7 @@ public class Main : MonoBehaviour {
 			localStartTime = Time.realtimeSinceStartupAsDouble;
 
 			populationTextures[q] = rasterHandler.loadToTexture(width, height);
+			
 
 			textureLoadTime += Time.realtimeSinceStartupAsDouble - localStartTime;
 
@@ -116,7 +118,7 @@ public class Main : MonoBehaviour {
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,
-			new Texture2D[] { populationTextures[(int)PopulationRasterType.FullPopulation]}
+			new Texture2D[] { populationTextures[(int)Population.FullPopulation]}
 		);
 
 		backgroundMovableImage.texture = simulation.drawTexture;
@@ -165,8 +167,8 @@ public class Main : MonoBehaviour {
 
 		//Make sure targetDemographic is in range
 		if (targetDemographic < 0)
-			targetDemographic = (int)PopulationRasterType.PopulationTypeCount - 1;
-		if (targetDemographic >= (int)PopulationRasterType.PopulationTypeCount)
+			targetDemographic = (int)Population.PopulationCount - 1;
+		if (targetDemographic >= (int)Population.PopulationCount)
 			targetDemographic = 0;
 
 		simulation.data.drawDemographic = targetDemographic;
@@ -239,7 +241,7 @@ public class Main : MonoBehaviour {
 			}
 			//Set the string to the statistics
 			string finalString =
-				((PopulationRasterType)targetDemographic).ToString() + "\n" +
+				((Population)targetDemographic).ToString() + "\n" +
 				cell.susceptible[targetDemographic].ToString("F0") + "\n" +
 				cell.infected[targetDemographic].ToString("F0") + "\n" +
 				cell.recovered[targetDemographic].ToString("F0") + "\n" +

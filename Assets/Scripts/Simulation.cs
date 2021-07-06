@@ -30,12 +30,12 @@ public class Simulation {
 	//Cell struct, contains all the individual information for a cell
 	public unsafe struct Cell {
 		//buffers for the different counts of people in this cell
-		public fixed float numberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float susceptible[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float infected[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float recovered[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float exposed[(int)PopulationRasterType.PopulationTypeCount];
-		public fixed float dead[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed float numberOfPeople[(int)Population.PopulationCount];
+		public fixed float susceptible[(int)Population.PopulationCount];
+		public fixed float infected[(int)Population.PopulationCount];
+		public fixed float recovered[(int)Population.PopulationCount];
+		public fixed float exposed[(int)Population.PopulationCount];
+		public fixed float dead[(int)Population.PopulationCount];
 
 		public bool inMask; //Are we in the mask
 	}
@@ -64,7 +64,7 @@ public class Simulation {
 		public bool drawProportion;
 		
 		//Max number of people in a cell per demographic
-		public fixed float maxNumberOfPeople[(int)PopulationRasterType.PopulationTypeCount];
+		public fixed float maxNumberOfPeople[(int)Population.PopulationCount];
 
 		//Parameters
 		public float beta, alpha, gamma;
@@ -213,7 +213,7 @@ public class Simulation {
 		writeCells = new NativeArray<Cell>(data.width * data.height, Allocator.Persistent);
 
 		//Set the maximum per demographic to 0
-		for (int q = 0; q < (int)PopulationRasterType.PopulationTypeCount; q++) {
+		for (int q = 0; q < (int)Population.PopulationCount; q++) {
 			data.maxNumberOfPeople[q] = 0;
 		}
 
@@ -229,7 +229,7 @@ public class Simulation {
 				readCell.inMask = true;
 
 				//Population
-				for (int q = 0; q < (int)PopulationRasterType.PopulationTypeCount; q++) {
+				for (int q = 0; q < (int)Population.PopulationCount; q++) {
 					Texture2D texture = populationTextures[q];
 					Color32 color = texture.GetPixel(x, y);
 					float numberOfPeople = colorToFloat(color);
@@ -247,7 +247,7 @@ public class Simulation {
 				}
 
 				//If there's nobody here
-				if (readCell.numberOfPeople[(int)PopulationRasterType.FullPopulation] == 0) {
+				if (readCell.numberOfPeople[(int)Population.FullPopulation] == 0) {
 					readCell.inMask = false;
 				}
 				
@@ -278,7 +278,7 @@ public class Simulation {
 		[ReadOnly]
 		public NativeArray<uint> randomSeeds;
 
-		const int FullPop = (int)PopulationRasterType.FullPopulation;
+		const int FullPop = (int)Population.FullPopulation;
 
 		//The function that gets called for every index
 		public unsafe void Execute(int index) {
