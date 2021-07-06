@@ -312,15 +312,23 @@ public class Simulation {
 			for (int q = 0; q < neighborIndices.Length; q++) {
 				if (cellIsValid(neighborIndices[q])) {
 					Cell neighborCell = readCells[neighborIndices[q]];
+					if (neighborCell.infected[FullPop] < 4.0f) {
+						continue;
+					}
 					float newExposedNeighbor = data.beta *
 						((neighborCell.susceptible[FullPop] * neighborCell.infected[FullPop])
 						/ (float)neighborCell.numberOfPeople[FullPop]);
-					exposedToBeTaken += newExposedNeighbor / 4.0f;
+					exposedToBeTaken += (newExposedNeighbor / 4.0f);
 				}
 			}
+			//exposedToBeTaken *= Mathf.Log10(readCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
+			exposedToBeTaken *= Mathf.Sqrt(readCell.numberOfPeople[FullPop]) / Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
+			exposedToBeTaken = Mathf.Clamp(exposedToBeTaken, float.Epsilon, float.MaxValue);
 
 			if (exposedToBeTaken > writeCell.susceptible[FullPop])
 				exposedToBeTaken = writeCell.susceptible[FullPop];
+			if (exposedToBeTaken < 1.0f)
+				exposedToBeTaken = 0.0f;
 			writeCell.susceptible[FullPop] -= exposedToBeTaken;
 			writeCell.exposed[FullPop] += exposedToBeTaken;
 
@@ -349,6 +357,12 @@ public class Simulation {
 			}
 			else {
 				color = new Color(infectedPercentage, recoveredPercentage, deadPercentage);
+			}
+			if (writeCell.susceptible[FullPop] == writeCell.numberOfPeople[FullPop]) {
+				float v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
+				//"fix" the color
+				color = (Color32)color;
+				color = Color.Lerp(color, new Color(v,v,v,1.0f), 0.3f);
 			}
 
 			if (!data.drawInfected)
