@@ -16,6 +16,6 @@ local files = {
 
 --Runs the files
 for i, v in pairs(files) do
-	dofile(LuaSingleton.luaFolderPath .. v);
+	dofile(LuaSingleton.luaFolderPath .. "/" .. v);
 end
 

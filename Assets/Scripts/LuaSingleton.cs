@@ -12,12 +12,12 @@ public class LuaSingleton {
 	public static Lua lua;
 
 	//Path to the Lua folder
-	public static string luaFolderPath = Application.streamingAssetsPath + @"\Lua\";
+	public static string luaFolderPath = Application.streamingAssetsPath + @"\Lua";
 
 	public static void initLua() {
 		lua = new Lua();
 		lua.LoadCLRPackage();
-		lua.DoFile(luaFolderPath + "LuaSingletonLoader.lua");
+		lua.DoFile(luaFolderPath + "/LuaSingletonLoader.lua");
 	}
 
 
