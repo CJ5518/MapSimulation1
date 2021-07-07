@@ -5,7 +5,7 @@ using OSGeo.GDAL;
 using NLua;
 
 public enum RasterType {
-	Population,
+	Population, //Must be the same as the enum name
 	RasterTypeCount
 }
 
@@ -17,7 +17,7 @@ public enum Population {
 	Women,
 	WomenOfReproductiveAge,
 	Youth15To24,
-	PopulationCount
+	PopulationCount //Must be [EnumName]Count
 }
 
 public class RasterHandler {

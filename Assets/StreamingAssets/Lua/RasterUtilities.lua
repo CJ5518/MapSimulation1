@@ -12,6 +12,7 @@ import("System.Reflection");
 import("UnityEngine");
 import("gdal_csharp"); --Gdal needs to be loaded by this
 import("OSGeo.GDAL");
+import("SimpleFileBrowser");
 
 --Xml parser things
 local xml2lua = require("XML.xml2lua");
@@ -23,9 +24,6 @@ More Lua and features for downloading/saving the datasets
 Edit warpVrt to just be warpDataset and then use the file extension to decide how to warp
 ]]
 
---Are the rasters ready to be loaded?
-RastersReadyForLoad = false;
-
 --Public
 RasterUtilities = {};
 --Private
@@ -35,14 +33,33 @@ RasterPrivate = {};
 --The Data folder, which contains all things raster
 RasterDataFolderLocation = "F:\\Data";
 
---Check/fill the data folder
-if Directory.Exists(RasterDataFolderLocation) then
+--returns a bool, true if we need to prompt the user for a data folder, false if not
+function RasterUtilities.needDataFolder()
+	return not Directory.Exists(RasterDataFolderLocation);
+end
+
+--Creates the required folders in the data folder based upon the enum
+function RasterUtilities.createDataDirectoryStructure()
 	local tifFolder = RasterDataFolderLocation .. "/tif";
-	if Directory.Exists(tifFolder) then
-		
+
+	Directory.CreateDirectory(tifFolder);
+
+	--Iterate over every enum item
+	for major = 0, LuaSingleton.castToInt(RasterType.RasterTypeCount) - 1 do
+		local minorName = luanet.enum(RasterType, major):ToString();
+		--Yummy hacks
+		for minor = 0, LuaSingleton.castToInt(_G[minorName][minorName .. "Count"]) - 1 do
+			local name = luanet.enum(_G[minorName], minor):ToString();
+			Directory.CreateDirectory(tifFolder .. "/" .. name);
+		end
 	end
 end
 
+local tifFolder = RasterDataFolderLocation .. "/tif";
+
+if not Directory.Exists(tifFolder) then
+	
+end
 ---------------------------------
 -- High Level Raster Interface --
 ---------------------------------

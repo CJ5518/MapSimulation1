@@ -97,16 +97,26 @@ public class Main : MonoBehaviour {
 	}
 
 	IEnumerator loadSimulation() {
-		Debug.Log("Starting the load sim function");
-		do {
-			Debug.Log("In the Loop");
-			yield return FileBrowser.WaitForLoadDialog(
-				FileBrowser.PickMode.Folders, false, null, null, "Select Data Folder"
-			);
-		} while (!FileBrowser.Success);
+		//Get some Lua functions
+		LuaFunction needDataFolder = (LuaFunction)LuaSingleton.lua["RasterUtilities.needDataFolder"];
+		LuaFunction createDataDirectoryStructure = (LuaFunction)
+			LuaSingleton.lua["RasterUtilities.createDataDirectoryStructure"];
 
-		for (int i = 0; i < FileBrowser.Result.Length; i++)
-			Debug.Log(FileBrowser.Result[i]);
+		if ((bool)needDataFolder.Call()[0]) {
+			do {
+				Debug.Log("In the Loop");
+				yield return FileBrowser.WaitForLoadDialog(
+					FileBrowser.PickMode.Folders, false, null, null, "Select Data Folder"
+				);
+			} while (!FileBrowser.Success);
+
+			LuaSingleton.lua["RasterDataFolderLocation"] = FileBrowser.Result[0];
+
+			//This should probably be outside this part, as the above is for when we need a data folder,
+			//but this is more for when the data folder needs stuff in it
+			createDataDirectoryStructure.Call();
+		}
+
 
 		int width = Screen.width / pixelSize;
 		int height = Screen.height / pixelSize;

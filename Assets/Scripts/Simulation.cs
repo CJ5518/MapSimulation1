@@ -310,6 +310,7 @@ public class Simulation {
 
 			int[] neighborIndices = getNeighborIndices(index);
 			float neighborPopulation = readCell.numberOfPeople[FullPop];
+
 			for (int q = 0; q < neighborIndices.Length; q++) {
 				if (cellIsValid(neighborIndices[q])) {
 					Cell neighborCell = readCells[neighborIndices[q]];
@@ -332,10 +333,6 @@ public class Simulation {
 			else {
 				exposedToBeTaken *= factor;
 			}
-
-			
-
-			
 			//exposedToBeTaken = Mathf.Clamp(exposedToBeTaken, float.Epsilon, float.MaxValue);
 
 			if (exposedToBeTaken > writeCell.susceptible[FullPop])

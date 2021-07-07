@@ -2,6 +2,7 @@
 
 using NLua;
 using UnityEngine;
+using System.Collections;
 
 //A Lua state for all your static Lua needs
 //Useful for registering functions/configuration data
@@ -20,9 +21,8 @@ public class LuaSingleton {
 		lua.DoFile(luaFolderPath + "/LuaSingletonLoader.lua");
 	}
 
-
-	//Functions designed to be called from Lua
-	public static Color color32ToColor(Color32 c) {
-		return c;
+	//Nlua sure is fun, eh?
+	public static int castToInt(object obj) {
+		return (int)obj;
 	}
 }
