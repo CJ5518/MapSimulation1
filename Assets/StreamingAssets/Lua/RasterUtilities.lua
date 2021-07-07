@@ -23,6 +23,9 @@ More Lua and features for downloading/saving the datasets
 Edit warpVrt to just be warpDataset and then use the file extension to decide how to warp
 ]]
 
+--Are the rasters ready to be loaded?
+RastersReadyForLoad = false;
+
 --Public
 RasterUtilities = {};
 --Private
@@ -31,6 +34,14 @@ RasterPrivate = {};
 
 --The Data folder, which contains all things raster
 RasterDataFolderLocation = "F:\\Data";
+
+--Check/fill the data folder
+if Directory.Exists(RasterDataFolderLocation) then
+	local tifFolder = RasterDataFolderLocation .. "/tif";
+	if Directory.Exists(tifFolder) then
+		
+	end
+end
 
 ---------------------------------
 -- High Level Raster Interface --

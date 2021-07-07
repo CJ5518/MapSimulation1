@@ -7,10 +7,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI.Extensions;
 using Unity.Jobs;
 using Unity.Collections;
+using System.Collections;
 using OSGeo.OSR;
 using OSGeo.GDAL;
 using OSGeo.OGR;
 using NLua;
+using SimpleFileBrowser;
 
 //Test class
 public class Main : MonoBehaviour {
@@ -43,9 +45,7 @@ public class Main : MonoBehaviour {
 
 	Toggle drawProportionToggle;
 
-
-	//The demographic we are currently looking at statistics for
-	int targetDemographic = (int)Population.FullPopulation;
+	bool loadedSimulation = false;
 
 	void Start() {
 		double startTime = Time.realtimeSinceStartupAsDouble;
@@ -58,7 +58,7 @@ public class Main : MonoBehaviour {
 		Osr.SetPROJSearchPath(Application.streamingAssetsPath + "\\proj");
 
 		//Set up render space
-		string shapeFilePath = @"F:\Data\shp\USA_Reprojected.shp";
+		string shapeFilePath = Application.streamingAssetsPath + "/USA_Reprojected.shp";
 
 		Projection.setRenderSpaceByShapeFile(shapeFilePath);
 		Projection.pixelSize = pixelSize;
@@ -89,6 +89,25 @@ public class Main : MonoBehaviour {
 
 		drawProportionToggle = GameObject.Find("Canvas/DrawProportionToggle").GetComponent<Toggle>();
 
+
+		StartCoroutine("loadSimulation");
+
+		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
+			" seconds to run the Main.cs start function");
+	}
+
+	IEnumerator loadSimulation() {
+		Debug.Log("Starting the load sim function");
+		do {
+			Debug.Log("In the Loop");
+			yield return FileBrowser.WaitForLoadDialog(
+				FileBrowser.PickMode.Folders, false, null, null, "Select Data Folder"
+			);
+		} while (!FileBrowser.Success);
+
+		for (int i = 0; i < FileBrowser.Result.Length; i++)
+			Debug.Log(FileBrowser.Result[i]);
+
 		int width = Screen.width / pixelSize;
 		int height = Screen.height / pixelSize;
 
@@ -100,7 +119,7 @@ public class Main : MonoBehaviour {
 
 		for (int q = 0; q < populationTextures.Length; q++) {
 			RasterHandler rasterHandler = new RasterHandler(RasterType.Population, q);
-			
+
 			double localStartTime = Time.realtimeSinceStartupAsDouble;
 
 			rasterHandler.preprocessData();
@@ -109,16 +128,18 @@ public class Main : MonoBehaviour {
 			localStartTime = Time.realtimeSinceStartupAsDouble;
 
 			populationTextures[q] = rasterHandler.loadToTexture(width, height);
-			
+
 
 			textureLoadTime += Time.realtimeSinceStartupAsDouble - localStartTime;
 
 			populationTextures[q].Apply();
+
+			yield return null;
 		}
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,
-			new Texture2D[] { populationTextures[(int)Population.FullPopulation]}
+			new Texture2D[] { populationTextures[(int)Population.FullPopulation] }
 		);
 
 		backgroundMovableImage.texture = simulation.drawTexture;
@@ -127,15 +148,20 @@ public class Main : MonoBehaviour {
 		Debug.Log("Preprocess time: " + preprocessTime);
 		Debug.Log("Texture load time: " + textureLoadTime);
 
-		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) + 
-			" seconds to run the Main.cs start function");
+		loadedSimulation = true;
 	}
+	
 
 	//Some vars for testing purposes
+
+	//Doing things every x seconds
 	float lastSimTime = -100.0f;
 	float lastStatsTime = -100.0f;
 	bool autoPlay = false;
+	//The demographic we are currently looking at statistics for
+	int targetDemographic = (int)Population.FullPopulation;
 	private unsafe void Update() {
+		if (!loadedSimulation) return;
 		//Sliders and buttons
 
 		//r0
@@ -180,9 +206,9 @@ public class Main : MonoBehaviour {
 		int index = simulation.coordToIndex(pixel);
 
 		if (simulation.cellIsValid(index)) {
-
+			
 			Simulation.Cell cell = simulation.readCells[index];
-
+			
 			//Kill cells on click
 			if (Input.GetMouseButtonDown(0) && EventSystem.current.currentSelectedGameObject == null) {
 				Debug.Log(cell.susceptible[targetDemographic]);
