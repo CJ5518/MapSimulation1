@@ -200,7 +200,7 @@ public class Main : MonoBehaviour {
 		if (Input.GetKeyDown(KeyCode.Q)) autoPlay = !autoPlay;
 
 		//Tick the simulation every now and then
-		if (Time.realtimeSinceStartup - lastSimTime >= 0.1f && autoPlay) {
+		if (Time.realtimeSinceStartup - lastSimTime >= 0.05f && autoPlay) {
 			lastSimTime = Time.realtimeSinceStartup;
 			simulation.tickSimulation();
 		}
@@ -211,6 +211,7 @@ public class Main : MonoBehaviour {
 	}
 
 	//Updates the statistics label based on the pixel the mouse is over, and targetDemographic
+	int lastIndex = -1;
 	unsafe void updateStatisticsLabel() {
 		float totalSusceptible = 0.0f;
 		float totalInfected = 0.0f;
@@ -221,11 +222,15 @@ public class Main : MonoBehaviour {
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
 		int index = simulation.coordToIndex(pixel);
 
+		if (!simulation.cellIsValid(index) && simulation.cellIsValid(lastIndex))
+			index = lastIndex;
+
 		if (simulation.cellIsValid(index)) {
+			lastIndex = index;
 			Simulation.Cell cell = simulation.readCells[index];
 
 			//Gather statistics for the entire thing
-			if (Time.realtimeSinceStartup - lastStatsTime >= 0.01f) {
+			if (Time.realtimeSinceStartup - lastStatsTime >= 0.001f) {
 				lastStatsTime = Time.realtimeSinceStartup;
 				totalSusceptible = 0;
 				totalInfected = 0;
