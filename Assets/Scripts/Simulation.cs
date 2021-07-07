@@ -309,9 +309,11 @@ public class Simulation {
 			float exposedToBeTaken = 0;
 
 			int[] neighborIndices = getNeighborIndices(index);
+			float neighborPopulation = readCell.numberOfPeople[FullPop];
 			for (int q = 0; q < neighborIndices.Length; q++) {
 				if (cellIsValid(neighborIndices[q])) {
 					Cell neighborCell = readCells[neighborIndices[q]];
+					neighborPopulation += neighborCell.numberOfPeople[FullPop];
 					if (neighborCell.infected[FullPop] < 4.0f) {
 						continue;
 					}
@@ -322,8 +324,19 @@ public class Simulation {
 				}
 			}
 			//exposedToBeTaken *= Mathf.Log10(readCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
-			exposedToBeTaken *= Mathf.Sqrt(readCell.numberOfPeople[FullPop]) / Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
-			exposedToBeTaken = Mathf.Clamp(exposedToBeTaken, float.Epsilon, float.MaxValue);
+			float factor = Mathf.Sqrt(readCell.numberOfPeople[FullPop]) / Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
+
+			if (neighborPopulation < data.maxNumberOfPeople[FullPop]) {
+				exposedToBeTaken *= factor;
+			}
+			else {
+				exposedToBeTaken *= factor;
+			}
+
+			
+
+			
+			//exposedToBeTaken = Mathf.Clamp(exposedToBeTaken, float.Epsilon, float.MaxValue);
 
 			if (exposedToBeTaken > writeCell.susceptible[FullPop])
 				exposedToBeTaken = writeCell.susceptible[FullPop];
