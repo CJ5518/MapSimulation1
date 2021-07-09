@@ -317,9 +317,9 @@ public class Simulation {
 
 					//Calculate the neighbor's 'share' of the exposure
 					float newExposedNeighbor = data.beta *
-						((readCell.susceptible[FullPop] * (neighborCell.infected[FullPop] / 4.0f))
+						((readCell.susceptible[FullPop] * (neighborCell.infected[FullPop] / 8.0f))
 						/ readCell.numberOfPeople[FullPop]);
-					exposedToBeTaken += (newExposedNeighbor / 4.0f);
+					exposedToBeTaken += (newExposedNeighbor / 8.0f);
 				}
 			}
 			//exposedToBeTaken *= Mathf.Log10(readCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
@@ -386,11 +386,15 @@ public class Simulation {
 		//Returns the indices of the neighbors to an index
 		//Indices may or may not be valid, or even in the array at all
 		public int[] getNeighborIndices(int index) {
-			int[] ret = new int[4];
-			ret[0] = index - 1;
-			ret[1] = index + 1;
-			ret[2] = index + data.width;
-			ret[3] = index - data.width;
+			int[] ret = new int[8];
+			ret[0] = index - 1; //left
+			ret[1] = index + 1; //right
+			ret[2] = index + data.width; //top
+			ret[3] = index - data.width; //bottom
+			ret[4] = ret[0] + data.width;
+			ret[5] = ret[0] - data.width;
+			ret[6] = ret[1] + data.width;
+			ret[7] = ret[2] + data.width;
 			return ret;
 		}
 
