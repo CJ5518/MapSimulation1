@@ -290,9 +290,6 @@ public class Simulation {
 			//Color32* textureDataPointer = (Color32*)textureDataPointers[texIdx];
 			//Then just use it as an array
 
-			//Random numbers
-			Unity.Mathematics.Random random = new Unity.Mathematics.Random(randomSeeds[index] * data.runCount);
-
 			//Spread in this cell, because of this cell
 			float newExposed = data.beta * 
 				((readCell.susceptible[FullPop] * readCell.infected[FullPop]) / readCell.numberOfPeople[FullPop]);
@@ -306,35 +303,34 @@ public class Simulation {
 
 			//Spread in this cell, because of other cells
 
-			float exposedToBeTaken = 0;
-
 			int[] neighborIndices = getNeighborIndices(index);
+			float ourContribution = 0;
 
 			for (int q = 0; q < neighborIndices.Length; q++) {
 				if (cellIsValid(neighborIndices[q])) {
 					Cell neighborCell = readCells[neighborIndices[q]];
 
+					if (neighborCell.infected[FullPop] >= 1.0f) {
+						//Copy this math!
+						float neighborMoveZombies = neighborCell.infected[FullPop] / 80.0f;
+						if (neighborMoveZombies < 1.0f) neighborMoveZombies = 0.0f;
 
-					//Calculate the neighbor's 'share' of the exposure
-					float newExposedNeighbor = data.beta *
-						((readCell.susceptible[FullPop] * (neighborCell.infected[FullPop] / 8.0f))
-						/ readCell.numberOfPeople[FullPop]);
-					exposedToBeTaken += (newExposedNeighbor / 8.0f);
+						writeCell.infected[FullPop] += neighborMoveZombies;
+						writeCell.numberOfPeople[FullPop] += neighborMoveZombies;
+					}
+
+					//We give an amount to each neighbor based on readCell, since we're here going
+					//through all valid neighbors, might as well count what we owe
+					//Copied math
+					float amount = readCell.infected[FullPop] / 80.0f;
+					ourContribution += amount >= 1.0f ? amount : 0.0f;
 				}
 			}
-			//exposedToBeTaken *= Mathf.Log10(readCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
-			float factor = Mathf.Clamp(Mathf.Sqrt(readCell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
-				/ Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
-			exposedToBeTaken *= factor;
+			if (ourContribution < 1.0f) ourContribution = 0.0f;
 
-			//exposedToBeTaken = Mathf.Clamp(exposedToBeTaken, float.Epsilon, float.MaxValue);
+			writeCell.numberOfPeople[FullPop] -= ourContribution;
+			writeCell.infected[FullPop] -= ourContribution;
 
-			if (exposedToBeTaken > writeCell.susceptible[FullPop])
-				exposedToBeTaken = writeCell.susceptible[FullPop];
-			if (exposedToBeTaken < 1.0f)
-				exposedToBeTaken = 0.0f;
-			writeCell.susceptible[FullPop] -= exposedToBeTaken;
-			writeCell.exposed[FullPop] += exposedToBeTaken;
 
 			//Clamp the numbers
 			writeCell.susceptible[FullPop] = Mathf.Clamp(writeCell.susceptible[FullPop], 0, float.MaxValue);
@@ -394,7 +390,7 @@ public class Simulation {
 			ret[4] = ret[0] + data.width;
 			ret[5] = ret[0] - data.width;
 			ret[6] = ret[1] + data.width;
-			ret[7] = ret[2] + data.width;
+			ret[7] = ret[1] - data.width;
 			return ret;
 		}
 
