@@ -222,8 +222,8 @@ public class Main : MonoBehaviour {
 			//Kill cells on click
 			if (Input.GetMouseButtonDown(0) && EventSystem.current.currentSelectedGameObject == null) {
 				Debug.Log(cell.susceptible[targetDemographic]);
-				cell.infected[targetDemographic]++;
-				cell.susceptible[targetDemographic]--;
+				cell.infected[targetDemographic]+= 80.0f;
+				cell.susceptible[targetDemographic]-= 80.0f;
 				simulation.readCells[index] = cell;
 			}
 		}
@@ -253,6 +253,7 @@ public class Main : MonoBehaviour {
 		float totalInfected = 0.0f;
 		float totalRecovered = 0.0f;
 		float totalExposed = 0.0f;
+		int totalPeople = 0;
 
 		//Pixel coord on the draw texture
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
@@ -266,33 +267,36 @@ public class Main : MonoBehaviour {
 			Simulation.Cell cell = simulation.readCells[index];
 
 			//Gather statistics for the entire thing
-			if (Time.realtimeSinceStartup - lastStatsTime >= 0.001f) {
+			if (Time.realtimeSinceStartup - lastStatsTime >= 0.08f) {
 				lastStatsTime = Time.realtimeSinceStartup;
 				totalSusceptible = 0;
 				totalInfected = 0;
 				totalRecovered = 0;
 				totalExposed = 0;
+				totalPeople = 0;
 				for (int q = 0; q < simulation.readCells.Length; q++) {
 					Simulation.Cell readCell = simulation.readCells[q];
+					totalPeople += Mathf.FloorToInt(readCell.numberOfPeople[targetDemographic] + 0.5f);
 					totalSusceptible += readCell.susceptible[targetDemographic];
 					totalInfected += readCell.infected[targetDemographic];
 					totalRecovered += readCell.recovered[targetDemographic];
 					totalExposed += readCell.exposed[targetDemographic];
 				}
+
+				//Set the string to the statistics
+				string finalString =
+					((Population)targetDemographic).ToString() + "\n" +
+					cell.susceptible[targetDemographic].ToString("F3") + "\n" +
+					cell.infected[targetDemographic].ToString("F3") + "\n" +
+					cell.numberOfPeople[targetDemographic].ToString("F3") + "\n" +
+					cell.exposed[targetDemographic].ToString("F3") + "\n" +
+					"Totals:" + "\n" +
+					totalSusceptible.ToString("F3") + "\n" +
+					totalInfected.ToString("F3") + "\n" +
+					totalPeople.ToString() + "\n" +
+					totalExposed.ToString("F3") + "\n";
+				statisticsEditLabel.text = finalString;
 			}
-			//Set the string to the statistics
-			string finalString =
-				((Population)targetDemographic).ToString() + "\n" +
-				cell.susceptible[targetDemographic].ToString("F0") + "\n" +
-				cell.infected[targetDemographic].ToString("F0") + "\n" +
-				cell.recovered[targetDemographic].ToString("F0") + "\n" +
-				cell.exposed[targetDemographic].ToString("F0") + "\n" +
-				"Totals:" + "\n" +
-				totalSusceptible.ToString("F0") + "\n" +
-				totalInfected.ToString("F0") + "\n" +
-				totalRecovered.ToString("F0") + "\n" +
-				totalExposed.ToString("F0") + "\n";
-			statisticsEditLabel.text = finalString;
 		}
 	}
 
