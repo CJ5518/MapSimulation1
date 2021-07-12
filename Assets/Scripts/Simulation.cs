@@ -59,8 +59,7 @@ public class Simulation {
 		public bool drawInfected;
 		public bool drawDead;
 		public bool drawRecovered;
-		//Draw proportionally to the cell or not, i don't really know what this means/does/why
-		//It is but the boss requested it so here we are
+		//Basically to log transform or not
 		public bool drawProportion;
 		
 		//Max number of people in a cell per demographic
@@ -74,6 +73,8 @@ public class Simulation {
 
 		//The demographic to influence the output pixel color
 		public int drawDemographic;
+
+		public float spreadRate;
 	}
 	//Set the default values here
 	public SimulationDataStruct data = new SimulationDataStruct() {
@@ -90,7 +91,8 @@ public class Simulation {
 
 		runCount = 0,
 
-		drawDemographic = 0
+		drawDemographic = 0,
+		spreadRate = 1.0f
 	};
 
 	//Cell buffers
@@ -320,6 +322,8 @@ public class Simulation {
 			int[] neighborIndices = getNeighborIndices(index);
 			float ourContribution = 0;
 
+			float factor;
+
 			for (int q = 0; q < neighborIndices.Length; q++) {
 				if (cellIsValid(neighborIndices[q])) {
 					Cell neighborCell = readCells[neighborIndices[q]];
@@ -327,6 +331,11 @@ public class Simulation {
 					if (neighborCell.infected[FullPop] >= 1.0f) {
 						//Copy this math!
 						float neighborMoveZombies = neighborCell.infected[FullPop] / 80.0f;
+
+						factor = Mathf.Clamp(Mathf.Sqrt(neighborCell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
+							/ Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
+						neighborMoveZombies *= factor * data.spreadRate;
+
 						if (neighborMoveZombies < 1.0f) neighborMoveZombies = 0.0f;
 
 						writeCell.infected[FullPop] += neighborMoveZombies;
@@ -337,9 +346,14 @@ public class Simulation {
 					//through all valid neighbors, might as well count what we owe
 					//Copied math
 					float amount = readCell.infected[FullPop] / 80.0f;
+					factor = Mathf.Clamp(Mathf.Sqrt(readCell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
+						/ Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
+					
+					amount *= factor * data.spreadRate;
 					ourContribution += amount >= 1.0f ? amount : 0.0f;
 				}
 			}
+
 			if (ourContribution < 1.0f) ourContribution = 0.0f;
 
 			writeCell.numberOfPeople[FullPop] -= ourContribution;
@@ -484,7 +498,7 @@ public class Simulation {
 			//Verify that it's the same size
 			if (array[q].width != data.width || array[q].height != data.height)
 				throw new Exception("Texture #" + q.ToString() + " is not of the same height and width as the other textures");
-
+			if (array[q].format == TextureFormat.RGBA32) continue;
 			//Create dummy texture to copy the data in a new format
 			Texture2D dummy = new Texture2D(data.width, data.height, TextureFormat.RGBA32, false);
 			dummy.SetPixels(array[q].GetPixels());

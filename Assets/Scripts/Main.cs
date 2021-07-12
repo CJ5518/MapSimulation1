@@ -36,6 +36,9 @@ public class Main : MonoBehaviour {
 	Slider betaSlider;
 	Text betaText;
 
+	Slider spreadRateSlider;
+	Text spreadRateText;
+
 	Text r0Text;
 
 	//Toggles
@@ -82,6 +85,9 @@ public class Main : MonoBehaviour {
 
 		betaSlider = GameObject.Find("Canvas/BetaSlider").GetComponent<Slider>();
 		betaText = GameObject.Find("Canvas/BetaText").GetComponent<Text>();
+
+		spreadRateSlider = GameObject.Find("Canvas/SpreadRateSlider").GetComponent<Slider>();
+		spreadRateText = GameObject.Find("Canvas/SpreadRateText").GetComponent<Text>();
 
 		drawInfectedToggle = GameObject.Find("Canvas/DrawInfectedToggle").GetComponent<Toggle>();
 		drawRecoveredToggle = GameObject.Find("Canvas/DrawRecoveredToggle").GetComponent<Toggle>();
@@ -139,7 +145,6 @@ public class Main : MonoBehaviour {
 
 			populationTextures[q] = rasterHandler.loadToTexture(width, height);
 
-
 			textureLoadTime += Time.realtimeSinceStartupAsDouble - localStartTime;
 
 			populationTextures[q].Apply();
@@ -170,6 +175,7 @@ public class Main : MonoBehaviour {
 	bool autoPlay = false;
 	//The demographic we are currently looking at statistics for
 	int targetDemographic = (int)Population.FullPopulation;
+
 	private unsafe void Update() {
 		if (!loadedSimulation) return;
 		//Sliders and buttons
@@ -186,6 +192,9 @@ public class Main : MonoBehaviour {
 
 		gammaText.text = "γ: " + gammaSlider.value.ToString("f2");
 		simulation.data.gamma = gammaSlider.value;
+
+		spreadRateText.text = "sr: " + spreadRateSlider.value.ToString("f2");
+		simulation.data.spreadRate = spreadRateSlider.value;
 
 		//Draw toggles
 		simulation.data.drawRecovered = drawRecoveredToggle.isOn;
@@ -236,7 +245,7 @@ public class Main : MonoBehaviour {
 		}
 
 		//Tick the simulation every now and then
-		if (Time.realtimeSinceStartup - lastSimTime >= 0.1f && autoPlay) {
+		if (Time.realtimeSinceStartup - lastSimTime >= 0.05f && autoPlay) {
 			lastSimTime = Time.realtimeSinceStartup;
 
 			if (simulation.simulationIsRunning)
