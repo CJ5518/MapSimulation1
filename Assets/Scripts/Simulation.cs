@@ -75,6 +75,7 @@ public class Simulation {
 		public int drawDemographic;
 
 		public float spreadRate;
+		public bool moveZombies;
 	}
 	//Set the default values here
 	public SimulationDataStruct data = new SimulationDataStruct() {
@@ -92,7 +93,8 @@ public class Simulation {
 		runCount = 0,
 
 		drawDemographic = 0,
-		spreadRate = 1.0f
+		spreadRate = 1.0f,
+		moveZombies = true
 	};
 
 	//Cell buffers
@@ -328,13 +330,19 @@ public class Simulation {
 
 					if (neighborCell.infected[FullPop] >= 1.0f) {
 						float neighborMoveZombies = getCellSpreadContribution(neighborIndices[q]);
+
+						//Can't have the new number of infected be too large if we don't also subtract later
+						if (!data.moveZombies) {
+							neighborMoveZombies = Mathf.Clamp(neighborMoveZombies, 0.0f, writeCell.susceptible[FullPop]);
+						}
 						writeCell.infected[FullPop] += neighborMoveZombies;
 						writeCell.numberOfPeople[FullPop] += neighborMoveZombies;
 					}
 
 					//We give an amount to each neighbor based on readCell, since we're here going
 					//through all valid neighbors, might as well count what we owe
-					ourContribution += getCellSpreadContribution(index);
+					if (data.moveZombies)
+						ourContribution += getCellSpreadContribution(index);
 				}
 			}
 
@@ -354,9 +362,11 @@ public class Simulation {
 			float recoveredPercentage = writeCell.recovered[FullPop] / writeCell.numberOfPeople[FullPop];
 
 			//Compute the color
+
+
 			Color color;
 
-			//Need to do more with this
+
 			if (data.drawProportion) {
 				float max = Mathf.Log10(data.maxNumberOfPeople[FullPop]);
 				color = new Color(

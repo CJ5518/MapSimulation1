@@ -45,6 +45,7 @@ public class Main : MonoBehaviour {
 	Toggle drawInfectedToggle;
 	Toggle drawRecoveredToggle;
 	Toggle drawDeadToggle;
+	Toggle moveZombiesToggle;
 
 	Toggle drawProportionToggle;
 
@@ -94,6 +95,7 @@ public class Main : MonoBehaviour {
 		drawDeadToggle = GameObject.Find("Canvas/DrawDeadToggle").GetComponent<Toggle>();
 
 		drawProportionToggle = GameObject.Find("Canvas/DrawProportionToggle").GetComponent<Toggle>();
+		moveZombiesToggle = GameObject.Find("Canvas/MoveZombiesToggle").GetComponent<Toggle>();
 
 
 		StartCoroutine("loadSimulation");
@@ -196,12 +198,13 @@ public class Main : MonoBehaviour {
 		spreadRateText.text = "sr: " + spreadRateSlider.value.ToString("f2");
 		simulation.data.spreadRate = spreadRateSlider.value;
 
-		//Draw toggles
+		//Toggles
 		simulation.data.drawRecovered = drawRecoveredToggle.isOn;
 		simulation.data.drawInfected = drawInfectedToggle.isOn;
 		simulation.data.drawDead = drawDeadToggle.isOn;
 
 		simulation.data.drawProportion = drawProportionToggle.isOn;
+		simulation.data.moveZombies = moveZombiesToggle.isOn;
 
 
 		//Change the targetDemographic on keypress
