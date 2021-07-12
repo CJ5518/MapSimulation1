@@ -113,10 +113,12 @@ public class Simulation {
 		Init();
 	}
 
-	//The pun
-	//Ticks the simulation once
-	public unsafe void tickSimulation() {
+	JobHandle jobHandle;
+	public bool simulationIsRunning = false;
+	//Starts a tick of the simulation, MUST call endTick before calling this again
+	public unsafe void beginTick() {
 		data.runCount++;
+		simulationIsRunning = true;
 
 		//The unsafe part
 		//Get pointers to the raw texture data
@@ -136,7 +138,12 @@ public class Simulation {
 			randomSeeds = randomSeeds
 		};
 
-		JobHandle jobHandle = job.Schedule(data.width * data.height, 13755);
+		jobHandle = job.Schedule(data.width * data.height, 13755);
+	}
+
+	//Ends a tick started by beginTick
+	public void endTick() {
+		simulationIsRunning = false;
 		jobHandle.Complete();
 
 		drawTexture.Apply();
@@ -151,6 +158,13 @@ public class Simulation {
 		data.season += data.seasonAdder;
 		if (data.season >= 1.0 || data.season <= 0.0)
 			data.seasonAdder *= -1f;
+	}
+
+	//The pun
+	//Ticks the simulation once
+	public unsafe void tickSimulation() {
+		beginTick();
+		endTick();
 	}
 
 	//Deletes the native arrays used by the simulation

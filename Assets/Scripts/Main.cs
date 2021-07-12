@@ -221,7 +221,9 @@ public class Main : MonoBehaviour {
 			
 			//Kill cells on click
 			if (Input.GetMouseButtonDown(0) && EventSystem.current.currentSelectedGameObject == null) {
-				Debug.Log(cell.susceptible[targetDemographic]);
+				//Can't mess with the cells if the simulation is going
+				if (simulation.simulationIsRunning)
+					simulation.endTick();
 				cell.infected[targetDemographic]+= 80.0f;
 				cell.susceptible[targetDemographic]-= 80.0f;
 				simulation.readCells[index] = cell;
@@ -229,20 +231,26 @@ public class Main : MonoBehaviour {
 		}
 
 		//Step once on space pressed
-		if (Input.GetKeyDown(KeyCode.Space)) {
+		if (Input.GetKeyDown(KeyCode.Space) && !autoPlay) {
 			simulation.tickSimulation();
 		}
-		//Toggle autoplay on q pressed
-		if (Input.GetKeyDown(KeyCode.Q)) autoPlay = !autoPlay;
 
 		//Tick the simulation every now and then
-		if (Time.realtimeSinceStartup - lastSimTime >= 0.05f && autoPlay) {
+		if (Time.realtimeSinceStartup - lastSimTime >= 0.1f && autoPlay) {
 			lastSimTime = Time.realtimeSinceStartup;
-			simulation.tickSimulation();
+
+			if (simulation.simulationIsRunning)
+				simulation.endTick();
+
+			simulation.beginTick();
 		}
+
+		//Toggle autoplay on q pressed
+		if (Input.GetKeyDown(KeyCode.Q)) autoPlay = !autoPlay;
 	}
 
 	void OnDestroy() {
+		if (simulation.simulationIsRunning) simulation.endTick();
 		simulation.deleteNativeArrays();
 	}
 
@@ -253,7 +261,6 @@ public class Main : MonoBehaviour {
 		float totalInfected = 0.0f;
 		float totalRecovered = 0.0f;
 		float totalExposed = 0.0f;
-		int totalPeople = 0;
 
 		//Pixel coord on the draw texture
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
@@ -273,10 +280,8 @@ public class Main : MonoBehaviour {
 				totalInfected = 0;
 				totalRecovered = 0;
 				totalExposed = 0;
-				totalPeople = 0;
 				for (int q = 0; q < simulation.readCells.Length; q++) {
 					Simulation.Cell readCell = simulation.readCells[q];
-					totalPeople += Mathf.FloorToInt(readCell.numberOfPeople[targetDemographic] + 0.5f);
 					totalSusceptible += readCell.susceptible[targetDemographic];
 					totalInfected += readCell.infected[targetDemographic];
 					totalRecovered += readCell.recovered[targetDemographic];
@@ -288,12 +293,12 @@ public class Main : MonoBehaviour {
 					((Population)targetDemographic).ToString() + "\n" +
 					cell.susceptible[targetDemographic].ToString("F3") + "\n" +
 					cell.infected[targetDemographic].ToString("F3") + "\n" +
-					cell.numberOfPeople[targetDemographic].ToString("F3") + "\n" +
+					cell.recovered[targetDemographic].ToString("F3") + "\n" +
 					cell.exposed[targetDemographic].ToString("F3") + "\n" +
 					"Totals:" + "\n" +
 					totalSusceptible.ToString("F3") + "\n" +
 					totalInfected.ToString("F3") + "\n" +
-					totalPeople.ToString() + "\n" +
+					totalRecovered.ToString("F3") + "\n" +
 					totalExposed.ToString("F3") + "\n";
 				statisticsEditLabel.text = finalString;
 			}
