@@ -322,39 +322,21 @@ public class Simulation {
 			int[] neighborIndices = getNeighborIndices(index);
 			float ourContribution = 0;
 
-			float factor;
-
 			for (int q = 0; q < neighborIndices.Length; q++) {
 				if (cellIsValid(neighborIndices[q])) {
 					Cell neighborCell = readCells[neighborIndices[q]];
 
 					if (neighborCell.infected[FullPop] >= 1.0f) {
-						//Copy this math!
-						float neighborMoveZombies = neighborCell.infected[FullPop] / 80.0f;
-
-						factor = Mathf.Clamp(Mathf.Sqrt(neighborCell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
-							/ Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
-						neighborMoveZombies *= factor * data.spreadRate;
-
-						if (neighborMoveZombies < 1.0f) neighborMoveZombies = 0.0f;
-
+						float neighborMoveZombies = getCellSpreadContribution(neighborIndices[q]);
 						writeCell.infected[FullPop] += neighborMoveZombies;
 						writeCell.numberOfPeople[FullPop] += neighborMoveZombies;
 					}
 
 					//We give an amount to each neighbor based on readCell, since we're here going
 					//through all valid neighbors, might as well count what we owe
-					//Copied math
-					float amount = readCell.infected[FullPop] / 80.0f;
-					factor = Mathf.Clamp(Mathf.Sqrt(readCell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
-						/ Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
-					
-					amount *= factor * data.spreadRate;
-					ourContribution += amount >= 1.0f ? amount : 0.0f;
+					ourContribution += getCellSpreadContribution(index);
 				}
 			}
-
-			if (ourContribution < 1.0f) ourContribution = 0.0f;
 
 			writeCell.numberOfPeople[FullPop] -= ourContribution;
 			writeCell.infected[FullPop] -= ourContribution;
@@ -422,19 +404,21 @@ public class Simulation {
 			return ret;
 		}
 
+		public unsafe float getCellSpreadContribution(int index) {
+			Cell cell = readCells[index];
+			float amount = cell.infected[FullPop] / 80.0f;
+			float factor = Mathf.Clamp(Mathf.Sqrt(cell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
+				/ Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
+
+			amount *= factor * data.spreadRate;
+			//Make sure it's greater than one on our way out
+			return amount >= 1.0f ? amount : 0.0f;
+		}
+
 		//Verify if a cell is valid
 		//Cell is in bounds and also in the mask
 		public bool cellIsValid(int index) {
 			return index >= 0 && index < (data.width * data.height) && readCells[index].inMask;
-		}
-
-		//Rounds a float
-		public float round(float n) {
-			return Mathf.Floor(n + 0.5f);
-		}
-		//Gets the fractional part of a float, [0,1)
-		public float getFractionalPart(float n) {
-			return n - Mathf.FloorToInt(n);
 		}
 	}
 

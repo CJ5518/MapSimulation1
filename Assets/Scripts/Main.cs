@@ -270,6 +270,7 @@ public class Main : MonoBehaviour {
 		float totalInfected = 0.0f;
 		float totalRecovered = 0.0f;
 		float totalExposed = 0.0f;
+		double totalPeople = 0.0;
 
 		//Pixel coord on the draw texture
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
@@ -289,12 +290,14 @@ public class Main : MonoBehaviour {
 				totalInfected = 0;
 				totalRecovered = 0;
 				totalExposed = 0;
+				totalPeople = 0;
 				for (int q = 0; q < simulation.readCells.Length; q++) {
 					Simulation.Cell readCell = simulation.readCells[q];
 					totalSusceptible += readCell.susceptible[targetDemographic];
 					totalInfected += readCell.infected[targetDemographic];
 					totalRecovered += readCell.recovered[targetDemographic];
 					totalExposed += readCell.exposed[targetDemographic];
+					totalPeople += (double)readCell.numberOfPeople[targetDemographic];
 				}
 
 				//Set the string to the statistics
@@ -310,6 +313,7 @@ public class Main : MonoBehaviour {
 					totalRecovered.ToString("F3") + "\n" +
 					totalExposed.ToString("F3") + "\n";
 				statisticsEditLabel.text = finalString;
+				Debug.Log(totalPeople);
 			}
 		}
 	}
