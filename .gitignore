@@ -13,6 +13,7 @@ ProjectSettings/
 *.sln
 Temp/
 UserSettings/
+.vscode/
 
 Assets/*
 !Assets/Scripts
