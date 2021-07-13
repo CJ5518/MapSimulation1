@@ -26,18 +26,11 @@ public class Main : MonoBehaviour {
 
 	Text statisticsEditLabel;
 
-	//Slider/button combos
-	Slider alphaSlider;
-	Text alphaText;
-
-	Slider gammaSlider;
-	Text gammaText;
-
-	Slider betaSlider;
-	Text betaText;
-
-	Slider spreadRateSlider;
-	Text spreadRateText;
+	//Slider/text combos
+	SliderTextCombo alphaSliderText;
+	SliderTextCombo gammaSliderText;
+	SliderTextCombo betaSliderText;
+	SliderTextCombo spreadRateSliderText;
 
 	Text r0Text;
 
@@ -78,17 +71,10 @@ public class Main : MonoBehaviour {
 
 		r0Text = GameObject.Find("Canvas/R0Text").GetComponent<Text>();
 
-		alphaSlider = GameObject.Find("Canvas/AlphaSlider").GetComponent<Slider>();
-		alphaText = GameObject.Find("Canvas/AlphaText").GetComponent<Text>();
-
-		gammaSlider = GameObject.Find("Canvas/GammaSlider").GetComponent<Slider>();
-		gammaText = GameObject.Find("Canvas/GammaText").GetComponent<Text>();
-
-		betaSlider = GameObject.Find("Canvas/BetaSlider").GetComponent<Slider>();
-		betaText = GameObject.Find("Canvas/BetaText").GetComponent<Text>();
-
-		spreadRateSlider = GameObject.Find("Canvas/SpreadRateSlider").GetComponent<Slider>();
-		spreadRateText = GameObject.Find("Canvas/SpreadRateText").GetComponent<Text>();
+		alphaSliderText = GameObject.Find("Canvas/AlphaSliderText").GetComponent<SliderTextCombo>();
+		gammaSliderText = GameObject.Find("Canvas/GammaSliderText").GetComponent<SliderTextCombo>();
+		betaSliderText = GameObject.Find("Canvas/BetaSliderText").GetComponent<SliderTextCombo>();
+		spreadRateSliderText = GameObject.Find("Canvas/SpreadRateSliderText").GetComponent<SliderTextCombo>();
 
 		drawInfectedToggle = GameObject.Find("Canvas/DrawInfectedToggle").GetComponent<Toggle>();
 		drawRecoveredToggle = GameObject.Find("Canvas/DrawRecoveredToggle").GetComponent<Toggle>();
@@ -185,18 +171,11 @@ public class Main : MonoBehaviour {
 		//r0
 		r0Text.text = "r0: " + (simulation.data.beta / simulation.data.gamma).ToString("f2");
 
-		//Alpha, beta, gamma
-		alphaText.text = "α: " + alphaSlider.value.ToString("f2");
-		simulation.data.alpha = alphaSlider.value;
-
-		betaText.text = "β: " + betaSlider.value.ToString("f2");
-		simulation.data.beta = betaSlider.value;
-
-		gammaText.text = "γ: " + gammaSlider.value.ToString("f2");
-		simulation.data.gamma = gammaSlider.value;
-
-		spreadRateText.text = "sr: " + spreadRateSlider.value.ToString("f2");
-		simulation.data.spreadRate = spreadRateSlider.value;
+		//Alpha, beta, gamma, etc.
+		simulation.data.alpha = alphaSliderText.slider.value;
+		simulation.data.beta = betaSliderText.slider.value;
+		simulation.data.gamma = gammaSliderText.slider.value;
+		simulation.data.spreadRate = spreadRateSliderText.slider.value;
 
 		//Toggles
 		simulation.data.drawRecovered = drawRecoveredToggle.isOn;
