@@ -2,22 +2,21 @@
 
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using UnityEngine.UI.Extensions;
-using Unity.Jobs;
-using Unity.Collections;
 using System.Collections;
 using OSGeo.OSR;
 using OSGeo.GDAL;
-using OSGeo.OGR;
 using NLua;
 using SimpleFileBrowser;
 
-//Test class
+//Main class
 public class Main : MonoBehaviour {
-	//Texture scaling factor
+	//Pixel size for the texture
 	int pixelSize = 4;
+	const int framerate = 60;
+
+	const float simulationTicksPerSecond = 20.0f;
+	const float statisticsUpdatesPerSecond = 20.0f;
 
 	//The background image
 	MovableRawImage backgroundMovableImage;
@@ -226,10 +225,9 @@ public class Main : MonoBehaviour {
 			//Kill cells on click
 			if (Input.GetMouseButtonDown(0) && EventSystem.current.currentSelectedGameObject == null) {
 				//Can't mess with the cells if the simulation is going
-				if (simulation.simulationIsRunning)
-					simulation.endTick();
-				cell.infected[targetDemographic]+= 80.0f;
-				cell.susceptible[targetDemographic]-= 80.0f;
+				simulation.endTick();
+				cell.infected[targetDemographic]+= 1.0f;
+				cell.susceptible[targetDemographic]-= 1.0f;
 				simulation.readCells[index] = cell;
 			}
 		}
@@ -240,11 +238,10 @@ public class Main : MonoBehaviour {
 		}
 
 		//Tick the simulation every now and then
-		if (Time.realtimeSinceStartup - lastSimTime >= 0.05f && autoPlay) {
+		if (Time.realtimeSinceStartup - lastSimTime >= 1.0f / simulationTicksPerSecond  && autoPlay) {
 			lastSimTime = Time.realtimeSinceStartup;
 
-			if (simulation.simulationIsRunning)
-				simulation.endTick();
+			simulation.endTick();
 
 			simulation.beginTick();
 		}
@@ -280,7 +277,7 @@ public class Main : MonoBehaviour {
 			Simulation.Cell cell = simulation.readCells[index];
 
 			//Gather statistics for the entire thing
-			if (Time.realtimeSinceStartup - lastStatsTime >= 0.08f) {
+			if (Time.realtimeSinceStartup - lastStatsTime >= 1.0f / statisticsUpdatesPerSecond) {
 				lastStatsTime = Time.realtimeSinceStartup;
 				totalSusceptible = 0;
 				totalInfected = 0;
@@ -315,20 +312,5 @@ public class Main : MonoBehaviour {
 				statisticsEditLabel.text = finalString;
 			}
 		}
-	}
-
-	//https://stackoverflow.com/a/14998816
-	public static bool IsPointInPolygon(Vector2[] polygon, Vector2 testPoint) {
-		bool result = false;
-		int j = polygon.Length - 1;
-		for (int i = 0; i < polygon.Length; i++) {
-			if (polygon[i].y < testPoint.y && polygon[j].y >= testPoint.y || polygon[j].y < testPoint.y && polygon[i].y >= testPoint.y) {
-				if (polygon[i].x + (testPoint.y - polygon[i].y) / (polygon[j].y - polygon[i].y) * (polygon[j].x - polygon[i].x) < testPoint.x) {
-					result = !result;
-				}
-			}
-			j = i;
-		}
-		return result;
 	}
 }

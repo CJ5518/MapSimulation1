@@ -103,12 +103,6 @@ public class Simulation {
 	public NativeArray<Cell> writeCells;
 	public NativeArray<Cell> readCells;
 
-
-	//Random seeds for the simulation, because UnityEngine.Random doesn't work in jobs
-	//And we need seeds for the other random generators
-	private NativeArray<uint> randomSeeds;
-
-
 	//Constructor
 	//All textures must be of the same width and height, different formats are allowed
 	public Simulation(Texture2D[] populationTextures, Texture2D[] simulationTextures) {
@@ -120,6 +114,7 @@ public class Simulation {
 	JobHandle jobHandle;
 	public bool simulationIsRunning = false;
 	//Starts a tick of the simulation, MUST call endTick before calling this again
+	//You also mustn't write to readCells while simulationIsRunning
 	public unsafe void beginTick() {
 		data.runCount++;
 		simulationIsRunning = true;
@@ -138,15 +133,18 @@ public class Simulation {
 			drawTextureData = drawTexture.GetRawTextureData<Color32>(),
 			data = data,
 			textureDataPointers = textureDataPointers,
-			textureMetadataArray = textureMetadataArray,
-			randomSeeds = randomSeeds
+			textureMetadataArray = textureMetadataArray
 		};
 
 		jobHandle = job.Schedule(data.width * data.height, 13755);
 	}
 
 	//Ends a tick started by beginTick
+	//Call this whenever you want to edit readcells, just to be safe
+	//Basically you can edit anything that isn't a NativeCollection because those are shared memory,
+	//whereas most everything else is copied to the simulation
 	public void endTick() {
+		if (!simulationIsRunning) return;
 		simulationIsRunning = false;
 		jobHandle.Complete();
 
@@ -178,7 +176,6 @@ public class Simulation {
 		writeCells.Dispose();
 		textureDataPointers.Dispose();
 		textureMetadataArray.Dispose();
-		randomSeeds.Dispose();
 	}
 
 	//Init everything
@@ -210,14 +207,6 @@ public class Simulation {
 			for (int y = 0; y < data.height; ++y) {
 				drawTexture.SetPixel(x, y, backgroundColor);
 			}
-		}
-
-		//Init the random seeds
-		randomSeeds = new NativeArray<uint>(data.width * data.height, Allocator.Persistent);
-
-		for (int q = 0; q < randomSeeds.Length; q++) {
-			int val = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-			randomSeeds[q] = *(uint*)&val;
 		}
 
 		//Fire off a different init function
@@ -293,8 +282,6 @@ public class Simulation {
 		public NativeArray<IntPtr> textureDataPointers;
 		[ReadOnly]
 		public NativeArray<TextureMetadata> textureMetadataArray;
-		[ReadOnly]
-		public NativeArray<uint> randomSeeds;
 
 		const int FullPop = (int)Population.FullPopulation;
 
@@ -446,6 +433,7 @@ public class Simulation {
 
 		return color;
 	}
+	
 	public static int colorToInt(Color32 color) {
 		int ret = 0;
 		ret |= color.a;
@@ -457,9 +445,11 @@ public class Simulation {
 		ret |= color.r;
 		return ret;
 	}
+
 	public unsafe static Color32 floatToColor(float n) {
 		return intToColor(*(int*)&n);
 	}
+
 	public unsafe static float colorToFloat(Color32 color) {
 		int n = colorToInt(color);
 		return *(float*)&n;
@@ -480,13 +470,13 @@ public class Simulation {
 		ret.y = (index - ret.x) / data.width;
 		return ret;
 	}
+
 	//Identical to the function in SimulationJob
 	//Verify if a cell is valid
 	//Cell is in bounds and also in the mask
 	public bool cellIsValid(int index) {
 		return index >= 0 && index < (data.width * data.height) && readCells[index].inMask;
 	}
-
 
 	//Converts an array of textures to RGBA32
 	//Uses data.width/height so make sure those are set properly
@@ -495,6 +485,7 @@ public class Simulation {
 			//Verify that it's the same size
 			if (array[q].width != data.width || array[q].height != data.height)
 				throw new Exception("Texture #" + q.ToString() + " is not of the same height and width as the other textures");
+			//Only convert if we need to
 			if (array[q].format == TextureFormat.RGBA32) continue;
 			//Create dummy texture to copy the data in a new format
 			Texture2D dummy = new Texture2D(data.width, data.height, TextureFormat.RGBA32, false);
