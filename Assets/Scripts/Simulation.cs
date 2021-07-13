@@ -35,7 +35,7 @@ public class Simulation {
 		public fixed float infected[(int)Population.PopulationCount];
 		public fixed float recovered[(int)Population.PopulationCount];
 		public fixed float exposed[(int)Population.PopulationCount];
-		public fixed float dead[(int)Population.PopulationCount];
+		public fixed float vaccinated[(int)Population.PopulationCount];
 
 		public bool inMask; //Are we in the mask
 	}
@@ -66,7 +66,7 @@ public class Simulation {
 		public fixed float maxNumberOfPeople[(int)Population.PopulationCount];
 
 		//Parameters
-		public float beta, alpha, gamma;
+		public float beta, alpha, gamma, sigma, delta;
 
 		//The number of times the tick function has been run
 		public uint runCount;
@@ -88,7 +88,7 @@ public class Simulation {
 		drawInfected = true,
 		drawDead = true,
 		drawRecovered = false,
-		beta = 1.0f, alpha = 1.0f, gamma = 1.0f,
+		beta = 1.0f, alpha = 1.0f, gamma = 1.0f, sigma = 1.0f, delta = 1.0f,
 
 		runCount = 0,
 
@@ -256,7 +256,7 @@ public class Simulation {
 					readCell.susceptible[q] = numberOfPeople;
 					readCell.infected[q] = 0;
 					readCell.recovered[q] = 0;
-					readCell.dead[q] = 0;
+					readCell.vaccinated[q] = 0;
 
 					//Keep track of the maximum
 					if (numberOfPeople > data.maxNumberOfPeople[q]) {
@@ -309,15 +309,18 @@ public class Simulation {
 			//Then just use it as an array
 
 			//Spread in this cell, because of this cell
-			float newExposed = data.beta * 
-				((readCell.susceptible[FullPop] * readCell.infected[FullPop]) / readCell.numberOfPeople[FullPop]);
+			float SZN = (readCell.susceptible[FullPop] * readCell.infected[FullPop]) / readCell.numberOfPeople[FullPop];
+			float newExposed = data.beta * SZN;
+			float newVaccinated = data.sigma * readCell.susceptible[FullPop];
 			float newInfected = data.alpha * readCell.exposed[FullPop];
 			float newRecovered = data.gamma * readCell.infected[FullPop];
+			float newKilledZombies = data.delta * SZN;
 
-			writeCell.susceptible[FullPop] -= newExposed;
+			writeCell.susceptible[FullPop] += -newExposed - newVaccinated;
+			writeCell.vaccinated[FullPop] += newVaccinated;
 			writeCell.exposed[FullPop] += newExposed - newInfected;
-			writeCell.infected[FullPop] += newInfected - newRecovered;
-			writeCell.recovered[FullPop] += newRecovered;
+			writeCell.infected[FullPop] += newInfected - newRecovered - newKilledZombies;
+			writeCell.recovered[FullPop] += newRecovered + newKilledZombies;
 
 			//Spread in this cell, because of other cells
 
@@ -356,28 +359,28 @@ public class Simulation {
 			writeCell.infected[FullPop] = Mathf.Clamp(writeCell.infected[FullPop], 0, float.MaxValue);
 			writeCell.recovered[FullPop] = Mathf.Clamp(writeCell.recovered[FullPop], 0, float.MaxValue);
 
-			//Percentages
-			float infectedPercentage = writeCell.infected[FullPop] / writeCell.numberOfPeople[FullPop];
-			float deadPercentage = writeCell.dead[FullPop] / writeCell.numberOfPeople[FullPop];
-			float recoveredPercentage = writeCell.recovered[FullPop] / writeCell.numberOfPeople[FullPop];
-
 			//Compute the color
 
 
 			Color color;
 
-
+			//Really just toggles between log transform or not
 			if (data.drawProportion) {
 				float max = Mathf.Log10(data.maxNumberOfPeople[FullPop]);
 				color = new Color(
 					Mathf.Log10(writeCell.infected[FullPop]) / max,
 					Mathf.Log10(writeCell.recovered[FullPop]) / max,
-					Mathf.Log10(writeCell.dead[FullPop]) / max
+					Mathf.Log10(writeCell.vaccinated[FullPop]) / max
 				);
 			}
 			else {
-				color = new Color(infectedPercentage, recoveredPercentage, deadPercentage);
+				//Percentages
+				float infectedPercentage = writeCell.infected[FullPop] / writeCell.numberOfPeople[FullPop];
+				float recoveredPercentage = writeCell.recovered[FullPop] / writeCell.numberOfPeople[FullPop];
+				float vaccinatedPercentage = writeCell.vaccinated[FullPop] / writeCell.numberOfPeople[FullPop];
+				color = new Color(infectedPercentage, recoveredPercentage, vaccinatedPercentage);
 			}
+
 			if (writeCell.susceptible[FullPop] == writeCell.numberOfPeople[FullPop]) {
 				float v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
 				//"fix" the color

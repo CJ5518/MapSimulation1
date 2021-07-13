@@ -29,8 +29,13 @@ public class Main : MonoBehaviour {
 	//Slider/text combos
 	SliderTextCombo alphaSliderText;
 	SliderTextCombo gammaSliderText;
-	SliderTextCombo betaSliderText;
 	SliderTextCombo spreadRateSliderText;
+	SliderTextCombo sigmaSliderText;
+	SliderTextCombo deltaSliderText;
+
+	Slider contactProbabilitySlider;
+	Slider infectionRateSlider;
+	Text betaText;
 
 	Text r0Text;
 
@@ -73,8 +78,13 @@ public class Main : MonoBehaviour {
 
 		alphaSliderText = GameObject.Find("Canvas/AlphaSliderText").GetComponent<SliderTextCombo>();
 		gammaSliderText = GameObject.Find("Canvas/GammaSliderText").GetComponent<SliderTextCombo>();
-		betaSliderText = GameObject.Find("Canvas/BetaSliderText").GetComponent<SliderTextCombo>();
+		sigmaSliderText = GameObject.Find("Canvas/SigmaSliderText").GetComponent<SliderTextCombo>();
+		deltaSliderText = GameObject.Find("Canvas/DeltaSliderText").GetComponent<SliderTextCombo>();
 		spreadRateSliderText = GameObject.Find("Canvas/SpreadRateSliderText").GetComponent<SliderTextCombo>();
+
+		infectionRateSlider = GameObject.Find("Canvas/InfectionRateSlider").GetComponent<Slider>();
+		contactProbabilitySlider = GameObject.Find("Canvas/ContactProbabilitySlider").GetComponent<Slider>();
+		betaText = GameObject.Find("Canvas/BetaText").GetComponent<Text>();
 
 		drawInfectedToggle = GameObject.Find("Canvas/DrawInfectedToggle").GetComponent<Toggle>();
 		drawRecoveredToggle = GameObject.Find("Canvas/DrawRecoveredToggle").GetComponent<Toggle>();
@@ -172,9 +182,12 @@ public class Main : MonoBehaviour {
 		r0Text.text = "r0: " + (simulation.data.beta / simulation.data.gamma).ToString("f2");
 
 		//Alpha, beta, gamma, etc.
+		simulation.data.beta = infectionRateSlider.value * contactProbabilitySlider.value;
+
 		simulation.data.alpha = alphaSliderText.slider.value;
-		simulation.data.beta = betaSliderText.slider.value;
 		simulation.data.gamma = gammaSliderText.slider.value;
+		simulation.data.sigma = sigmaSliderText.slider.value;
+		simulation.data.delta = deltaSliderText.slider.value;
 		simulation.data.spreadRate = spreadRateSliderText.slider.value;
 
 		//Toggles
@@ -252,6 +265,7 @@ public class Main : MonoBehaviour {
 		float totalInfected = 0.0f;
 		float totalRecovered = 0.0f;
 		float totalExposed = 0.0f;
+		float totalVaccinated = 0.0f;
 		double totalPeople = 0.0;
 
 		//Pixel coord on the draw texture
@@ -273,12 +287,14 @@ public class Main : MonoBehaviour {
 				totalRecovered = 0;
 				totalExposed = 0;
 				totalPeople = 0;
+				totalVaccinated = 0;
 				for (int q = 0; q < simulation.readCells.Length; q++) {
 					Simulation.Cell readCell = simulation.readCells[q];
 					totalSusceptible += readCell.susceptible[targetDemographic];
 					totalInfected += readCell.infected[targetDemographic];
 					totalRecovered += readCell.recovered[targetDemographic];
 					totalExposed += readCell.exposed[targetDemographic];
+					totalVaccinated += readCell.vaccinated[targetDemographic];
 					totalPeople += (double)readCell.numberOfPeople[targetDemographic];
 				}
 
@@ -286,16 +302,17 @@ public class Main : MonoBehaviour {
 				string finalString =
 					((Population)targetDemographic).ToString() + "\n" +
 					cell.susceptible[targetDemographic].ToString("F3") + "\n" +
+					cell.vaccinated[targetDemographic].ToString("F3") + "\n" +
 					cell.infected[targetDemographic].ToString("F3") + "\n" +
 					cell.recovered[targetDemographic].ToString("F3") + "\n" +
 					cell.exposed[targetDemographic].ToString("F3") + "\n" +
 					"Totals:" + "\n" +
 					totalSusceptible.ToString("F3") + "\n" +
+					totalVaccinated.ToString("F3") + "\n" +
 					totalInfected.ToString("F3") + "\n" +
 					totalRecovered.ToString("F3") + "\n" +
 					totalExposed.ToString("F3") + "\n";
 				statisticsEditLabel.text = finalString;
-				Debug.Log(totalPeople);
 			}
 		}
 	}
