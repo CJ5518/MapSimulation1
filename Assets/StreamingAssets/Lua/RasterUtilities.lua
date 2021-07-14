@@ -18,6 +18,9 @@ import("SimpleFileBrowser");
 local xml2lua = require("XML.xml2lua");
 local handler = require("XML.tree");
 
+local json = require("json");
+local inspect = require('inspect')
+
 --TODO:
 --[[
 More Lua and features for downloading/saving the datasets
@@ -27,6 +30,10 @@ Edit warpVrt to just be warpDataset and then use the file extension to decide ho
 --Public
 RasterUtilities = {};
 
+
+--------------------------------------------------
+-- Some testing functions for new functionality --
+--------------------------------------------------
 
 --The Data folder, which contains all things raster
 RasterDataFolderLocation = "F:\\Data2";
@@ -47,17 +54,79 @@ function RasterUtilities.createDataDirectoryStructure()
 		--Yummy hacks
 		for minor = 0, LuaSingleton.castToInt(_G[minorName][minorName .. "Count"]) - 1 do
 			local name = luanet.enum(_G[minorName], minor):ToString();
-			Directory.CreateDirectory(tifFolder .. "/" .. name);
+			Directory.CreateDirectory(tifFolder .. "/" .. minorName .. "/" .. name);
 		end
 	end
 end
 
+local fileModelTable = {};
+
+
 --Creates a model of the data folder
-local function createFileModel()
-	for name in luanet.each(Directory.GetDirectories(tifFolder)) do
-		
+local function createFileModelTable(folder, level)
+	--Tif folder to start with
+	folder = folder or tifFolder;
+
+	local rootTable = fileModelTable;
+
+	--Iterate over the folder names
+	local str = tostring(folder):gsub("\\", " ");
+	str = str:gsub("/", " ");
+	local pastTifFolder = false;
+	for match in str:gmatch("[^%s]+") do
+		if pastTifFolder then
+			rootTable = rootTable[match]
+		end
+
+		if match == "tif" then pastTifFolder = true end
+	end
+
+	--For each dir
+	for path in luanet.each(Directory.GetDirectories(folder)) do
+		print(path, "is in", folder);
+		name = DirectoryInfo(path).Name;
+		rootTable[name] = {};
+		print("added", name, "to root table");
+		createFileModelTable(path);
+	end
+
+	--For each file
+	for path in luanet.each(Directory.GetFiles(folder)) do
+		rootTable[#rootTable+1] = DirectoryInfo(path).Name;
 	end
 end
+
+local function outputModelTable()
+	local outputFilename = LuaSingleton.luaFolderPath .. "/fileModel.json";
+	local file = io.open(outputFilename, "w");
+	file:write(json.encode(fileModelTable));
+	file:close();
+end
+
+local function getMissingFiles()
+
+end
+
+local function getPopulationDownloadLinks()
+	local lineList = "";
+	local filename = LuaSingleton.luaFolderPath .. "/populationDataWebsiteStuff.xml"
+	local file = io.open(filename, "r");
+	for line in file:lines() do
+		if line:find("href%=") then
+			lineList = lineList .. line;
+		end
+	end
+	print(lineList);
+	file:close();
+end
+getPopulationDownloadLinks();
+
+
+
+print("Don't forget to create the warped folder")
+error("END");
+
+
 
 
 ---------------------------------

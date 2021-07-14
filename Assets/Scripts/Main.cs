@@ -51,7 +51,7 @@ public class Main : MonoBehaviour {
 	void Start() {
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
-		Application.targetFrameRate = 60;
+		Application.targetFrameRate = framerate;
 
 		//Init GDAL
 		Gdal.AllRegister();
