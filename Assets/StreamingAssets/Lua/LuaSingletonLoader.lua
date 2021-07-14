@@ -14,8 +14,17 @@ local files = {
 	"RasterUtilities.lua"
 }
 
+--Override the print function
+function print(...)
+	local t = {...};
+	local str = "";
+	for i, v in ipairs(t) do
+		str = str .. " " .. tostring(v);
+	end
+	Debug.Log(str);
+end
+
 --Runs the files
 for i, v in pairs(files) do
 	dofile(LuaSingleton.luaFolderPath .. "/" .. v);
 end
-
