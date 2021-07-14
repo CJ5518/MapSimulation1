@@ -36,7 +36,7 @@ RasterUtilities = {};
 --------------------------------------------------
 
 --The Data folder, which contains all things raster
-RasterDataFolderLocation = "F:\\Data2";
+RasterDataFolderLocation = "F:\\Data3";
 local tifFolder = RasterDataFolderLocation .. "/tif";
 
 --returns a bool, true if we need to prompt the user for a data folder, false if not
@@ -59,69 +59,43 @@ function RasterUtilities.createDataDirectoryStructure()
 	end
 end
 
-local fileModelTable = {};
-
-
---Creates a model of the data folder
-local function createFileModelTable(folder, level)
-	--Tif folder to start with
-	folder = folder or tifFolder;
-
-	local rootTable = fileModelTable;
-
-	--Iterate over the folder names
-	local str = tostring(folder):gsub("\\", " ");
-	str = str:gsub("/", " ");
-	local pastTifFolder = false;
-	for match in str:gmatch("[^%s]+") do
-		if pastTifFolder then
-			rootTable = rootTable[match]
-		end
-
-		if match == "tif" then pastTifFolder = true end
-	end
-
-	--For each dir
-	for path in luanet.each(Directory.GetDirectories(folder)) do
-		print(path, "is in", folder);
-		name = DirectoryInfo(path).Name;
-		rootTable[name] = {};
-		print("added", name, "to root table");
-		createFileModelTable(path);
-	end
-
-	--For each file
-	for path in luanet.each(Directory.GetFiles(folder)) do
-		rootTable[#rootTable+1] = DirectoryInfo(path).Name;
-	end
-end
-
-local function outputModelTable()
-	local outputFilename = LuaSingleton.luaFolderPath .. "/fileModel.json";
-	local file = io.open(outputFilename, "w");
-	file:write(json.encode(fileModelTable));
-	file:close();
-end
-
 local function getMissingFiles()
+	local file = io.open(LuaSingleton.luaFolderPath .. "/fileModel.json");
+	local modelTable = json.decode(file:read("a"));
+	file:close();
 
-end
+	local filesToDownload = {};
+	local filesToGenerate = {};
 
-local function getPopulationDownloadLinks()
-	local lineList = "";
-	local filename = LuaSingleton.luaFolderPath .. "/populationDataWebsiteStuff.xml"
-	local file = io.open(filename, "r");
-	for line in file:lines() do
-		if line:find("href%=") then
-			lineList = lineList .. line;
+	local function recursive(folder, tab)
+		folder = folder or tifFolder;
+		tab = tab or modelTable;
+		for i, v in pairs(tab) do
+			if type(v) == "table" then
+				local newRoot = folder .. "/" .. i;
+				recursive(newRoot, v);
+			else
+				--So this is a filename from the model
+				local filename = folder .. "/" .. v;
+				if not File.Exists(filename) then
+					--Decide what ought to be done about this file
+					local extension = Path.GetExtension(filename);
+					if extension == ".vrt" then
+						filesToGenerate[#filesToGenerate+1] = filename;
+					end
+					if extension == ".tif" then
+						filesToDownload[#filesToDownload+1] = filename;
+					end
+				end
+			end
 		end
 	end
-	print(lineList);
-	file:close();
+	recursive();
+	return filesToDownload, filesToGenerate
 end
-getPopulationDownloadLinks();
+local toDl = getMissingFiles();
 
-
+for i, v in pairs(toDl) do print(v); end
 
 print("Don't forget to create the warped folder")
 error("END");
