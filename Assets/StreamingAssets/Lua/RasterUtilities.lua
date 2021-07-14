@@ -41,7 +41,7 @@ local tifFolder = RasterDataFolderLocation .. "/tif";
 
 --returns a bool, true if we need to prompt the user for a data folder, false if not
 function RasterUtilities.needDataFolder()
-	return not Directory.Exists(RasterDataFolderLocation);
+	return false;
 end
 
 --Creates the required folders in the data folder based upon the enum
@@ -110,7 +110,7 @@ function RasterUtilities.getFilenames(major, minor)
 	local minorName = luanet.enum(_G[majorName], minor):ToString();
 	local inputFilename = 
 		RasterDataFolderLocation .. "/tif/" .. majorName .. "/" .. minorName .. "/" .. minorName .. ".vrt";
-	local outputFilename = RasterDataFolderLocation .. "/tif/Warped/" .. majorName .. "_" .. minorName .. ".tif";
+	local outputFilename = Application.streamingAssetsPath .. "/Warped/" .. majorName .. "_" .. minorName .. ".tif";
 	return inputFilename, outputFilename;
 end
 
