@@ -36,7 +36,7 @@ RasterUtilities = {};
 --------------------------------------------------
 
 --The Data folder, which contains all things raster
-RasterDataFolderLocation = "F:\\Data3";
+RasterDataFolderLocation = "F:\\Data4";
 local tifFolder = RasterDataFolderLocation .. "/tif";
 
 --returns a bool, true if we need to prompt the user for a data folder, false if not
@@ -59,6 +59,9 @@ function RasterUtilities.createDataDirectoryStructure()
 	end
 end
 
+--Returns two arrays
+--1 - a list of files to download (tif's)
+--2 - a list of files to generate (vrt's)
 local function getMissingFiles()
 	local file = io.open(LuaSingleton.luaFolderPath .. "/fileModel.json");
 	local modelTable = json.decode(file:read("a"));
@@ -93,12 +96,6 @@ local function getMissingFiles()
 	recursive();
 	return filesToDownload, filesToGenerate
 end
-local toDl = getMissingFiles();
-
-for i, v in pairs(toDl) do print(v); end
-
-print("Don't forget to create the warped folder")
-error("END");
 
 
 
