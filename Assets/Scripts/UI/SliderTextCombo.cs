@@ -5,18 +5,39 @@ using UnityEngine.UI;
 
 [RequireComponent(typeof(RectTransform))]
 public class SliderTextCombo : MonoBehaviour {
-    public Slider slider;
-    public Text text;
-    public string textPrefix = "r0: ";
-    public int significantDigits = 3;
-    public float defaultValue = 0.1f;
+	public enum DisplayType {
+		Default,
+		Inverse
+	}
+	public Slider slider;
+	public Text text;
+	public DisplayType displayType = DisplayType.Default;
+	public string textPrefix = "r0: ";
+	public string textPostfix = "";
+	public int significantDigits = 3;
+	public float defaultValue = 0.1f;
 
-    void Start() {
-        slider.onValueChanged.AddListener(onSliderValueChanged);
-        slider.value = defaultValue;
-    }
+	void Start() {
+		//Set the callback based on the DisplayType
+		switch (displayType) {
+			case DisplayType.Default:
+			slider.onValueChanged.AddListener(onSliderValueChanged);
+			break;
 
-    void onSliderValueChanged(float value) {
-        text.text = textPrefix + slider.value.ToString("F" + significantDigits);
-    }
+			case DisplayType.Inverse:
+			slider.onValueChanged.AddListener(onSliderValueChangedInverse);
+			break;
+		}
+		slider.value = defaultValue;
+	}
+
+	void onSliderValueChanged(float value) {
+		text.text = textPrefix + value.ToString("F" + significantDigits) + textPostfix;
+	}
+	void onSliderValueChangedInverse(float value) {
+		if (value > 0.0f)
+			onSliderValueChanged(1.0f / value);
+		else
+			onSliderValueChanged(0.0f);
+	}
 }

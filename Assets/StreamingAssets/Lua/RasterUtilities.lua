@@ -26,12 +26,11 @@ Edit warpVrt to just be warpDataset and then use the file extension to decide ho
 
 --Public
 RasterUtilities = {};
---Private
-RasterPrivate = {};
 
 
 --The Data folder, which contains all things raster
-RasterDataFolderLocation = "F:\\Data";
+RasterDataFolderLocation = "F:\\Data2";
+local tifFolder = RasterDataFolderLocation .. "/tif";
 
 --returns a bool, true if we need to prompt the user for a data folder, false if not
 function RasterUtilities.needDataFolder()
@@ -40,8 +39,6 @@ end
 
 --Creates the required folders in the data folder based upon the enum
 function RasterUtilities.createDataDirectoryStructure()
-	local tifFolder = RasterDataFolderLocation .. "/tif";
-
 	Directory.CreateDirectory(tifFolder);
 
 	--Iterate over every enum item
@@ -55,11 +52,14 @@ function RasterUtilities.createDataDirectoryStructure()
 	end
 end
 
-local tifFolder = RasterDataFolderLocation .. "/tif";
-
-if not Directory.Exists(tifFolder) then
-	
+--Creates a model of the data folder
+local function createFileModel()
+	for name in luanet.each(Directory.GetDirectories(tifFolder)) do
+		
+	end
 end
+
+
 ---------------------------------
 -- High Level Raster Interface --
 ---------------------------------
