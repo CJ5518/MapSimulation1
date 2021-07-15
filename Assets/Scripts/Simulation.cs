@@ -368,19 +368,20 @@ public class Simulation {
 				color = new Color(infectedPercentage, recoveredPercentage, vaccinatedPercentage);
 			}
 
-			if (writeCell.susceptible[FullPop] == writeCell.numberOfPeople[FullPop]) {
-				float v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
-				//"fix" the color
-				color = (Color32)color;
-				color = Color.Lerp(color, new Color(v,v,v,1.0f), 0.3f);
-			}
-
 			if (!data.drawInfected)
 				color.r = 0.0f;
 			if (!data.drawRecovered)
 				color.g = 0.0f;
 			if (!data.drawDead)
 				color.b = 0.0f;
+
+			//If this cell has not been touched by the virus
+			if (writeCell.susceptible[FullPop] == writeCell.numberOfPeople[FullPop]) {
+				float v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
+				//"fix" the color
+				
+				color = Color.Lerp(Color.black, new Color(v,v,v,1.0f), 0.3f);
+			}
 
 			color.a = 1f;
 			
@@ -407,6 +408,7 @@ public class Simulation {
 		public unsafe float getCellSpreadContribution(int index) {
 			Cell cell = readCells[index];
 			float amount = cell.infected[FullPop] / 80.0f;
+			//Fudge factor
 			float factor = Mathf.Clamp(Mathf.Sqrt(cell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
 				/ Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
 
