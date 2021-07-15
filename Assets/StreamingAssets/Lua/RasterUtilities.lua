@@ -36,7 +36,7 @@ RasterUtilities = {};
 --------------------------------------------------
 
 --The Data folder, which contains all things raster
-RasterDataFolderLocation = "F:\\Data4";
+RasterDataFolderLocation = "C:\\FolderWhichDoesNotExistBecauseIAmTooLazyToChangeTheCode";
 local tifFolder = RasterDataFolderLocation .. "/tif";
 
 --returns a bool, true if we need to prompt the user for a data folder, false if not
