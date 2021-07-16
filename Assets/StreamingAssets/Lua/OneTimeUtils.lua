@@ -4,6 +4,47 @@
 --Honestly a lot of this is just for archival/if it needs to be run again one day
 
 
+--Returns two arrays
+--1 - a list of files to download (tif's)
+--2 - a list of files to generate (vrt's)
+--These files are the base data files, which are likely useless because they're huge
+--and people can just be sent the warped data
+local function getMissingFiles()
+	local file = io.open(LuaSingleton.luaFolderPath .. "/fileModel.json");
+	local modelTable = json.decode(file:read("a"));
+	file:close();
+
+	local filesToDownload = {};
+	local filesToGenerate = {};
+
+	local function recursive(folder, tab)
+		folder = folder or tifFolder;
+		tab = tab or modelTable;
+		for i, v in pairs(tab) do
+			if type(v) == "table" then
+				local newRoot = folder .. "/" .. i;
+				recursive(newRoot, v);
+			else
+				--So this is a filename from the model
+				local filename = folder .. "/" .. v;
+				if not File.Exists(filename) then
+					--Decide what ought to be done about this file
+					local extension = Path.GetExtension(filename);
+					if extension == ".vrt" then
+						filesToGenerate[#filesToGenerate+1] = filename;
+					end
+					if extension == ".tif" then
+						filesToDownload[#filesToDownload+1] = filename;
+					end
+				end
+			end
+		end
+	end
+	recursive();
+	return filesToDownload, filesToGenerate
+end
+
+
 --Used on a selection of the table from the data source page
 local function writePopulationDownloadLinks()
 	local lineList = "";
