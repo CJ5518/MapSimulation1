@@ -86,8 +86,8 @@ public class Main : MonoBehaviour {
 		Debug.Log("Loaded the population data");
 		//Dataset elevation = Gdal.Open("F:\\Data\\tif\\Elevation\\test.tif", Access.GA_ReadOnly);
 
-		LuaFunction warpVrt = (LuaFunction)LuaSingleton.lua["RasterUtilities.warpTif"];
-		Dataset output = (Dataset)warpVrt.Call("F:\\Data\\tif\\Elevation\\test.tif", "F:\\Data\\tif\\Elevation\\output.tif", "near")[0];
+		LuaFunction warpVrt = (LuaFunction)LuaSingleton.lua["RasterUtilities.warpVrt"];
+		Dataset output = (Dataset)warpVrt.Call("F:\\Data\\tif\\Elevation\\Elevation.vrt", "F:\\Data\\tif\\Elevation\\output.tif", "average")[0];
 		output.Dispose();
 
 		//Set up the simulation

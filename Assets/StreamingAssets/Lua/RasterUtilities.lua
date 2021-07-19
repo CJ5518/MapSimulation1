@@ -156,7 +156,7 @@ function RasterUtilities.warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 	local worldPixelSize = Projection.getPixelSizeInLatLong();
 
 	local options = RasterUtilities.buildSuggestedWarpOptionsString(
-		worldPixelSize.x / 5, worldPixelSize.y / 5, "sum"
+		worldPixelSize.x / 5, worldPixelSize.y / 5, algorithm
 	);
 
 	--First warp
@@ -167,7 +167,7 @@ function RasterUtilities.warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 
 	--Redo the options
 	options = RasterUtilities.buildSuggestedWarpOptionsString(
-		worldPixelSize.x, worldPixelSize.y, "sum"
+		worldPixelSize.x, worldPixelSize.y, algorithm
 	);
 	
 	--Second warp
