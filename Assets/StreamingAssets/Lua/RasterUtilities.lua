@@ -23,7 +23,6 @@ local inspect = require('inspect')
 
 --TODO:
 --[[
-More Lua and features for downloading/saving the datasets
 Edit warpVrt to just be warpDataset and then use the file extension to decide how to warp
 ]]
 
@@ -35,28 +34,59 @@ RasterUtilities = {};
 -- Some testing functions for new functionality --
 --------------------------------------------------
 
---The Data folder, which contains all things raster
-RasterDataFolderLocation = "C:\\FolderWhichDoesNotExistBecauseIAmTooLazyToChangeTheCode";
+--The Data folder, which contains the base data
+--Very likely to only exist on my computer
+
+--Bool just so we know that the data isn't all there
+local dataFolderIsValid = false;
+RasterDataFolderLocation = "F:\\Data";
 local tifFolder = RasterDataFolderLocation .. "/tif";
 
 ---------------------------------
 -- High Level Raster Interface --
 ---------------------------------
 
+--Resolves enums to names, 
+--if they're string they are assumed to be names
+--ints are assumed to be enums but in integer form
+--enums are obvious enough
+--Other userdatum will likely cause strange errors so please don't do it
+--Returns resovledMajor, resolvedMinor
+function RasterUtilities.resolveEnumsToNames(major, minor)
+	local retMajor, retMinor;
 
+	--Resolve major
+	if type(major) == "string" then
+		retMajor = major;
+	elseif type(major) == "number" then
+		retMajor = luanet.enum(RasterType, major):ToString();
+	elseif type(major) == "userdata" then --Userdata is assumed to be an enum here
+		retMajor = major:ToString();
+	else
+		error("Cannot resolve major enum", major, "of type", type(major));
+	end
+
+	--Resolve minor
+	if type(minor) == "string" then
+		retMinor = minor;
+	elseif type(minor) == "number" then
+		retMinor = luanet.enum(_G[retMajor], minor):ToString();
+	elseif type(minor) == "userdata" then --Userdata is assumed to be an enum here
+		retMinor = minor:ToString();
+	else
+		error("Cannot resolve minor enum", minor, "of type", type(minor));
+	end
+	return retMajor, retMinor
+end
+
+
+--Returns the base data input filename and the warped output filename
 function RasterUtilities.getFilenames(major, minor)
-	local majorName = major:ToString();
-	local minorName = luanet.enum(_G[majorName], minor):ToString();
+	local majorName, minorName = RasterUtilities.resolveEnumsToNames(major,minor);
 	local inputFilename = 
 		RasterDataFolderLocation .. "/tif/" .. majorName .. "/" .. minorName .. "/" .. minorName .. ".vrt";
 	local outputFilename = Application.streamingAssetsPath .. "/Warped/" .. majorName .. "_" .. minorName .. ".tif";
 	return inputFilename, outputFilename;
-end
-
---if rasterIdentifierMinor is nil, major must be a full name like "Population.Women"
---To use both parameters, major would be "Population" and minor would be "Women"
-function RasterUtilities.preprocessRaster(rasterIdentifierMajor, rasterIdentifierMinor)
-	
 end
 
 

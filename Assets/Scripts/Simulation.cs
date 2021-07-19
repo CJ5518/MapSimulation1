@@ -1,7 +1,5 @@
 //By Carson Rueber
 
-//TODO: Things should be based on chance, include some randomness
-
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;

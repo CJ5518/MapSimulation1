@@ -27,11 +27,14 @@ public class RasterHandler {
 	private string inputVrtFilename;
 	private string outputTifFilename;
 	private Dataset dataset;
+	private LuaTable RasterUtilities;
 
 	public RasterHandler(RasterType major, int minor) {
 		majorType = major;
 		minorType = minor;
-		LuaFunction getFilenames = LuaSingleton.lua.GetFunction("RasterUtilities.getFilenames");
+		RasterUtilities = LuaSingleton.lua.GetTable("RasterUtilities");
+		
+		LuaFunction getFilenames = (LuaFunction)RasterUtilities["getFilenames"];
 		object[] returnValues = getFilenames.Call(major, minor);
 		inputVrtFilename = (string)returnValues[0];
 		outputTifFilename = (string)returnValues[1];
@@ -40,12 +43,12 @@ public class RasterHandler {
 
 	public void preprocessData() {
 		//First check if the data has already been processed
-		LuaFunction checkIfDatasetIsWarped = LuaSingleton.lua.GetFunction("RasterUtilities.checkIfDatasetIsWarped");
+		LuaFunction checkIfDatasetIsWarped = (LuaFunction)RasterUtilities["checkIfDatasetIsWarped"];
 		bool needToWarp = !(bool)checkIfDatasetIsWarped.Call(outputTifFilename)[0];
 		checkIfDatasetIsWarped.Dispose();
 
 		if (needToWarp) {
-			LuaFunction warpVrt = LuaSingleton.lua.GetFunction("RasterUtilities.warpVrt");
+			LuaFunction warpVrt = (LuaFunction)RasterUtilities["warpVrt"];
 			warpVrt.Call(inputVrtFilename, outputTifFilename, "sum");
 			warpVrt.Dispose();
 		}
