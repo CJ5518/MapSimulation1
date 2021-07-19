@@ -18,12 +18,11 @@ public class PieChart : MonoBehaviour {
     /*
      * Give graph Updated Set of Data
      */
-    public void UpdateGraph(float[] data) {
+    public void UpdateGraph(float[] data, float total) {
         float runningTotal = 0;
         for(int i = data.Length-1; i >= 0; i--) {
-            runningTotal += data[i];
-            VarLabels[i].text = data[i] + "";
-
+            runningTotal += (data[i] / total);
+            VarLabels[i].text = Mathf.Round(data[i] / total * 1000000) / 10000 + "%";
             parts[i].fillAmount = runningTotal;
         }
         //This is for unity jankyness!

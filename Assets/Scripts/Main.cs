@@ -96,7 +96,7 @@ public class Main : MonoBehaviour {
 			new Texture2D[] { populationTextures[(int)Population.FullPopulation] }
 		);
 		backgroundMovableImage.texture = simulation.drawTexture;
-
+        simulationCanvas.UpdateSliderValues();
 		//Log time
 		Debug.Log("Preprocess time: " + preprocessTime);
 		Debug.Log("Texture load time: " + textureLoadTime);
