@@ -1,5 +1,6 @@
 //By Carson Rueber
 
+using System;
 using UnityEngine;
 using OSGeo.GDAL;
 using NLua;
@@ -29,7 +30,7 @@ public class RasterHandler {
 	private Dataset dataset;
 	private LuaTable RasterUtilities;
 
-	public RasterHandler(RasterType major, int? minor) {
+	public RasterHandler(RasterType major, int? minor = null) {
 		majorType = major;
 		minorType = minor;
 		RasterUtilities = LuaSingleton.lua.GetTable("RasterUtilities");
@@ -40,19 +41,17 @@ public class RasterHandler {
 		getWarpedFilename.Dispose();
 	}
 
-	public void preprocessData() {
-		dataset = Gdal.Open(outputTifFilename, Access.GA_ReadOnly);
-	}
-
 	//Loads the first band of the dataset to a texture
 	public Texture2D loadToTexture(int width, int height) {
+		dataset = Gdal.Open(outputTifFilename, Access.GA_ReadOnly);
 		//The first band
 		Band rasterBand = dataset.GetRasterBand(1);
 		//Output texture
 		Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 
 		//Raster data buffer
-		double[] rasterData = new double[1];
+		double[] popBuffer = new double[1];
+		Int16[] elevationBuffer = new Int16[1];
 
 		//Get the corner coords of the screen
 		Vector2Double screenCoords = new Vector2Double(0, 0);
@@ -78,21 +77,25 @@ public class RasterHandler {
 				) {
 					continue;
 				}
-
-				//Read in the raster data
-				rasterBand.ReadRaster(
-					rasterCoords.x, rasterCoords.y,
-					1, 1,
-					rasterData,
-					1, 1,
-					0, 0
-				);
-
-				//Get number of people
-				double numberOfPeople = double.IsNaN(rasterData[0]) ? 0.0 : rasterData[0];
-
-				//Output the color
-				Color32 color = Simulation.floatToColor((float)numberOfPeople);
+				Color32 color = new Color32(128,128,128,128);
+				switch (majorType) {
+					case RasterType.Population:
+						rasterBand.ReadRaster(
+							rasterCoords.x, rasterCoords.y, 1, 1,
+							popBuffer,
+							1,1,0,0
+						);
+						color = loadPopulationData(popBuffer[0]);
+						break;
+					case RasterType.Elevation:
+						rasterBand.ReadRaster(
+							rasterCoords.x, rasterCoords.y, 1, 1,
+							elevationBuffer,
+							1,1,0,0
+						);
+						color = loadElevationData(elevationBuffer[0]);
+						break;
+				}
 
 				//Just to make sure the color is set just right
 				texture.SetPixels32(x, y, 1, 1, new Color32[] { color });
@@ -101,4 +104,22 @@ public class RasterHandler {
 		texture.Apply();
 		return texture;
 	}
+
+	//Functions to facilitate loading textures from specific rasters
+	//Called for each raster pixel, see above
+
+	Color32 loadPopulationData(double data) {
+		//Get number of people
+		double numberOfPeople = double.IsNaN(data) ? 0.0 : data;
+
+		//Output the color
+		return Simulation.floatToColor((float)numberOfPeople);
+	}
+
+	Color32 loadElevationData(Int16 data) {
+		//Just output it greyscale as a percentage of the """"max""""
+		byte val = (byte)(Mathf.Clamp01((float)data / 7000.0f) * 255);
+		return new Color32(val, val, val, 255);
+	}
+
 }

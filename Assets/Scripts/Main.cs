@@ -64,32 +64,26 @@ public class Main : MonoBehaviour {
 
 		//Load in the population data
 		Texture2D[] populationTextures = new Texture2D[(int)Population.PopulationCount];
+		RasterHandler rasterHandler;
 
 		for (int q = 0; q < populationTextures.Length; q++) {
-			RasterHandler rasterHandler = new RasterHandler(RasterType.Population, q);
-
-			double localStartTime = Time.realtimeSinceStartupAsDouble;
-
-			rasterHandler.preprocessData();
-
-			preprocessTime += Time.realtimeSinceStartupAsDouble - localStartTime;
-			localStartTime = Time.realtimeSinceStartupAsDouble;
+			rasterHandler = new RasterHandler(RasterType.Population, q);
 
 			populationTextures[q] = rasterHandler.loadToTexture(width, height);
-
-			textureLoadTime += Time.realtimeSinceStartupAsDouble - localStartTime;
 
 			populationTextures[q].Apply();
 
 			yield return null;
 		}
-		Debug.Log("Loaded the population data");
-		//Dataset elevation = Gdal.Open("F:\\Data\\tif\\Elevation\\test.tif", Access.GA_ReadOnly);
 
-		LuaFunction warpVrt = (LuaFunction)LuaSingleton.lua["RasterUtilities.warpVrt"];
-		Dataset output = (Dataset)warpVrt.Call("F:\\Data\\tif\\Elevation\\Elevation.vrt", "F:\\Data\\tif\\Elevation\\output.tif", "average")[0];
-		output.Dispose();
-
+		//Load in the elevation data
+		//TODO:
+		//Actually do something with this
+		rasterHandler = new RasterHandler(RasterType.Elevation, null);
+		var x = rasterHandler.loadToTexture(width, height);
+		x.Apply();
+		
+		
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,
