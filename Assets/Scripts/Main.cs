@@ -16,35 +16,13 @@ public class Main : MonoBehaviour {
 	const int framerate = 60;
 
 	const float simulationTicksPerSecond = 20.0f;
-	const float statisticsUpdatesPerSecond = 20.0f;
 
 	//The background image
-	MovableRawImage backgroundMovableImage;
+	public MovableRawImage backgroundMovableImage;
 
-	Simulation simulation;
-
-	Text statisticsEditLabel;
-
-	//Slider/text combos
-	SliderTextCombo alphaSliderText;
-	SliderTextCombo gammaSliderText;
-	SliderTextCombo spreadRateSliderText;
-	SliderTextCombo sigmaSliderText;
-	SliderTextCombo deltaSliderText;
-
-	Slider contactProbabilitySlider;
-	Slider infectionRateSlider;
-	Text betaText;
-
-	Text r0Text;
-
-	//Toggles
-	Toggle drawInfectedToggle;
-	Toggle drawRecoveredToggle;
-	Toggle drawDeadToggle;
-	Toggle moveZombiesToggle;
-
-	Toggle drawProportionToggle;
+	public Simulation simulation;
+    public SimulationCanvas simulationCanvas;
+	
 
 	bool loadedSimulation = false;
 
@@ -70,28 +48,6 @@ public class Main : MonoBehaviour {
 
 		//Find some unity components
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
-		statisticsEditLabel = GameObject.Find("Canvas/StatisticsEditLabel").GetComponent<Text>();
-
-
-		r0Text = GameObject.Find("Canvas/R0Text").GetComponent<Text>();
-
-		alphaSliderText = GameObject.Find("Canvas/AlphaSliderText").GetComponent<SliderTextCombo>();
-		gammaSliderText = GameObject.Find("Canvas/GammaSliderText").GetComponent<SliderTextCombo>();
-		sigmaSliderText = GameObject.Find("Canvas/SigmaSliderText").GetComponent<SliderTextCombo>();
-		deltaSliderText = GameObject.Find("Canvas/DeltaSliderText").GetComponent<SliderTextCombo>();
-		spreadRateSliderText = GameObject.Find("Canvas/SpreadRateSliderText").GetComponent<SliderTextCombo>();
-
-		infectionRateSlider = GameObject.Find("Canvas/InfectionRateSlider").GetComponent<Slider>();
-		contactProbabilitySlider = GameObject.Find("Canvas/ContactProbabilitySlider").GetComponent<Slider>();
-		betaText = GameObject.Find("Canvas/BetaText").GetComponent<Text>();
-
-		drawInfectedToggle = GameObject.Find("Canvas/DrawInfectedToggle").GetComponent<Toggle>();
-		drawRecoveredToggle = GameObject.Find("Canvas/DrawRecoveredToggle").GetComponent<Toggle>();
-		drawDeadToggle = GameObject.Find("Canvas/DrawDeadToggle").GetComponent<Toggle>();
-
-		drawProportionToggle = GameObject.Find("Canvas/DrawProportionToggle").GetComponent<Toggle>();
-		moveZombiesToggle = GameObject.Find("Canvas/MoveZombiesToggle").GetComponent<Toggle>();
-
 
 		StartCoroutine("loadSimulation");
 
@@ -133,7 +89,6 @@ public class Main : MonoBehaviour {
 			populationTextures,
 			new Texture2D[] { populationTextures[(int)Population.FullPopulation] }
 		);
-
 		backgroundMovableImage.texture = simulation.drawTexture;
 
 		//Log time
@@ -148,38 +103,17 @@ public class Main : MonoBehaviour {
 
 	//Doing things every x seconds
 	float lastSimTime = -100.0f;
-	float lastStatsTime = -100.0f;
 	bool autoPlay = false;
 	//The demographic we are currently looking at statistics for
-	int targetDemographic = (int)Population.FullPopulation;
+	public int targetDemographic = (int)Population.FullPopulation;
 
 	private unsafe void Update() {
 		if (!loadedSimulation) return;
-		//Sliders and buttons
 
-		//r0
-		r0Text.text = "r0: " + (simulation.data.beta / simulation.data.gamma).ToString("f2");
+        simulationCanvas.UpdateCanvas();
 
-		//Alpha, beta, gamma, etc.
-		simulation.data.beta = infectionRateSlider.value * contactProbabilitySlider.value;
-
-		simulation.data.alpha = alphaSliderText.slider.value;
-		simulation.data.gamma = gammaSliderText.slider.value;
-		simulation.data.sigma = sigmaSliderText.slider.value;
-		simulation.data.delta = deltaSliderText.slider.value;
-		simulation.data.spreadRate = spreadRateSliderText.slider.value;
-
-		//Toggles
-		simulation.data.drawRecovered = drawRecoveredToggle.isOn;
-		simulation.data.drawInfected = drawInfectedToggle.isOn;
-		simulation.data.drawDead = drawDeadToggle.isOn;
-
-		simulation.data.drawProportion = drawProportionToggle.isOn;
-		simulation.data.moveZombies = moveZombiesToggle.isOn;
-
-
-		//Change the targetDemographic on keypress
-		if (Input.GetKeyDown(KeyCode.LeftArrow))
+        //Change the targetDemographic on keypress
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
 			targetDemographic--;
 		if (Input.GetKeyDown(KeyCode.RightArrow))
 			targetDemographic++;
@@ -192,7 +126,7 @@ public class Main : MonoBehaviour {
 
 		simulation.data.drawDemographic = targetDemographic;
 
-		updateStatisticsLabel();
+		simulationCanvas.updateStatisticsLabel();
 
 		//Pixel coord on the draw texture
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
@@ -235,62 +169,4 @@ public class Main : MonoBehaviour {
 		simulation.deleteNativeArrays();
 	}
 
-	//Updates the statistics label based on the pixel the mouse is over, and targetDemographic
-	int lastIndex = -1;
-	unsafe void updateStatisticsLabel() {
-		float totalSusceptible = 0.0f;
-		float totalInfected = 0.0f;
-		float totalRecovered = 0.0f;
-		float totalExposed = 0.0f;
-		float totalVaccinated = 0.0f;
-		double totalPeople = 0.0;
-
-		//Pixel coord on the draw texture
-		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
-		int index = simulation.coordToIndex(pixel);
-
-		if (!simulation.cellIsValid(index) && simulation.cellIsValid(lastIndex))
-			index = lastIndex;
-
-		if (simulation.cellIsValid(index)) {
-			lastIndex = index;
-			Simulation.Cell cell = simulation.readCells[index];
-
-			//Gather statistics for the entire thing
-			if (Time.realtimeSinceStartup - lastStatsTime >= 1.0f / statisticsUpdatesPerSecond) {
-				lastStatsTime = Time.realtimeSinceStartup;
-				totalSusceptible = 0;
-				totalInfected = 0;
-				totalRecovered = 0;
-				totalExposed = 0;
-				totalPeople = 0;
-				totalVaccinated = 0;
-				for (int q = 0; q < simulation.readCells.Length; q++) {
-					Simulation.Cell readCell = simulation.readCells[q];
-					totalSusceptible += readCell.susceptible[targetDemographic];
-					totalInfected += readCell.infected[targetDemographic];
-					totalRecovered += readCell.recovered[targetDemographic];
-					totalExposed += readCell.exposed[targetDemographic];
-					totalVaccinated += readCell.vaccinated[targetDemographic];
-					totalPeople += (double)readCell.numberOfPeople[targetDemographic];
-				}
-
-				//Set the string to the statistics
-				string finalString =
-					((Population)targetDemographic).ToString() + "\n" +
-					cell.susceptible[targetDemographic].ToString("F3") + "\n" +
-					cell.vaccinated[targetDemographic].ToString("F3") + "\n" +
-					cell.infected[targetDemographic].ToString("F3") + "\n" +
-					cell.recovered[targetDemographic].ToString("F3") + "\n" +
-					cell.exposed[targetDemographic].ToString("F3") + "\n" +
-					"Totals:" + "\n" +
-					totalSusceptible.ToString("F3") + "\n" +
-					totalVaccinated.ToString("F3") + "\n" +
-					totalInfected.ToString("F3") + "\n" +
-					totalRecovered.ToString("F3") + "\n" +
-					totalExposed.ToString("F3") + "\n";
-				statisticsEditLabel.text = finalString;
-			}
-		}
-	}
 }

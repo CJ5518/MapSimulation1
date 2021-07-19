@@ -12,12 +12,6 @@ public class PieChart : MonoBehaviour {
     #endregion
     #region Unity
     private void Start() {
-        float[] tempdata = new float[5];
-
-        for(int j = 0; j < 5; j++) {
-            tempdata[j] = .2f;
-        }
-        UpdateGraph(tempdata);
     }
     #endregion
     #region Pie
@@ -28,10 +22,13 @@ public class PieChart : MonoBehaviour {
         float runningTotal = 0;
         for(int i = data.Length-1; i >= 0; i--) {
             runningTotal += data[i];
-            VarLabels[i].text = runningTotal + "";
+            VarLabels[i].text = data[i] + "";
 
             parts[i].fillAmount = runningTotal;
         }
+        //This is for unity jankyness!
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)VarLabels[0].rectTransform.parent);
     }
     #endregion
 
