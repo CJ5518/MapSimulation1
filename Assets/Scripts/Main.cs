@@ -101,24 +101,6 @@ public class Main : MonoBehaviour {
 
 	//Loads the simulation/raster data
 	IEnumerator loadSimulation() {
-		//Get some Lua functions
-		LuaFunction needDataFolder = (LuaFunction)LuaSingleton.lua["RasterUtilities.needDataFolder"];
-		LuaFunction createDataDirectoryStructure = (LuaFunction)
-			LuaSingleton.lua["RasterUtilities.createDataDirectoryStructure"];
-
-		if ((bool)needDataFolder.Call()[0]) {
-			do {
-				Debug.Log("In the Loop");
-				yield return FileBrowser.WaitForLoadDialog(
-					FileBrowser.PickMode.Folders, false, null, null, "Select Data Folder"
-				);
-			} while (!FileBrowser.Success);
-
-			LuaSingleton.lua["RasterDataFolderLocation"] = FileBrowser.Result[0];
-			
-		}
-		createDataDirectoryStructure.Call();
-
 		int width = Screen.width / pixelSize;
 		int height = Screen.height / pixelSize;
 
