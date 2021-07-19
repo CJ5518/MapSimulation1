@@ -45,8 +45,7 @@ public class Main : MonoBehaviour {
 		//Init the Lua singleton
 		LuaSingleton.initLua();
 
-
-		//Find some unity components
+		//Find a unity component
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
 
 		StartCoroutine("loadSimulation");
@@ -84,6 +83,13 @@ public class Main : MonoBehaviour {
 
 			yield return null;
 		}
+		Debug.Log("Loaded the population data");
+		//Dataset elevation = Gdal.Open("F:\\Data\\tif\\Elevation\\test.tif", Access.GA_ReadOnly);
+
+		LuaFunction warpVrt = (LuaFunction)LuaSingleton.lua["RasterUtilities.warpTif"];
+		Dataset output = (Dataset)warpVrt.Call("F:\\Data\\tif\\Elevation\\test.tif", "F:\\Data\\tif\\Elevation\\output.tif", "near")[0];
+		output.Dispose();
+
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,

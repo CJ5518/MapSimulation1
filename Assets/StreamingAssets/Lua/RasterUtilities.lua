@@ -19,28 +19,16 @@ local xml2lua = require("XML.xml2lua");
 local handler = require("XML.tree");
 
 local json = require("json");
-local inspect = require('inspect')
-
---TODO:
---[[
-Edit warpVrt to just be warpDataset and then use the file extension to decide how to warp
-]]
+local inspect = require("inspect");
 
 --Public
 RasterUtilities = {};
 
-
---------------------------------------------------
--- Some testing functions for new functionality --
---------------------------------------------------
-
 --The Data folder, which contains the base data
 --Very likely to only exist on my computer
-
---Bool just so we know that the data isn't all there
-local dataFolderIsValid = false;
 RasterDataFolderLocation = "F:\\Data";
 local tifFolder = RasterDataFolderLocation .. "/tif";
+local warpedFolder = Application.streamingAssetsPath .. "/Warped";
 
 ---------------------------------
 -- High Level Raster Interface --
@@ -73,6 +61,8 @@ function RasterUtilities.resolveEnumsToNames(major, minor)
 		retMinor = luanet.enum(_G[retMajor], minor):ToString();
 	elseif type(minor) == "userdata" then --Userdata is assumed to be an enum here
 		retMinor = minor:ToString();
+	elseif type(minor) == "nil" then --Don't error on this being nil
+		retMinor = nil;
 	else
 		error("Cannot resolve minor enum", minor, "of type", type(minor));
 	end
@@ -81,12 +71,15 @@ end
 
 
 --Returns the base data input filename and the warped output filename
-function RasterUtilities.getFilenames(major, minor)
+function RasterUtilities.getWarpedFilename(major, minor)
 	local majorName, minorName = RasterUtilities.resolveEnumsToNames(major,minor);
-	local inputFilename = 
-		RasterDataFolderLocation .. "/tif/" .. majorName .. "/" .. minorName .. "/" .. minorName .. ".vrt";
-	local outputFilename = Application.streamingAssetsPath .. "/Warped/" .. majorName .. "_" .. minorName .. ".tif";
-	return inputFilename, outputFilename;
+	local outputFilename;
+	if not minor then
+		outputFilename = warpedFolder .. "/" .. majorName .. ".tif";
+	else
+		outputFilename = warpedFolder .. "/" .. majorName .. "_" .. minorName .. ".tif";
+	end
+	return outputFilename;
 end
 
 
@@ -98,35 +91,7 @@ end
 --Checks if the dataset is already warped
 --string/Dataset dataset, if string, must be an absolute file path to the dataset
 function RasterUtilities.checkIfDatasetIsWarped(dataset)
-	local isString = type(dataset) == "string";
-	if isString then
-		if not File.Exists(dataset) then return false end
-		dataset = Gdal.Open(dataset, Access.GA_ReadOnly);
-	end
-	--Create the array of size 6 to get argout
-	local argout = luanet.make_array(Double, {1,2,3,4,5,6});
-	dataset:GetGeoTransform(argout);
-
-	local sizeX = argout[1];
-	local sizeY = argout[5];
-
-	local correctSize = Projection.getPixelSizeInLatLong();
-
-	--Checks if the values are close enough for government work
-	local function isCloseEnough(x,y)
-		return math.floor((math.abs(x) * 1000) + 0.5) == math.floor((math.abs(y) * 1000) + 0.5)
-	end
-
-	if isCloseEnough(sizeX, correctSize.x) and isCloseEnough(sizeY, correctSize.y) then
-		ret = true;
-	end
-
-	--Not sure if this needs to run, but better safe than sorry
-	if isString then
-		dataset:Dispose();
-	end
-
-	return ret;
+	return File.Exists(dataset);
 end
 
 
@@ -203,6 +168,38 @@ function RasterUtilities.warpVrt(inputVrtFilename, outputTifFilename, algorithm)
 	--Redo the options
 	options = RasterUtilities.buildSuggestedWarpOptionsString(
 		worldPixelSize.x, worldPixelSize.y, "sum"
+	);
+	
+	--Second warp
+	local ret = Gdal.Warp(outputTifFilename, luanet.make_array(Dataset, {intermediate}), options, nil, nil);
+	
+	--Clean up the temp file
+	intermediate:Dispose();
+	File.Delete(tempFilePath);
+	
+	return ret;
+end
+
+function RasterUtilities.warpTif(inputVrtFilename, outputTifFilename, algorithm)
+	local tempFilePath = Application.temporaryCachePath .. "/temp.tif";
+
+	--Warp drive
+
+	local worldPixelSize = Projection.getPixelSizeInLatLong();
+
+	local options = RasterUtilities.buildSuggestedWarpOptionsString(
+		worldPixelSize.x / 5, worldPixelSize.y / 5, algorithm
+	);
+
+	--First warp
+	local intermediate = Gdal.Warp(
+		tempFilePath,
+		luanet.make_array(Dataset, {Gdal.Open(inputVrtFilename, Access.GA_ReadOnly)}), options, nil, nil
+	);
+
+	--Redo the options
+	options = RasterUtilities.buildSuggestedWarpOptionsString(
+		worldPixelSize.x, worldPixelSize.y, algorithm
 	);
 	
 	--Second warp
