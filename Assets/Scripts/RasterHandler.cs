@@ -117,9 +117,7 @@ public class RasterHandler {
 	}
 
 	Color32 loadElevationData(Int16 data) {
-		//Just output it greyscale as a percentage of the """"max""""
-		byte val = (byte)(Mathf.Clamp01((float)data / 7000.0f) * 255);
-		return new Color32(val, val, val, 255);
+		return Simulation.intToColor((int)data);
 	}
 
 }

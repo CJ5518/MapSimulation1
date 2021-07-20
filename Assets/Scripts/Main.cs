@@ -59,9 +59,6 @@ public class Main : MonoBehaviour {
 		int width = Screen.width / pixelSize;
 		int height = Screen.height / pixelSize;
 
-		double preprocessTime = 0;
-		double textureLoadTime = 0;
-
 		//Load in the population data
 		Texture2D[] populationTextures = new Texture2D[(int)Population.PopulationCount];
 		RasterHandler rasterHandler;
@@ -80,20 +77,19 @@ public class Main : MonoBehaviour {
 		//TODO:
 		//Actually do something with this
 		rasterHandler = new RasterHandler(RasterType.Elevation, null);
-		var x = rasterHandler.loadToTexture(width, height);
-		x.Apply();
+		Texture2D elevationTexture = rasterHandler.loadToTexture(width, height);
+		elevationTexture.Apply();
 		
 		
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,
-			new Texture2D[] { populationTextures[(int)Population.FullPopulation] }
+			elevationTexture,
+			new Texture2D[] { }
 		);
+		
 		backgroundMovableImage.texture = simulation.drawTexture;
         simulationCanvas.UpdateSliderValues();
-		//Log time
-		Debug.Log("Preprocess time: " + preprocessTime);
-		Debug.Log("Texture load time: " + textureLoadTime);
 
 		loadedSimulation = true;
 	}
@@ -127,6 +123,10 @@ public class Main : MonoBehaviour {
 		simulation.data.drawDemographic = targetDemographic;
 
 		simulationCanvas.updateStatisticsLabel();
+
+		//Draw elevation on key press because I'm lazy
+		if (Input.GetKeyDown(KeyCode.Alpha1)) 
+			simulation.data.drawElevation = !simulation.data.drawElevation;
 
 		//Pixel coord on the draw texture
 		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);

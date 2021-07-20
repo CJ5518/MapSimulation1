@@ -10,10 +10,10 @@ using ShapeImporter;
 
 //Handles a cell based simulation of stuff
 public class Simulation {
+	private Texture2D[] populationTextures;
+	private Texture2D elevationTexture;
 	//Array of textures needed in the simulation itself
 	private Texture2D[] simulationTextures;
-
-	private Texture2D[] populationTextures;
 
 	//Metadata for the textures
 	public NativeArray<TextureMetadata> textureMetadataArray;
@@ -36,6 +36,7 @@ public class Simulation {
 		public fixed float recovered[(int)Population.PopulationCount];
 		public fixed float exposed[(int)Population.PopulationCount];
 		public fixed float vaccinated[(int)Population.PopulationCount];
+		public int elevation;
 
 		public bool inMask; //Are we in the mask
 	}
@@ -59,8 +60,8 @@ public class Simulation {
 		public bool drawInfected;
 		public bool drawDead;
 		public bool drawRecovered;
-		//Basically to log transform or not
-		public bool drawProportion;
+		//Draw elevation or population
+		public bool drawElevation;
 		
 		//Max number of people in a cell per demographic
 		public fixed float maxNumberOfPeople[(int)Population.PopulationCount];
@@ -88,6 +89,7 @@ public class Simulation {
 		drawInfected = true,
 		drawDead = true,
 		drawRecovered = false,
+		drawElevation = false,
 		beta = 1.0f, alpha = 1.0f, gamma = 1.0f, sigma = 1.0f, delta = 1.0f,
 
 		runCount = 0,
@@ -105,8 +107,9 @@ public class Simulation {
 
 	//Constructor
 	//All textures must be of the same width and height, different formats are allowed
-	public Simulation(Texture2D[] populationTextures, Texture2D[] simulationTextures) {
+	public Simulation(Texture2D[] populationTextures, Texture2D elevationTexture, Texture2D[] simulationTextures) {
 		this.populationTextures = populationTextures;
+		this.elevationTexture = elevationTexture;
 		this.simulationTextures = simulationTextures;
 		Init();
 	}
@@ -136,7 +139,7 @@ public class Simulation {
 			textureMetadataArray = textureMetadataArray
 		};
 
-		jobHandle = job.Schedule(data.width * data.height, 13755);
+		jobHandle = job.Schedule(data.width * data.height, batchCount);
 	}
 
 	//Ends a tick started by beginTick
@@ -191,10 +194,11 @@ public class Simulation {
 			textureMetadataArray[q] = textureMetadata;
 		}
 		//We make the first one the example
-		data.width = simulationTextures[0].width;
-		data.height = simulationTextures[0].height;
+		data.width = populationTextures[0].width;
+		data.height = populationTextures[0].height;
 
 		convertTextureArrayFormats(simulationTextures);
+		convertTextureFormat(ref elevationTexture);
 		convertTextureArrayFormats(populationTextures);
 		
 		//Create drawTexture
@@ -249,11 +253,15 @@ public class Simulation {
 				//Innocent until proven guilty
 				readCell.inMask = true;
 
+				Color32 color;
+
 				//Population
 				for (int q = 0; q < (int)Population.PopulationCount; q++) {
 					Texture2D texture = populationTextures[q];
-					Color32 color = texture.GetPixel(x, y);
+					color = texture.GetPixel(x, y);
 					float numberOfPeople = colorToFloat(color);
+
+					if (float.IsNaN(numberOfPeople)) Debug.Log("Is NaN");
 
 					readCell.numberOfPeople[q] = numberOfPeople;
 					readCell.susceptible[q] = numberOfPeople;
@@ -266,6 +274,9 @@ public class Simulation {
 						data.maxNumberOfPeople[q] = numberOfPeople;
 					}
 				}
+				//Set elevation
+				color = elevationTexture.GetPixel(x, y);
+				readCell.elevation = colorToInt(color);
 
 				//If there's nobody here
 				if (readCell.numberOfPeople[(int)Population.FullPopulation] == 0) {
@@ -314,6 +325,7 @@ public class Simulation {
 
 			//Spread in this cell, because of this cell
 			float SZN = (readCell.susceptible[FullPop] * readCell.infected[FullPop]) / readCell.numberOfPeople[FullPop];
+			SZN = float.IsNaN(SZN) ? 0.0f : SZN;
 			float newExposed = data.beta * SZN;
 			float newVaccinated = data.sigma * readCell.susceptible[FullPop];
 			float newInfected = data.alpha * readCell.exposed[FullPop];
@@ -369,21 +381,13 @@ public class Simulation {
 			Color color;
 
 			//Really just toggles between log transform or not
-			if (data.drawProportion) {
-				float max = Mathf.Log10(data.maxNumberOfPeople[FullPop]);
-				color = new Color(
-					Mathf.Log10(writeCell.infected[FullPop]) / max,
-					Mathf.Log10(writeCell.recovered[FullPop]) / max,
-					Mathf.Log10(writeCell.vaccinated[FullPop]) / max
-				);
-			}
-			else {
-				//Percentages
-				float infectedPercentage = writeCell.infected[FullPop] / writeCell.numberOfPeople[FullPop];
-				float recoveredPercentage = writeCell.recovered[FullPop] / writeCell.numberOfPeople[FullPop];
-				float vaccinatedPercentage = writeCell.vaccinated[FullPop] / writeCell.numberOfPeople[FullPop];
-				color = new Color(infectedPercentage, recoveredPercentage, vaccinatedPercentage);
-			}
+			
+			float max = Mathf.Log10(data.maxNumberOfPeople[FullPop]);
+			color = new Color(
+				Mathf.Log10(writeCell.infected[FullPop]) / max,
+				Mathf.Log10(writeCell.recovered[FullPop]) / max,
+				Mathf.Log10(writeCell.vaccinated[FullPop]) / max
+			);
 
 			if (!data.drawInfected)
 				color.r = 0.0f;
@@ -394,10 +398,17 @@ public class Simulation {
 
 			//If this cell has not been touched by the virus
 			if (writeCell.susceptible[FullPop] == writeCell.numberOfPeople[FullPop]) {
-				float v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
-				//"fix" the color
-				
-				color = Color.Lerp(Color.black, new Color(v,v,v,1.0f), 0.3f);
+				float v;
+				float lerpAmount = 0.3f;
+				//This will likely be changed to an enum once more than two data layers exist
+				if (!data.drawElevation)
+					v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
+				else {
+					v = Mathf.Clamp01(readCell.elevation / 7000.0f);
+					lerpAmount = 0.5f;
+				}
+				//Override the color
+				color = Color.Lerp(Color.black, new Color(v,v,v,1.0f), lerpAmount);
 			}
 
 			color.a = 1f;
@@ -501,17 +512,21 @@ public class Simulation {
 	//Uses data.width/height so make sure those are set properly
 	private void convertTextureArrayFormats(Texture2D[] array) {
 		for (int q = 0; q < array.Length; q++) {
+			convertTextureFormat(ref array[q]);
+		}
+	}
+
+	private void convertTextureFormat(ref Texture2D tex) {
 			//Verify that it's the same size
-			if (array[q].width != data.width || array[q].height != data.height)
-				throw new Exception("Texture #" + q.ToString() + " is not of the same height and width as the other textures");
+			if (tex.width != data.width || tex.height != data.height)
+				throw new Exception("Texture " + tex.ToString() + " is not of the same height and width as the other textures");
 			//Only convert if we need to
-			if (array[q].format == TextureFormat.RGBA32) continue;
+			if (tex.format == TextureFormat.RGBA32) return;
 			//Create dummy texture to copy the data in a new format
 			Texture2D dummy = new Texture2D(data.width, data.height, TextureFormat.RGBA32, false);
-			dummy.SetPixels(array[q].GetPixels());
+			dummy.SetPixels(tex.GetPixels());
 			dummy.Apply();
-			array[q] = dummy;
-		}
+			tex = dummy;
 	}
 
 	//https://stackoverflow.com/a/14998816

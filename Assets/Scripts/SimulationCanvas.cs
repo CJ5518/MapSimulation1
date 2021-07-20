@@ -44,8 +44,9 @@ public class SimulationCanvas : MonoBehaviour
     public void ToggleDead() {
         main.simulation.data.drawDead = !main.simulation.data.drawDead;
     }
-    public void TogglePop() {
-        main.simulation.data.drawProportion = !main.simulation.data.drawProportion;
+    //Removed draw proportion because it wasn't particularily useful or important
+    public void ToggleElevation() {
+        main.simulation.data.drawElevation = !main.simulation.data.drawElevation;
     }
     public void ToggleMove() {
         main.simulation.data.moveZombies = !main.simulation.data.moveZombies;
