@@ -21,7 +21,7 @@ public class Main : MonoBehaviour {
 	public MovableRawImage backgroundMovableImage;
 
 	public Simulation simulation;
-    public SimulationCanvas simulationCanvas;
+	public SimulationCanvas simulationCanvas;
 	
 
 	bool loadedSimulation = false;
@@ -89,7 +89,7 @@ public class Main : MonoBehaviour {
 		);
 		
 		backgroundMovableImage.texture = simulation.drawTexture;
-        simulationCanvas.UpdateSliderValues();
+		simulationCanvas.UpdateSliderValues();
 
 		loadedSimulation = true;
 	}
@@ -106,10 +106,12 @@ public class Main : MonoBehaviour {
 	private unsafe void Update() {
 		if (!loadedSimulation) return;
 
-        simulationCanvas.UpdateCanvas();
+		simulationCanvas.UpdateCanvas();
+		simulationCanvas.UpdateSliderValues();
+		simulation.data.drawRecovered = true;
 
-        //Change the targetDemographic on keypress
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+		//Change the targetDemographic on keypress
+		if (Input.GetKeyDown(KeyCode.LeftArrow))
 			targetDemographic--;
 		if (Input.GetKeyDown(KeyCode.RightArrow))
 			targetDemographic++;
