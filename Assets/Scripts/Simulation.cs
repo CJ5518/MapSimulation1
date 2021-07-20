@@ -5,6 +5,8 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using ShapeImporter;
 
 //Handles a cell based simulation of stuff
 public class Simulation {
@@ -217,6 +219,20 @@ public class Simulation {
 		readCells = new NativeArray<Cell>(data.width * data.height, Allocator.Persistent);
 		writeCells = new NativeArray<Cell>(data.width * data.height, Allocator.Persistent);
 
+		//Load the shapeFile data
+		ShapeFile shapeFile = new ShapeFile();
+		shapeFile.ReadShapes(Application.streamingAssetsPath + "/USA_Reprojected.shp");
+
+		ShapeFileRecord usaRecord = shapeFile.MyRecords[0];
+		Vector2[] renderSpaceUSA = new Vector2[usaRecord.Points.Count];
+
+		//Put the lat longs into render space
+		for (int q = 0; q < usaRecord.Points.Count; q++) {
+			renderSpaceUSA[q] = (Vector2)Projection.projectionToRenderSpace(Projection.projectVector(
+				usaRecord.Points[q]
+			));
+		}
+
 		//Set the maximum per demographic to 0
 		for (int q = 0; q < (int)Population.PopulationCount; q++) {
 			data.maxNumberOfPeople[q] = 0;
@@ -253,7 +269,10 @@ public class Simulation {
 
 				//If there's nobody here
 				if (readCell.numberOfPeople[(int)Population.FullPopulation] == 0) {
-					readCell.inMask = false;
+					//And we're not in the USA
+					if (!IsPointInPolygon(renderSpaceUSA, new Vector2(x,y) * Projection.pixelSize)) {
+						readCell.inMask = false;
+					}
 				}
 				
 				//Write back the cell
@@ -493,5 +512,20 @@ public class Simulation {
 			dummy.Apply();
 			array[q] = dummy;
 		}
+	}
+
+	//https://stackoverflow.com/a/14998816
+	public static bool IsPointInPolygon(Vector2[] polygon, Vector2 testPoint) {
+		bool result = false;
+		int j = polygon.Length - 1;
+		for (int i = 0; i < polygon.Length; i++) {
+			if (polygon[i].y < testPoint.y && polygon[j].y >= testPoint.y || polygon[j].y < testPoint.y && polygon[i].y >= testPoint.y) {
+				if (polygon[i].x + (testPoint.y - polygon[i].y) / (polygon[j].y - polygon[i].y) * (polygon[j].x - polygon[i].x) < testPoint.x) {
+					result = !result;
+				}
+			}
+			j = i;
+		}
+		return result;
 	}
 }
