@@ -6,31 +6,23 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 //A RawImage that can be panned and zoomed
-public class MovableRawImage :
-  RawImage,
-  IScrollHandler,
-  IEventSystemHandler,
-  IPointerDownHandler,
-  IPointerUpHandler {
+public class MovableRawImage : RawImage {
 	private Vector3 offset;
 	private bool dragging;
 
 	//Drag start
-	public void OnPointerDown(PointerEventData eventData) {
-		if (eventData.button != PointerEventData.InputButton.Middle)
-			return;
+	public void DragStart() {
 		offset = Input.mousePosition - rectTransform.position;
 		dragging = true;
 	}
 
 	//Drag end
-	public void OnPointerUp(PointerEventData eventData) {
-		if (eventData.button != PointerEventData.InputButton.Middle)
-			return;
+	public void DragEnd() {
 		dragging = false;
 	}
 
-	public void OnScroll(PointerEventData eventData) {
+	//Zoom
+	public void OnScroll() {
 		//Scale factor
 		float y = Input.mouseScrollDelta.y;
 		float factor = (0.05f * y) + 1.0f;
@@ -60,7 +52,7 @@ public class MovableRawImage :
 	}
 
 	//FIX
-	//Doesn't work with scaling at the moment
+	//Doesn't work with scaling at the moment, maybe?
 	public Vector2 getLocalPositionInRectangle(Vector2 screenCoord) {
 		Vector2 ret;
 		RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenCoord, null, out ret);
@@ -74,8 +66,18 @@ public class MovableRawImage :
 
 	//Update position if dragging
 	public void Update() {
-		if (!dragging)
-			return;
-		rectTransform.position = Input.mousePosition - this.offset;
+
+		if (Input.GetMouseButtonDown(2)) {
+			DragStart();
+		}
+		if (Input.GetMouseButtonUp(2)) {
+			DragEnd();
+		}
+		if (Input.mouseScrollDelta.y != 0)
+			OnScroll();
+
+		//Update position if dragging
+		if (dragging)
+			rectTransform.position = Input.mousePosition - this.offset;
 	}
 }
