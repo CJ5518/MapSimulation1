@@ -16,7 +16,7 @@ public class PieChart : MonoBehaviour {
     #endregion
     #region Pie
     /*
-     * Give graph Updated Set of Data
+     * Give graph Updated Set of Data; In raw Numbers
      */
     public void UpdateGraph(float[] data, float total) {
         float runningTotal = 0;
@@ -26,7 +26,7 @@ public class PieChart : MonoBehaviour {
             parts[i].fillAmount = runningTotal;
         }
         //This is for unity jankyness!
-        Canvas.ForceUpdateCanvases();
+        //Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)VarLabels[0].rectTransform.parent);
     }
     #endregion

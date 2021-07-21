@@ -48,8 +48,6 @@ public class Main : MonoBehaviour {
 		//Init the Lua singleton
 		LuaSingleton.initLua();
 
-		//Find a unity component
-		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
 
 		DataSource x;
 
@@ -92,13 +90,13 @@ public class Main : MonoBehaviour {
 			elevationTexture,
 			new Texture2D[] { }
 		);
-		
-		backgroundMovableImage.texture = simulation.drawTexture;
+        simulationCanvas.UpdateSliderValues();
+
+        backgroundMovableImage.texture = simulation.drawTexture;
 		if (objectWithMeshRenderer != null) {
 			Material material = objectWithMeshRenderer.GetComponent<MeshRenderer>().material;
 			material.SetTexture("_MainTex", simulation.drawTexture);
 		}
-		simulationCanvas.UpdateSliderValues();
 
 		loadedSimulation = true;
 	}
@@ -116,7 +114,6 @@ public class Main : MonoBehaviour {
 		if (!loadedSimulation) return;
 
 		simulationCanvas.UpdateCanvas();
-		simulationCanvas.UpdateSliderValues();
 		simulation.data.drawRecovered = true;
 
 		//Make sure targetDemographic is in range
@@ -126,8 +123,6 @@ public class Main : MonoBehaviour {
 			targetDemographic = 0;
 
 		simulation.data.drawDemographic = targetDemographic;
-
-		simulationCanvas.updateStatisticsLabel();
 
 		//Draw elevation on key press because I'm lazy
 		if (Input.GetKeyDown(KeyCode.Alpha1)) 

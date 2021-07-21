@@ -13,23 +13,21 @@ public class SimulationCanvas : MonoBehaviour
 
 
     [Header("Canvas Objects")]
+    public TimeBarGraph timeOverallGraph;
     public PieChart overallChart;
     public PieChart hoverChart;
 
-
-    public Text statisticsEditLabel;
     [Header("0 Alpha, 1 Gamma, 2 Spread, 3 Sigma, 4 Delta, 5 Contact, 6 Infection")]
     public Slider[] sliders;
-    public Text betaText;
-    public Text r0Text;
+    //public Text betaText;
+    //public Text r0Text;
 
     #endregion
-
     public void UpdateCanvas()
     {
         //r0
         //r0Text.text = "r0: " + (main.simulation.data.beta / main.simulation.data.gamma).ToString("f2");
-
+        updateStatisticsLabel();
     }
     #region Toggles
     /*
@@ -91,7 +89,7 @@ public class SimulationCanvas : MonoBehaviour
                 totalPeople += readCell.numberOfPeople[main.targetDemographic];
             }
             overallChart.UpdateGraph(totals, totalPeople);
-
+            timeOverallGraph.UpdateTimeBar(totals, totalPeople);
             //Hover Data//
             //Use last cell if this cell is broken
             if (!main.simulation.cellIsValid(indexOfPixel) && main.simulation.cellIsValid(lastIndex))
