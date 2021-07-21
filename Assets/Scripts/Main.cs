@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 using OSGeo.OSR;
+using OSGeo.OGR;
 using OSGeo.GDAL;
 using NLua;
 using SimpleFileBrowser;
@@ -22,6 +23,8 @@ public class Main : MonoBehaviour {
 
 	public Simulation simulation;
 	public SimulationCanvas simulationCanvas;
+
+	public GameObject objectWithMeshRenderer = null;
 	
 
 	bool loadedSimulation = false;
@@ -47,6 +50,8 @@ public class Main : MonoBehaviour {
 
 		//Find a unity component
 		backgroundMovableImage = GameObject.Find("Canvas/Background").GetComponent<MovableRawImage>();
+
+		DataSource x;
 
 		StartCoroutine("loadSimulation");
 
@@ -89,6 +94,10 @@ public class Main : MonoBehaviour {
 		);
 		
 		backgroundMovableImage.texture = simulation.drawTexture;
+		if (objectWithMeshRenderer != null) {
+			Material material = objectWithMeshRenderer.GetComponent<MeshRenderer>().material;
+			material.SetTexture("_MainTex", simulation.drawTexture);
+		}
 		simulationCanvas.UpdateSliderValues();
 
 		loadedSimulation = true;
