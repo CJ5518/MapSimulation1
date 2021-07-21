@@ -110,12 +110,6 @@ public class Main : MonoBehaviour {
 		simulationCanvas.UpdateSliderValues();
 		simulation.data.drawRecovered = true;
 
-		//Change the targetDemographic on keypress
-		if (Input.GetKeyDown(KeyCode.LeftArrow))
-			targetDemographic--;
-		if (Input.GetKeyDown(KeyCode.RightArrow))
-			targetDemographic++;
-
 		//Make sure targetDemographic is in range
 		if (targetDemographic < 0)
 			targetDemographic = (int)Population.PopulationCount - 1;
@@ -139,7 +133,10 @@ public class Main : MonoBehaviour {
 			Simulation.Cell cell = simulation.readCells[index];
 			
 			//Kill cells on click
-			if (Input.GetMouseButtonDown(0) && EventSystem.current.currentSelectedGameObject == null) {
+			if (
+				Input.GetMouseButtonDown(0) &&
+				EventSystem.current.currentSelectedGameObject == null &&
+				cell.susceptible[targetDemographic] >= 1.0f) {
 				//Can't mess with the cells if the simulation is going
 				simulation.endTick();
 				cell.infected[targetDemographic]+= 1.0f;
