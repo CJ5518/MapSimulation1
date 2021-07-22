@@ -20,7 +20,7 @@ public class Simulation {
 	//Pointers to the texutreArray that are almost never valid
 	private NativeArray<IntPtr> textureDataPointers;
 	//The background color of the draw texture
-	public Color backgroundColor = new Color(0.2392157f, 0.6f, 0.7686275f);
+	public Color backgroundColor = new Color(0.0939f, 0.1489f, 0.1698f);
 	//The draw texture
 	public Texture2D drawTexture;
 	//Batch count, messing with this will impact performance

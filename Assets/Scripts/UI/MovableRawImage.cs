@@ -39,27 +39,6 @@ public class MovableRawImage : RawImage {
 		rectTransform.position = rectTransform.position + (new Vector3(diff.x, diff.y) * rectTransform.localScale.x);
 	}
 
-	//Get a pixel on the texture from a screen coordinate
-	public Vector2 getPixelFromScreenCoord(Vector2 coord) {
-		//Convert it to be within the bounds of the image
-		Vector2 ret = getLocalPositionInRectangle(coord);
-		//Scale accordingly
-		ret.x /= rectTransform.rect.width;
-		ret.y /= rectTransform.rect.height;
-		ret.x *= texture.width;
-		ret.y *= texture.height;
-		return ret;
-	}
-
-	//FIX
-	//Doesn't work with scaling at the moment, maybe?
-	public Vector2 getLocalPositionInRectangle(Vector2 screenCoord) {
-		Vector2 ret;
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenCoord, null, out ret);
-		ret = ret + (rectTransform.rect.size / 2.0f);
-		return ret;
-	}
-
 	public Vector2 getScreenCoordFromPixel(Vector2 coord) {
 		throw new NotImplementedException();
 	}

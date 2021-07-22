@@ -22,14 +22,26 @@ public class PieChart : MonoBehaviour {
         float runningTotal = 0;
         for(int i = data.Length-1; i >= 0; i--) {
             runningTotal += (data[i] / total);
-            VarLabels[i].text = Mathf.Round(data[i] / total * 1000000) / 10000 + "%";
-            parts[i].fillAmount = runningTotal;
+
+			
+            VarLabels[i].text = data[i] / total > .999f? "100 " : (data[i] * 100 / total).ToString("##0.00");
+			if (VarLabels[i].text.Length > 4) {
+				VarLabels[i].text = VarLabels[i].text.Substring(0, 4);
+			}
+			VarLabels[i].text += "%";
+			
+			if (data[i].ToString("F0").Length > 3)
+				VarLabels[i].text += " " + data[i].ToString("F0").Substring(0, 3);
+			else
+				VarLabels[i].text += " " + data[i].ToString("F0");
+
+			VarLabels[i].text += data[i] > 1000f ? (data[i] > 1000000f ? "m" : "k") : ("");
+
+			parts[i].fillAmount = runningTotal;
         }
         //This is for unity jankyness!
         //Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)VarLabels[0].rectTransform.parent);
     }
     #endregion
-
-
 }

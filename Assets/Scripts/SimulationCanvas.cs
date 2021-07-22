@@ -68,7 +68,7 @@ public class SimulationCanvas : MonoBehaviour
     int lastIndex = -1;
     public unsafe void updateStatisticsLabel() {
         //Find the hoverPixel
-        Vector2 hoverLocation = main.backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
+        Vector2 hoverLocation = getPixelFromScreenCoord(Input.mousePosition);
         int indexOfPixel = main.simulation.coordToIndex(hoverLocation);
 
         //Gather statistics if in correct update time
@@ -108,7 +108,29 @@ public class SimulationCanvas : MonoBehaviour
                 hoverChart.UpdateGraph(cellVals, cell.numberOfPeople[main.targetDemographic]);
             }
         }
-            
-        
     }
+
+    //Get a pixel on the texture from a screen (commonly mouse) coordinate
+    //Technically this function gets a texture coord an *any* quad clicked on
+	public Vector2 getPixelFromScreenCoord(Vector2 coord) {
+		RaycastHit hit;
+		//Didn't hit anything
+		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
+			return Vector2.zero;
+
+		
+		Renderer rend = hit.transform.GetComponent<Renderer>();
+		MeshCollider meshCollider = hit.collider as MeshCollider;
+
+		Texture2D tex = (Texture2D)rend.material.mainTexture;
+
+        //Prevents errors if we hit an untextured quad
+        if (tex == null)
+            return Vector2.zero;
+
+		Vector2 pixelUV = hit.textureCoord;
+		pixelUV.x *= tex.width;
+		pixelUV.y *= tex.height;
+		return new Vector2(pixelUV.x, pixelUV.y);
+	}
 }

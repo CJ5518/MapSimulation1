@@ -13,13 +13,10 @@ using SimpleFileBrowser;
 //Main class
 public class Main : MonoBehaviour {
 	//Pixel size for the texture
-	int pixelSize = 4;
+	const int pixelSize = 4;
 	const int framerate = 60;
 
-	const float simulationTicksPerSecond = 20.0f;
-
-	//The background image
-	public MovableRawImage backgroundMovableImage;
+	const float simulationTicksPerSecond = 10.0f;
 
 	public Simulation simulation;
 	public SimulationCanvas simulationCanvas;
@@ -90,14 +87,15 @@ public class Main : MonoBehaviour {
 			elevationTexture,
 			new Texture2D[] { }
 		);
-        simulationCanvas.UpdateSliderValues();
+		simulationCanvas.UpdateSliderValues();
 
-        backgroundMovableImage.texture = simulation.drawTexture;
+
 		if (objectWithMeshRenderer != null) {
 			Material material = objectWithMeshRenderer.GetComponent<MeshRenderer>().material;
+			MeshRenderer meshRenderer = objectWithMeshRenderer.GetComponent<MeshRenderer>();
+			
 			material.SetTexture("_MainTex", simulation.drawTexture);
 		}
-
 		loadedSimulation = true;
 	}
 	
@@ -106,7 +104,7 @@ public class Main : MonoBehaviour {
 
 	//Doing things every x seconds
 	float lastSimTime = -100.0f;
-	bool autoPlay = false;
+	bool autoPlay = true;
 	//The demographic we are currently looking at statistics for
 	public int targetDemographic = (int)Population.FullPopulation;
 
@@ -129,7 +127,7 @@ public class Main : MonoBehaviour {
 			simulation.data.drawElevation = !simulation.data.drawElevation;
 
 		//Pixel coord on the draw texture
-		Vector2 pixel = backgroundMovableImage.getPixelFromScreenCoord(Input.mousePosition);
+		Vector2 pixel = simulationCanvas.getPixelFromScreenCoord(Input.mousePosition);
 		int index = simulation.coordToIndex(pixel);
 
 		if (simulation.cellIsValid(index)) {
@@ -155,7 +153,7 @@ public class Main : MonoBehaviour {
 		}
 
 		//Tick the simulation every now and then
-		if (Time.realtimeSinceStartup - lastSimTime >= 1.0f / simulationTicksPerSecond  && autoPlay) {
+		if (Time.realtimeSinceStartup - lastSimTime >= (1.0f / simulationTicksPerSecond)  && autoPlay) {
 			lastSimTime = Time.realtimeSinceStartup;
 
 			simulation.endTick();
@@ -171,5 +169,4 @@ public class Main : MonoBehaviour {
 		if (simulation.simulationIsRunning) simulation.endTick();
 		simulation.deleteNativeArrays();
 	}
-
 }

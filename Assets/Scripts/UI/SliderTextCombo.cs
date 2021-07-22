@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 [RequireComponent(typeof(RectTransform))]
 public class SliderTextCombo : MonoBehaviour {
@@ -10,7 +11,7 @@ public class SliderTextCombo : MonoBehaviour {
 		Inverse
 	}
 	public Slider slider;
-	public Text text;
+	public TMP_Text text;
 	public DisplayType displayType = DisplayType.Default;
 	public string textPrefix = "r0: ";
 	public string textPostfix = "";
@@ -29,7 +30,9 @@ public class SliderTextCombo : MonoBehaviour {
 			break;
 		}
 		slider.value = defaultValue;
-	}
+        onSliderValueChanged(defaultValue);
+
+    }
 
 	void onSliderValueChanged(float value) {
 		text.text = textPrefix + value.ToString("F" + significantDigits) + textPostfix;
