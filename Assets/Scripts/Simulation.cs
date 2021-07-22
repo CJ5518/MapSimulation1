@@ -118,7 +118,7 @@ public class Simulation {
 	public bool simulationIsRunning = false;
 	//Starts a tick of the simulation, MUST call endTick before calling this again
 	//You also mustn't write to readCells while simulationIsRunning
-	public unsafe void beginTick() {
+	public unsafe void beginTick(float dt) {
 		data.runCount++;
 		simulationIsRunning = true;
 
@@ -136,7 +136,8 @@ public class Simulation {
 			drawTextureData = drawTexture.GetRawTextureData<Color32>(),
 			data = data,
 			textureDataPointers = textureDataPointers,
-			textureMetadataArray = textureMetadataArray
+			textureMetadataArray = textureMetadataArray,
+			dt = dt
 		};
 
 		jobHandle = job.Schedule(data.width * data.height, batchCount);
@@ -167,8 +168,8 @@ public class Simulation {
 
 	//The pun
 	//Ticks the simulation once
-	public unsafe void tickSimulation() {
-		beginTick();
+	public unsafe void tickSimulation(float dt) {
+		beginTick(dt);
 		endTick();
 	}
 
@@ -312,6 +313,8 @@ public class Simulation {
 		public NativeArray<TextureMetadata> textureMetadataArray;
 
 		const int FullPop = (int)Population.FullPopulation;
+		[ReadOnly]
+		public float dt;
 
 		//The function that gets called for every index
 		public unsafe void Execute(int index) {
@@ -326,11 +329,11 @@ public class Simulation {
 			//Spread in this cell, because of this cell
 			float SZN = (readCell.susceptible[FullPop] * readCell.infected[FullPop]) / readCell.numberOfPeople[FullPop];
 			SZN = float.IsNaN(SZN) ? 0.0f : SZN;
-			float newExposed = data.beta * SZN;
-			float newVaccinated = data.sigma * readCell.susceptible[FullPop];
-			float newInfected = data.alpha * readCell.exposed[FullPop];
-			float newRecovered = data.gamma * readCell.infected[FullPop];
-			float newKilledZombies = data.delta * SZN;
+			float newExposed = (data.beta * SZN) * dt;
+			float newVaccinated = (data.sigma * readCell.susceptible[FullPop]) * dt;
+			float newInfected = (data.alpha * readCell.exposed[FullPop]) * dt;
+			float newRecovered = (data.gamma * readCell.infected[FullPop]) * dt;
+			float newKilledZombies = (data.delta * SZN) * dt;
 
 			writeCell.susceptible[FullPop] += -newExposed - newVaccinated;
 			writeCell.vaccinated[FullPop] += newVaccinated;

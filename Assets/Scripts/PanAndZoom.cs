@@ -55,15 +55,17 @@ public class PanAndZoom : MonoBehaviour {
 		}
 	}
 
+	Vector3 lastCoords = Vector3.zero;
 	Vector3 getWorldMouseCoords() {
 		RaycastHit hit;
 		//Didn't hit anything
 		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
-			return Vector3.zero;
+			return lastCoords;
 
 		
 		Renderer rend = hit.transform.GetComponent<Renderer>();
 		MeshCollider meshCollider = hit.collider as MeshCollider;
+		lastCoords = hit.point;
 		return hit.point;
 	}
 }

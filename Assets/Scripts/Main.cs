@@ -149,7 +149,7 @@ public class Main : MonoBehaviour {
 
 		//Step once on space pressed
 		if (Input.GetKeyDown(KeyCode.Space) && !autoPlay) {
-			simulation.tickSimulation();
+			simulation.tickSimulation(1);
 		}
 
 		//Tick the simulation every now and then
@@ -158,7 +158,7 @@ public class Main : MonoBehaviour {
 
 			simulation.endTick();
 
-			simulation.beginTick();
+			simulation.beginTick(1);
 		}
 
 		//Toggle autoplay on q pressed
