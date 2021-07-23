@@ -45,9 +45,6 @@ public class Main : MonoBehaviour {
 		//Init the Lua singleton
 		LuaSingleton.initLua();
 
-
-		DataSource x;
-
 		StartCoroutine("loadSimulation");
 
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +

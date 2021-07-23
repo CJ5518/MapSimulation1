@@ -4,8 +4,8 @@ using UnityEngine;
 using ShapeImporter;
 using OSGeo.GDAL;
 
-//Projects lat/longs into screen coordinates and back again
-//https://stackoverflow.com/a/4565555
+//Projects lat/longs into screen coordinates and back again, among other things
+//Render space is screen space
 public class Projection {
 
 	//Single number lat/longs
