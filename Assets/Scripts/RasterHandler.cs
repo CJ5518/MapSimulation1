@@ -8,6 +8,7 @@ using NLua;
 public enum RasterType {
 	Population, //Must be the same as the enum name
 	Elevation,
+	VaccRate,
 	RasterTypeCount
 }
 
@@ -50,7 +51,7 @@ public class RasterHandler {
 		Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 
 		//Raster data buffer
-		double[] popBuffer = new double[1];
+		double[] doubleBuffer = new double[1];
 		Int16[] elevationBuffer = new Int16[1];
 
 		//Get the corner coords of the screen
@@ -82,10 +83,10 @@ public class RasterHandler {
 					case RasterType.Population:
 						rasterBand.ReadRaster(
 							rasterCoords.x, rasterCoords.y, 1, 1,
-							popBuffer,
+							doubleBuffer,
 							1,1,0,0
 						);
-						color = loadPopulationData(popBuffer[0]);
+						color = loadPopulationData(doubleBuffer[0]);
 						break;
 					case RasterType.Elevation:
 						rasterBand.ReadRaster(
@@ -94,6 +95,14 @@ public class RasterHandler {
 							1,1,0,0
 						);
 						color = loadElevationData(elevationBuffer[0]);
+						break;
+					case RasterType.VaccRate:
+						rasterBand.ReadRaster(
+							rasterCoords.x, rasterCoords.y, 1, 1,
+							doubleBuffer,
+							1,1,0,0
+						);
+						color = loadVaccRateData(doubleBuffer[0]);
 						break;
 				}
 
@@ -118,6 +127,11 @@ public class RasterHandler {
 
 	Color32 loadElevationData(Int16 data) {
 		return Simulation.intToColor((int)data);
+	}
+
+	//Could combine this with population, maybe have a generic 'double' function
+	Color32 loadVaccRateData(double data) {
+		return Simulation.floatToColor((float)data);
 	}
 
 }

@@ -12,6 +12,7 @@ using ShapeImporter;
 public class Simulation {
 	private Texture2D[] populationTextures;
 	private Texture2D elevationTexture;
+	private Texture2D vaccRateTexture;
 	//Array of textures needed in the simulation itself
 	private Texture2D[] simulationTextures;
 
@@ -37,6 +38,7 @@ public class Simulation {
 		public fixed float exposed[(int)Population.PopulationCount];
 		public fixed float vaccinated[(int)Population.PopulationCount];
 		public int elevation;
+		public float vaccRate;
 
 		public bool inMask; //Are we in the mask
 	}
@@ -107,10 +109,33 @@ public class Simulation {
 
 	//Constructor
 	//All textures must be of the same width and height, different formats are allowed
-	public Simulation(Texture2D[] populationTextures, Texture2D elevationTexture, Texture2D[] simulationTextures) {
+	public Simulation(
+		Texture2D[] populationTextures,
+		Texture2D elevationTexture,
+		Texture2D vaccRateTexture,
+		Texture2D[] simulationTextures) 
+	{
 		this.populationTextures = populationTextures;
 		this.elevationTexture = elevationTexture;
+		this.vaccRateTexture = vaccRateTexture;
 		this.simulationTextures = simulationTextures;
+
+
+		//We make the first one the example
+		data.width = populationTextures[0].width;
+		data.height = populationTextures[0].height;
+		
+		//Create drawTexture
+		drawTexture = new Texture2D(data.width, data.height, TextureFormat.RGBA32, false);
+		drawTexture.filterMode = FilterMode.Point;
+
+		//Set all the pixels to be the background color
+		//When it gets updated, teh background ones won't be, so the background will remain constant
+		for (int x = 0; x < data.width; ++x) {
+			for (int y = 0; y < data.height; ++y) {
+				drawTexture.SetPixel(x, y, backgroundColor);
+			}
+		}
 		Init();
 	}
 
@@ -182,11 +207,23 @@ public class Simulation {
 		textureMetadataArray.Dispose();
 	}
 
+	//Resets the simulation back to the way it was at the start
+	public void reset() {
+		//Obvious
+		endTick();
+		deleteNativeArrays();
+		Init();
+	}
+
 	//Init everything
 	public unsafe void Init() {
 		//Native arrays
 		textureMetadataArray = new NativeArray<TextureMetadata>(simulationTextures.Length, Allocator.Persistent);
 		textureDataPointers = new NativeArray<IntPtr>(simulationTextures.Length, Allocator.Persistent);
+
+		convertTextureArrayFormats(simulationTextures);
+		convertTextureFormat(ref elevationTexture);
+		convertTextureArrayFormats(populationTextures);
 
 		//Default initialization for textureMetadata
 		for (int q = 0; q < textureMetadataArray.Length; q++) {
@@ -194,25 +231,7 @@ public class Simulation {
 			textureMetadata.weight = 1.0f / textureMetadataArray.Length;
 			textureMetadataArray[q] = textureMetadata;
 		}
-		//We make the first one the example
-		data.width = populationTextures[0].width;
-		data.height = populationTextures[0].height;
 
-		convertTextureArrayFormats(simulationTextures);
-		convertTextureFormat(ref elevationTexture);
-		convertTextureArrayFormats(populationTextures);
-		
-		//Create drawTexture
-		drawTexture = new Texture2D(data.width, data.height, TextureFormat.RGBA32, false);
-		drawTexture.filterMode = FilterMode.Point;
-
-		//Set all the pixels to be the background color
-		//When it gets updated, teh background ones won't be, so the background will remain constant
-		for (int x = 0; x < data.width; ++x) {
-			for (int y = 0; y < data.height; ++y) {
-				drawTexture.SetPixel(x, y, backgroundColor);
-			}
-		}
 
 		//Fire off a different init function
 		InitCells();
@@ -278,6 +297,9 @@ public class Simulation {
 				//Set elevation
 				color = elevationTexture.GetPixel(x, y);
 				readCell.elevation = colorToInt(color);
+				//Set vaccRate
+				color = vaccRateTexture.GetPixel(x, y);
+				readCell.vaccRate = colorToFloat(color);
 
 				//If there's nobody here
 				if (readCell.numberOfPeople[(int)Population.FullPopulation] == 0) {
@@ -407,7 +429,8 @@ public class Simulation {
 				if (!data.drawElevation)
 					v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
 				else {
-					v = Mathf.Clamp01(readCell.elevation / 7000.0f);
+					//v = Mathf.Clamp01(readCell.elevation / 7000.0f);
+					v = readCell.vaccRate;
 					lerpAmount = 0.5f;
 				}
 				//Override the color

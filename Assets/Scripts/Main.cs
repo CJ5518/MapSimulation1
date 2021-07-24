@@ -71,17 +71,20 @@ public class Main : MonoBehaviour {
 		}
 
 		//Load in the elevation data
-		//TODO:
-		//Actually do something with this
 		rasterHandler = new RasterHandler(RasterType.Elevation, null);
 		Texture2D elevationTexture = rasterHandler.loadToTexture(width, height);
 		elevationTexture.Apply();
-		
+
+		//Load in the vacc rate data
+		rasterHandler = new RasterHandler(RasterType.VaccRate, null);
+		Texture2D vaccRateTexture = rasterHandler.loadToTexture(width, height);
+		vaccRateTexture.Apply();
 		
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,
 			elevationTexture,
+			vaccRateTexture,
 			new Texture2D[] { }
 		);
 		simulationCanvas.UpdateSliderValues();
@@ -122,6 +125,8 @@ public class Main : MonoBehaviour {
 		//Draw elevation on key press because I'm lazy
 		if (Input.GetKeyDown(KeyCode.Alpha1)) 
 			simulation.data.drawElevation = !simulation.data.drawElevation;
+		if (Input.GetKeyDown(KeyCode.Alpha2)) 
+			simulation.reset();
 
 		//Pixel coord on the draw texture
 		Vector2 pixel = simulationCanvas.getPixelFromScreenCoord(Input.mousePosition);

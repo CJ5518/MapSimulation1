@@ -53,6 +53,7 @@ local function editShapeFile()
 end
 
 --Runs in lua 5.1
+--The only importance of that is the file:read part
 local function downloadCovidData()
 	local file = io.open("2020_Gaz_counties_national.txt", "r");
 
