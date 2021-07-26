@@ -1,4 +1,5 @@
 ﻿//Allows one to see debug info in a build
+//Press P to toggle
 
 using UnityEngine;
 

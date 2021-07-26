@@ -109,6 +109,7 @@ public class Main : MonoBehaviour {
 	public int targetDemographic = (int)Population.FullPopulation;
 
 	private unsafe void Update() {
+		//Don't do anything until the simulation has been loaded
 		if (!loadedSimulation) return;
 
 		simulationCanvas.UpdateCanvas();
@@ -125,6 +126,7 @@ public class Main : MonoBehaviour {
 		//Draw elevation on key press because I'm lazy
 		if (Input.GetKeyDown(KeyCode.Alpha1)) 
 			simulation.data.drawElevation = !simulation.data.drawElevation;
+		//Reset the simulation on key press because I continue to be lazy
 		if (Input.GetKeyDown(KeyCode.Alpha2)) 
 			simulation.reset();
 
@@ -151,7 +153,7 @@ public class Main : MonoBehaviour {
 
 		//Step once on space pressed
 		if (Input.GetKeyDown(KeyCode.Space) && !autoPlay) {
-			simulation.tickSimulation(1);
+			simulation.tickSimulation();
 		}
 
 		//Tick the simulation every now and then
@@ -160,7 +162,7 @@ public class Main : MonoBehaviour {
 
 			simulation.endTick();
 
-			simulation.beginTick(1);
+			simulation.beginTick();
 		}
 
 		//Toggle autoplay on q pressed

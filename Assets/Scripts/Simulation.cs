@@ -79,6 +79,11 @@ public class Simulation {
 
 		public float spreadRate;
 		public bool moveZombies;
+
+		public int maxElevation;
+		public int minElevation;
+
+		public float dt;
 	}
 	//Set the default values here
 	public SimulationDataStruct data = new SimulationDataStruct() {
@@ -98,7 +103,11 @@ public class Simulation {
 
 		drawDemographic = 0,
 		spreadRate = 1.0f,
-		moveZombies = true
+		moveZombies = true,
+
+		minElevation = 9999,
+		maxElevation = -9999,
+		dt = 1.0f
 	};
 
 	//Cell buffers
@@ -143,7 +152,7 @@ public class Simulation {
 	public bool simulationIsRunning = false;
 	//Starts a tick of the simulation, MUST call endTick before calling this again
 	//You also mustn't write to readCells while simulationIsRunning
-	public unsafe void beginTick(float dt) {
+	public unsafe void beginTick() {
 		data.runCount++;
 		simulationIsRunning = true;
 
@@ -161,8 +170,7 @@ public class Simulation {
 			drawTextureData = drawTexture.GetRawTextureData<Color32>(),
 			data = data,
 			textureDataPointers = textureDataPointers,
-			textureMetadataArray = textureMetadataArray,
-			dt = dt
+			textureMetadataArray = textureMetadataArray
 		};
 
 		jobHandle = job.Schedule(data.width * data.height, batchCount);
@@ -193,8 +201,8 @@ public class Simulation {
 
 	//The pun
 	//Ticks the simulation once
-	public unsafe void tickSimulation(float dt) {
-		beginTick(dt);
+	public unsafe void tickSimulation() {
+		beginTick();
 		endTick();
 	}
 
@@ -297,6 +305,10 @@ public class Simulation {
 				//Set elevation
 				color = elevationTexture.GetPixel(x, y);
 				readCell.elevation = colorToInt(color);
+
+				if (readCell.elevation < data.minElevation) data.minElevation = readCell.elevation;
+				if (readCell.elevation > data.maxElevation) data.maxElevation = readCell.elevation;
+
 				//Set vaccRate
 				color = vaccRateTexture.GetPixel(x, y);
 				readCell.vaccRate = colorToFloat(color);
@@ -335,8 +347,6 @@ public class Simulation {
 		public NativeArray<TextureMetadata> textureMetadataArray;
 
 		const int FullPop = (int)Population.FullPopulation;
-		[ReadOnly]
-		public float dt;
 
 		//The function that gets called for every index
 		public unsafe void Execute(int index) {
@@ -344,6 +354,7 @@ public class Simulation {
 				return;
 			Cell readCell = readCells[index];
 			Cell writeCell = readCell;
+			float dt = data.dt;
 
 			//Color32* textureDataPointer = (Color32*)textureDataPointers[texIdx];
 			//Then just use it as an array
@@ -372,21 +383,19 @@ public class Simulation {
 				if (cellIsValid(neighborIndices[q])) {
 					Cell neighborCell = readCells[neighborIndices[q]];
 
-					if (neighborCell.infected[FullPop] >= 1.0f) {
-						float neighborMoveZombies = getCellSpreadContribution(neighborIndices[q]);
+					float neighborMoveZombies = getCellSpreadContribution(neighborIndices[q], index);
 
-						//Can't have the new number of infected be too large if we don't also subtract later
-						if (!data.moveZombies) {
-							neighborMoveZombies = Mathf.Clamp(neighborMoveZombies, 0.0f, writeCell.susceptible[FullPop]);
-						}
-						writeCell.infected[FullPop] += neighborMoveZombies;
-						writeCell.numberOfPeople[FullPop] += neighborMoveZombies;
+					//Can't have the new number of infected be too large if we don't also subtract later
+					if (!data.moveZombies) {
+						neighborMoveZombies = Mathf.Clamp(neighborMoveZombies, 0.0f, writeCell.susceptible[FullPop]);
 					}
+					writeCell.infected[FullPop] += neighborMoveZombies;
+					writeCell.numberOfPeople[FullPop] += neighborMoveZombies;
 
 					//We give an amount to each neighbor based on readCell, since we're here going
 					//through all valid neighbors, might as well count what we owe
 					if (data.moveZombies)
-						ourContribution += getCellSpreadContribution(index);
+						ourContribution += getCellSpreadContribution(index, neighborIndices[q]);
 				}
 			}
 
@@ -429,9 +438,9 @@ public class Simulation {
 				if (!data.drawElevation)
 					v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
 				else {
-					//v = Mathf.Clamp01(readCell.elevation / 7000.0f);
-					v = readCell.vaccRate;
-					lerpAmount = 0.5f;
+					v = Mathf.Clamp01(readCell.elevation / 4000.0f);
+					//v = readCell.vaccRate;
+					lerpAmount = 0.7f;
 				}
 				//Override the color
 				color = Color.Lerp(Color.black, new Color(v,v,v,1.0f), lerpAmount);
@@ -459,14 +468,22 @@ public class Simulation {
 			return ret;
 		}
 
-		public unsafe float getCellSpreadContribution(int index) {
-			Cell cell = readCells[index];
-			float amount = cell.infected[FullPop] / 80.0f;
-			//Fudge factor
-			float factor = Mathf.Clamp(Mathf.Sqrt(cell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
+		public unsafe float getCellSpreadContribution(int giver, int receiver) {
+			Cell giverCell = readCells[giver];
+			Cell receiverCell = readCells[receiver];
+			float amount = giverCell.infected[FullPop] / 80.0f;
+			//Population fudge factor
+			float populationFactor = Mathf.Clamp(Mathf.Sqrt(giverCell.numberOfPeople[FullPop]), float.Epsilon, float.MaxValue)
 				/ Mathf.Sqrt(data.maxNumberOfPeople[FullPop]);
 
-			amount *= factor * data.spreadRate;
+			//Elevation
+			float elevationDiff = receiverCell.elevation - giverCell.elevation;
+			float elevationFactor = 1.0f - (elevationDiff / 250.0f);
+			elevationFactor = elevationFactor > 0.0f ? elevationFactor : 0.0f;
+
+			//Multiply it by 2 because the misc factors generally go to 1
+			amount *= data.spreadRate * elevationFactor * populationFactor * 2.0f;
+			if (amount > giverCell.infected[FullPop]) amount = giverCell.infected[FullPop];
 			//Make sure it's greater than one on our way out
 			return amount >= 1.0f ? amount : 0.0f;
 		}
