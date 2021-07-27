@@ -108,7 +108,7 @@ public class Main : MonoBehaviour {
 		//Don't do anything until the simulation has been loaded
 		if (!loadedSimulation) return;
 		
-		//simulationCanvas.UpdateCanvas();
+		simulationCanvas.UpdateCanvas();
 
 		//Make sure targetDemographic is in range
 		if (targetDemographic < 0)

@@ -79,7 +79,7 @@ public class SimulationCanvas : MonoBehaviour
             float totalPeople = 0;
 
             //Gather Total data
-            for (int q = 0; q < main.simulation.readCells.Length; q++) {
+            for (int q = main.simulation.data.lowestValidIndex; q < main.simulation.data.highestValidIndex; q++) {
                 Simulation.Cell readCell = main.simulation.readCells[q];
                 if (!readCell.inMask) continue;
                 totals[3] += readCell.susceptible[main.targetDemographic];

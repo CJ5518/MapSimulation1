@@ -26,11 +26,12 @@ public class Simulation {
 	public Texture2D drawTexture;
 	//Batch count, messing with this will impact performance
 	//See unity parallel for jobs
-	private const int batchCount = 13755;
+	private const int batchCount = 32 * 32;
 
 	public static Color vaccinatedColor = new Color32(34, 234, 255, 255);
 	public static Color infectedColor = new Color32(255, 162, 0, 255);
 	public static Color deadColor = new Color32(255, 0, 255, 255);
+
 
 	//Cell struct, contains all the individual information for a cell
 	public unsafe struct Cell {
@@ -88,6 +89,9 @@ public class Simulation {
 		public int minElevation;
 
 		public float dt;
+
+		public int lowestValidIndex;
+		public int highestValidIndex;
 	}
 	//Set the default values here
 	public SimulationDataStruct data = new SimulationDataStruct() {
@@ -111,7 +115,9 @@ public class Simulation {
 
 		minElevation = 9999,
 		maxElevation = -9999,
-		dt = 1.0f
+		dt = 1.0f,
+		lowestValidIndex = int.MaxValue,
+		highestValidIndex = int.MinValue
 	};
 
 	//Cell buffers
@@ -177,7 +183,7 @@ public class Simulation {
 			textureMetadataArray = textureMetadataArray
 		};
 
-		jobHandle = job.Schedule(data.width * data.height, batchCount);
+		jobHandle = job.Schedule(data.highestValidIndex - data.lowestValidIndex, batchCount);
 	}
 
 	//Ends a tick started by beginTick
@@ -320,8 +326,19 @@ public class Simulation {
 				//If there's nobody here
 				if (readCell.numberOfPeople[(int)Population.FullPopulation] == 0) {
 					//And we're not in the USA
-					if (!IsPointInPolygon(renderSpaceUSA, new Vector2(x - Projection.textureOffset.x,y - Projection.textureOffset.y) * Projection.pixelSize)) {
+					if (!IsPointInPolygon(renderSpaceUSA, 
+					new Vector2(x - Projection.textureOffset.x,y - Projection.textureOffset.y) * Projection.pixelSize
+					)) {
 						readCell.inMask = false;
+					}
+				}
+
+				if (readCell.inMask) {
+					if (index < data.lowestValidIndex) {
+						data.lowestValidIndex = index;
+					}
+					if (index > data.highestValidIndex) {
+						data.highestValidIndex = index;
 					}
 				}
 				
@@ -337,23 +354,25 @@ public class Simulation {
 	//Handles the simulation
 	public struct SimulationJob : IJobParallelFor {
 		//Inputs and outputs
-		[ReadOnly]
+		[ReadOnly] [NativeDisableParallelForRestriction]
 		public NativeArray<Cell> readCells;
-		[WriteOnly]
+		[WriteOnly] [NativeDisableParallelForRestriction]
 		public NativeArray<Cell> writeCells;
-		[WriteOnly]
+		[WriteOnly] [NativeDisableParallelForRestriction]
 		public NativeArray<Color32> drawTextureData;
-		[ReadOnly]
+		[ReadOnly] [NativeDisableParallelForRestriction]
 		public SimulationDataStruct data;
-		[ReadOnly]
+		[ReadOnly] [NativeDisableParallelForRestriction]
 		public NativeArray<IntPtr> textureDataPointers;
-		[ReadOnly]
+		[ReadOnly] [NativeDisableParallelForRestriction]
 		public NativeArray<TextureMetadata> textureMetadataArray;
 
 		const int FullPop = (int)Population.FullPopulation;
 
 		//The function that gets called for every index
 		public unsafe void Execute(int index) {
+			//Because we skip all of these, and only go to highest - lowest
+			index += data.lowestValidIndex;
 			if (!cellIsValid(index))
 				return;
 			Cell readCell = readCells[index];
