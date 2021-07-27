@@ -4,22 +4,23 @@ using UnityEngine;
 using ShapeImporter;
 using OSGeo.GDAL;
 
-//Projects lat/longs into screen coordinates and back again, among other things
-//Render space is screen space
+//Projects lat/longs into texture area coordinates and back again, among other things
 public class Projection {
+	public const int width = 1920;
+	public const int height = 1080;
 
 	//Single number lat/longs
 	public static float projectLongitude(float x) {
-		return (Screen.width / 360.0f) * (180.0f + x);
+		return (width / 360.0f) * (180.0f + x);
 	}
 	public static double projectLongitude(double x) {
-		return (Screen.width / 360.0) * (180.0 + x);
+		return (width / 360.0) * (180.0 + x);
 	}
 	public static float projectLatitude(float y) {
-		return (Screen.height / 180.0f) * (90.0f - y);
+		return (height / 180.0f) * (90.0f - y);
 	}
 	public static double projectLatitude(double y) {
-		return (Screen.height / 180.0) * (90.0 - y);
+		return (height / 180.0) * (90.0 - y);
 	}
 
 	//Vector lat/longs
@@ -39,16 +40,16 @@ public class Projection {
 
 	//Single number projections
 	public static float projectionToLongitude(float x) {
-		return (x / (Screen.width / 360.0f)) - 180.0f;
+		return (x / (width / 360.0f)) - 180.0f;
 	}
 	public static double projectionToLongitude(double x) {
-		return (x / (Screen.width / 360.0)) - 180.0;
+		return (x / (width / 360.0)) - 180.0;
 	}
 	public static float projectionToLatitude(float y) {
-		return 90.0f - (y / (Screen.height / 180.0f));
+		return 90.0f - (y / (height / 180.0f));
 	}
 	public static double projectionToLatitude(double y) {
-		return 90.0 - (y / (Screen.height / 180.0));
+		return 90.0 - (y / (height / 180.0));
 	}
 
 	//Vector projections
@@ -96,8 +97,8 @@ public class Projection {
 		projectedMax = Projection.projectVector(max);
 
 		//Scaling factor
-		float factorX = Mathf.Abs(Screen.width / (projectedMax.x - projectedMin.x));
-		float factorY = Mathf.Abs(Screen.height / (projectedMax.y - projectedMin.y));
+		float factorX = Mathf.Abs(width / (projectedMax.x - projectedMin.x));
+		float factorY = Mathf.Abs(height / (projectedMax.y - projectedMin.y));
 
 		//Set our parameters
 
@@ -117,7 +118,7 @@ public class Projection {
 	public static Vector2 projectionToRenderSpace(Vector2 point) {
 		//Move to bottom left
 		point -= renderSpaceProjectedMin;
-		point.y = Screen.height - (point.y + Screen.height);
+		point.y = height - (point.y + height);
 
 		//Scale up
 		point *= renderSpaceScalingFactor;
@@ -127,7 +128,7 @@ public class Projection {
 	public static Vector2Double projectionToRenderSpace(Vector2Double point) {
 		//Move to bottom left
 		point -= renderSpaceProjectedMin;
-		point.y = Screen.height - (point.y + Screen.height);
+		point.y = height - (point.y + height);
 
 		//Scale up
 		point *= renderSpaceScalingFactor;

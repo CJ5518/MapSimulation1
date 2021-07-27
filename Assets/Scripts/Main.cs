@@ -53,8 +53,8 @@ public class Main : MonoBehaviour {
 
 	//Loads the simulation/raster data
 	IEnumerator loadSimulation() {
-		int width = Screen.width / pixelSize;
-		int height = Screen.height / pixelSize;
+		int width = Projection.width / pixelSize;
+		int height = Projection.height / pixelSize;
 
 		//Load in the population data
 		Texture2D[] populationTextures = new Texture2D[(int)Population.PopulationCount];
