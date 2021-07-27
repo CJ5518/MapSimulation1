@@ -30,7 +30,7 @@ public class Simulation {
 
 	public static Color vaccinatedColor = new Color32(34, 234, 255, 255);
 	public static Color infectedColor = new Color32(255, 162, 0, 255);
-	public static Color recoveredColor = new Color32(255, 0, 255, 255);
+	public static Color deadColor = new Color32(255, 0, 255, 255);
 
 	//Cell struct, contains all the individual information for a cell
 	public unsafe struct Cell {
@@ -38,7 +38,7 @@ public class Simulation {
 		public fixed float numberOfPeople[(int)Population.PopulationCount];
 		public fixed float susceptible[(int)Population.PopulationCount];
 		public fixed float infected[(int)Population.PopulationCount];
-		public fixed float recovered[(int)Population.PopulationCount];
+		public fixed float dead[(int)Population.PopulationCount];
 		public fixed float exposed[(int)Population.PopulationCount];
 		public fixed float vaccinated[(int)Population.PopulationCount];
 		public int elevation;
@@ -60,12 +60,12 @@ public class Simulation {
 		public float seasonAdder;
 		public Color infectedColor; //Colors
 		public Color vaccinatedColor;
-		public Color recoveredColor;
+		public Color deadColor;
 
 		//Should we allow these factors to be involved in the color of the pixels
 		public bool drawInfected;
 		public bool drawVaccinated;
-		public bool drawRecovered;
+		public bool drawDead;
 		//Draw elevation or population
 		public bool drawElevation;
 		
@@ -95,11 +95,11 @@ public class Simulation {
 		seasonAdder = 0.0005f,
 		infectedColor = Color.red,
 		vaccinatedColor = Color.blue,
-		recoveredColor = Color.green,
+		deadColor = Color.green,
 
 		drawInfected = true,
 		drawVaccinated = true,
-		drawRecovered = false,
+		drawDead = false,
 		drawElevation = false,
 		beta = 1.0f, alpha = 1.0f, gamma = 1.0f, sigma = 1.0f, delta = 1.0f,
 
@@ -298,7 +298,7 @@ public class Simulation {
 					readCell.numberOfPeople[q] = numberOfPeople;
 					readCell.susceptible[q] = numberOfPeople;
 					readCell.infected[q] = 0;
-					readCell.recovered[q] = 0;
+					readCell.dead[q] = 0;
 					readCell.vaccinated[q] = 0;
 
 					//Keep track of the maximum
@@ -369,14 +369,14 @@ public class Simulation {
 			float newExposed = (data.beta * SZN) * dt;
 			float newVaccinated = (data.sigma * readCell.susceptible[FullPop]) * dt;
 			float newInfected = (data.alpha * readCell.exposed[FullPop]) * dt;
-			float newRecovered = (data.gamma * readCell.infected[FullPop]) * dt;
+			float newDead = (data.gamma * readCell.infected[FullPop]) * dt;
 			float newKilledZombies = (data.delta * SZN) * dt;
 
 			writeCell.susceptible[FullPop] += -newExposed - newVaccinated;
 			writeCell.vaccinated[FullPop] += newVaccinated;
 			writeCell.exposed[FullPop] += newExposed - newInfected;
-			writeCell.infected[FullPop] += newInfected - newRecovered - newKilledZombies;
-			writeCell.recovered[FullPop] += newRecovered + newKilledZombies;
+			writeCell.infected[FullPop] += newInfected - newDead - newKilledZombies;
+			writeCell.dead[FullPop] += newDead + newKilledZombies;
 
 			//Spread in this cell, because of other cells
 
@@ -411,7 +411,7 @@ public class Simulation {
 			writeCell.susceptible[FullPop] = Mathf.Clamp(writeCell.susceptible[FullPop], 0, float.MaxValue);
 			writeCell.exposed[FullPop] = Mathf.Clamp(writeCell.exposed[FullPop], 0, float.MaxValue);
 			writeCell.infected[FullPop] = Mathf.Clamp(writeCell.infected[FullPop], 0, float.MaxValue);
-			writeCell.recovered[FullPop] = Mathf.Clamp(writeCell.recovered[FullPop], 0, float.MaxValue);
+			writeCell.dead[FullPop] = Mathf.Clamp(writeCell.dead[FullPop], 0, float.MaxValue);
 
 			//Compute the color
 
@@ -420,14 +420,14 @@ public class Simulation {
 			
 			float max = Mathf.Log10(data.maxNumberOfPeople[FullPop]);
 			float infectedColVal = Mathf.Clamp01(Mathf.Log10(writeCell.infected[FullPop]) / max);
-			float recoveredColVal = Mathf.Clamp01(Mathf.Log10(writeCell.recovered[FullPop]) / max);
+			float deadColVal = Mathf.Clamp01(Mathf.Log10(writeCell.dead[FullPop]) / max);
 			float vaccinatedColVal = Mathf.Clamp01(Mathf.Log10(writeCell.vaccinated[FullPop]) / max);
-			
+
 			color = new Color(0,0,0);
 			if (data.drawInfected)
 				color = Color.Lerp(color, Simulation.infectedColor, infectedColVal);
-			if (data.drawRecovered)
-				color = Color.Lerp(color, Simulation.recoveredColor, recoveredColVal);
+			if (data.drawDead)
+				color = Color.Lerp(color, Simulation.deadColor, deadColVal);
 			if (data.drawVaccinated)
 				color = Color.Lerp(color, Simulation.vaccinatedColor, vaccinatedColVal);
 

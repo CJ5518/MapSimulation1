@@ -33,8 +33,8 @@ public class SimulationCanvas : MonoBehaviour
     /*
      * Connect Toggle to this; default state of toggle should match whatever default state the game loads with or it will be flopped
      */
-    public void ToggleRec() {
-        main.simulation.data.drawRecovered = !main.simulation.data.drawRecovered;
+    public void ToggleDead() {
+        main.simulation.data.drawDead = !main.simulation.data.drawDead;
     }
     public void ToggleZom() {
         main.simulation.data.drawInfected = !main.simulation.data.drawInfected;
@@ -83,7 +83,7 @@ public class SimulationCanvas : MonoBehaviour
                 Simulation.Cell readCell = main.simulation.readCells[q];
                 totals[3] += readCell.susceptible[main.targetDemographic];
                 totals[1] += readCell.infected[main.targetDemographic];
-                totals[0] += readCell.recovered[main.targetDemographic];
+                totals[0] += readCell.dead[main.targetDemographic];
                 totals[1] += readCell.exposed[main.targetDemographic];
                 totals[4] += readCell.vaccinated[main.targetDemographic];
                 totalPeople += readCell.numberOfPeople[main.targetDemographic];
@@ -102,7 +102,7 @@ public class SimulationCanvas : MonoBehaviour
                 cellVals[3] = cell.susceptible[main.targetDemographic];
                 cellVals[4] = cell.vaccinated[main.targetDemographic];
                 cellVals[1] = cell.infected[main.targetDemographic];
-                cellVals[0] = cell.recovered[main.targetDemographic];
+                cellVals[0] = cell.dead[main.targetDemographic];
                 cellVals[2] = cell.exposed[main.targetDemographic];
 
                 hoverChart.UpdateGraph(cellVals, cell.numberOfPeople[main.targetDemographic]);
