@@ -113,7 +113,6 @@ public class Main : MonoBehaviour {
 		if (!loadedSimulation) return;
 
 		simulationCanvas.UpdateCanvas();
-		simulation.data.drawRecovered = true;
 
 		//Make sure targetDemographic is in range
 		if (targetDemographic < 0)
@@ -139,10 +138,10 @@ public class Main : MonoBehaviour {
 			Simulation.Cell cell = simulation.readCells[index];
 			
 			//Kill cells on click
-			if (
-				Input.GetMouseButtonDown(0) &&
+			if (Input.GetMouseButtonDown(0) &&
 				EventSystem.current.currentSelectedGameObject == null &&
-				cell.susceptible[targetDemographic] >= 1.0f) {
+				cell.susceptible[targetDemographic] >= 1.0f) 
+			{
 				//Can't mess with the cells if the simulation is going
 				simulation.endTick();
 				cell.infected[targetDemographic]+= 1.0f;

@@ -8,7 +8,7 @@ public class SimulationCanvas : MonoBehaviour
     #region Refernces Vars
     public Main main;
 
-    const float statisticsUpdatesPerSecond = 20.0f;
+    const float statisticsUpdatesPerSecond = 10.0f;
     float lastStatsTime = -100.0f;
 
 
@@ -39,8 +39,8 @@ public class SimulationCanvas : MonoBehaviour
     public void ToggleZom() {
         main.simulation.data.drawInfected = !main.simulation.data.drawInfected;
     }
-    public void ToggleDead() {
-        main.simulation.data.drawDead = !main.simulation.data.drawDead;
+    public void ToggleVaccinations() {
+        main.simulation.data.drawVaccinated = !main.simulation.data.drawVaccinated;
     }
     //Removed draw proportion because it wasn't particularily useful or important
     public void ToggleElevation() {
