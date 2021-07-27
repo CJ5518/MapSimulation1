@@ -320,7 +320,7 @@ public class Simulation {
 				//If there's nobody here
 				if (readCell.numberOfPeople[(int)Population.FullPopulation] == 0) {
 					//And we're not in the USA
-					if (!IsPointInPolygon(renderSpaceUSA, new Vector2(x,y) * Projection.pixelSize)) {
+					if (!IsPointInPolygon(renderSpaceUSA, new Vector2(x - Projection.textureOffset.x,y - Projection.textureOffset.y) * Projection.pixelSize)) {
 						readCell.inMask = false;
 					}
 				}

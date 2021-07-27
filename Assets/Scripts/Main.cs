@@ -65,20 +65,16 @@ public class Main : MonoBehaviour {
 
 			populationTextures[q] = rasterHandler.loadToTexture(width, height);
 
-			populationTextures[q].Apply();
-
 			yield return null;
 		}
 
 		//Load in the elevation data
 		rasterHandler = new RasterHandler(RasterType.Elevation, null);
 		Texture2D elevationTexture = rasterHandler.loadToTexture(width, height);
-		elevationTexture.Apply();
 
 		//Load in the vacc rate data
 		rasterHandler = new RasterHandler(RasterType.VaccRate, null);
 		Texture2D vaccRateTexture = rasterHandler.loadToTexture(width, height);
-		vaccRateTexture.Apply();
 		
 		//Set up the simulation
 		simulation = new Simulation(
@@ -111,8 +107,8 @@ public class Main : MonoBehaviour {
 	private unsafe void Update() {
 		//Don't do anything until the simulation has been loaded
 		if (!loadedSimulation) return;
-
-		simulationCanvas.UpdateCanvas();
+		
+		//simulationCanvas.UpdateCanvas();
 
 		//Make sure targetDemographic is in range
 		if (targetDemographic < 0)

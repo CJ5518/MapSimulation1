@@ -79,6 +79,9 @@ public class Projection {
 	//Set this one yourself, there are not functions to do it for you
 	public static int pixelSize;
 
+	//Offset between the 'real' texture and the big surrounding one
+	public static Vector2Int textureOffset;
+
 	//Set the render space parameters from a shape file
 	//The parameters will be set so that the shapefile is large and in charge
 	public static void setRenderSpaceByShapeFile(ShapeFile shapeFile) {
@@ -163,6 +166,11 @@ public class Projection {
 
 	public static Vector2 renderSpaceToLatLongs(Vector2 point) {
 		return projectionToLatLongs(renderSpaceToProjection(point));
+	}
+
+	public static void setTextureOffsetByTextures(Texture2D large, Texture2D small) {
+		textureOffset.x = (large.width - small.width) / 2;
+		textureOffset.y = (large.height - small.height) / 2;
 	}
 
 

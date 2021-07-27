@@ -111,7 +111,26 @@ public class RasterHandler {
 			}
 		}
 		texture.Apply();
-		return texture;
+
+		//Now that the texture is created, let's add padding!
+		//This is kinda a dumb method of getting the functionality, but I *really* don't care right now
+
+		Texture2D retTexture = new Texture2D(1024, 512, TextureFormat.RGBA32, false);
+
+		for (int x = 0; x < retTexture.width; x++) {
+			for (int y = 0; y < retTexture.height; y++) {
+				retTexture.SetPixel(x, y, Simulation.floatToColor(0));
+			}
+		}
+
+		int xStart = (retTexture.width - texture.width) / 2;
+		int yStart = (retTexture.height - texture.height) / 2;
+
+		Projection.setTextureOffsetByTextures(retTexture, texture);
+
+		retTexture.SetPixels(xStart, yStart, texture.width, texture.height, texture.GetPixels());
+
+		return retTexture;
 	}
 
 	//Functions to facilitate loading textures from specific rasters
