@@ -107,8 +107,9 @@ public class Main : MonoBehaviour {
 	private unsafe void Update() {
 		//Don't do anything until the simulation has been loaded
 		if (!loadedSimulation) return;
-		
-		simulationCanvas.UpdateCanvas();
+
+		//Horribly laggy
+		//simulationCanvas.UpdateCanvas();
 
 		//Make sure targetDemographic is in range
 		if (targetDemographic < 0)
