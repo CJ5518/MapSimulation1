@@ -299,8 +299,6 @@ public class Simulation {
 					color = texture.GetPixel(x, y);
 					float numberOfPeople = colorToFloat(color);
 
-					if (float.IsNaN(numberOfPeople)) Debug.Log("Is NaN");
-
 					readCell.numberOfPeople[q] = numberOfPeople;
 					readCell.susceptible[q] = numberOfPeople;
 					readCell.infected[q] = 0;
@@ -322,6 +320,10 @@ public class Simulation {
 				//Set vaccRate
 				color = vaccRateTexture.GetPixel(x, y);
 				readCell.vaccRate = colorToFloat(color);
+				//Goofy little fix to this issue
+				//Where goofy means bad
+				if (readCell.vaccRate <= 0.0f)
+					readCell.vaccRate = 0.5f;
 
 				//If there's nobody here
 				if (readCell.numberOfPeople[(int)Population.FullPopulation] == 0) {
@@ -386,7 +388,7 @@ public class Simulation {
 			float SZN = (readCell.susceptible[FullPop] * readCell.infected[FullPop]) / readCell.numberOfPeople[FullPop];
 			SZN = float.IsNaN(SZN) ? 0.0f : SZN;
 			float newExposed = (data.beta * SZN) * dt;
-			float newVaccinated = (data.sigma * readCell.susceptible[FullPop]) * dt;
+			float newVaccinated = (data.sigma * readCell.susceptible[FullPop] * readCell.vaccRate) * dt;
 			float newInfected = (data.alpha * readCell.exposed[FullPop]) * dt;
 			float newDead = (data.gamma * readCell.infected[FullPop]) * dt;
 			float newKilledZombies = (data.delta * SZN) * dt;
