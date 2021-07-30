@@ -21,7 +21,7 @@ local handler = require("XML.tree");
 local json = require("json");
 local inspect = require("inspect");
 
-local warpEverything = true;
+local warpEverything = false;
 
 --Public
 RasterUtilities = {};

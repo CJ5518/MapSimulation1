@@ -115,7 +115,8 @@ public class RasterHandler {
 		//Now that the texture is created, let's add padding!
 		//This is kinda a dumb method of getting the functionality, but I *really* don't care right now
 
-		Texture2D retTexture = new Texture2D(1024, 512, TextureFormat.RGBA32, false);
+		int retHeight = Projection.height + 10;
+		Texture2D retTexture = new Texture2D(retHeight * 2, retHeight, TextureFormat.RGBA32, false);
 
 		for (int x = 0; x < retTexture.width; x++) {
 			for (int y = 0; y < retTexture.height; y++) {
