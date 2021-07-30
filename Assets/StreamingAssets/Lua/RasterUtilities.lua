@@ -21,6 +21,8 @@ local handler = require("XML.tree");
 local json = require("json");
 local inspect = require("inspect");
 
+local warpEverything = true;
+
 --Public
 RasterUtilities = {};
 
@@ -73,11 +75,30 @@ end
 --Returns the base data input filename and the warped output filename
 function RasterUtilities.getWarpedFilename(major, minor)
 	local majorName, minorName = RasterUtilities.resolveEnumsToNames(major,minor);
+
 	local outputFilename;
 	if not minor then
 		outputFilename = warpedFolder .. "/" .. majorName .. ".tif";
 	else
 		outputFilename = warpedFolder .. "/" .. majorName .. "_" .. minorName .. ".tif";
+	end
+
+	--Just warp it here because why tf not
+	if warpEverything then
+
+		if minor then
+			--Right now the only one with a minor is Population, and those all lead to vrts
+			local vrt = tifFolder .. "/" .. majorName .. "/" .. minorName .. "/" .. minorName .. ".vrt";
+			RasterUtilities.warpVrt(vrt, outputFilename, "sum");
+		elseif majorName == "Elevation" then
+			local vrt = tifFolder .. "/" .. majorName .. "/" .. majorName .. ".vrt";
+			RasterUtilities.warpVrt(vrt, outputFilename, "average");
+		elseif majorName == "VaccRate" then
+			--The VaccRate is based on date, so rn we just hardcode the name in
+			--Because I haven't bothered to create or deal with any other dates
+			local tif = tifFolder .. "/VaccRate/" .. "VaccRate_7_21_2021.tif";
+			RasterUtilities.warpTif(tif, outputFilename, "average");
+		end
 	end
 	return outputFilename;
 end
