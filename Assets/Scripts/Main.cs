@@ -47,12 +47,30 @@ public class Main : MonoBehaviour {
 
 		StartCoroutine("loadSimulation");
 
+		DataSource dataSource = Ogr.Open(Application.streamingAssetsPath + "/Data/Airports_Sorted.geojson", 0);
+		Layer layer = dataSource.GetLayerByIndex(0);
+
+		int desiredAirportCount = 5;
+		int actualAirportCount = (int)layer.GetFeatureCount(1);
+
+		layer.ResetReading();
+		
+		for (int q = 0; q < desiredAirportCount && q < actualAirportCount; q++) {
+			Feature feature = layer.GetNextFeature();
+			Debug.Log(feature.GetFieldAsString("Loc_Id"));
+		}
+
+		layer.Dispose();
+		dataSource.Dispose();
+
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
 			" seconds to run the Main.cs start function");
 	}
 
 	//Loads the simulation/raster data
 	IEnumerator loadSimulation() {
+		double startTime = Time.realtimeSinceStartupAsDouble;
+
 		int width = Projection.width / pixelSize;
 		int height = Projection.height / pixelSize;
 
@@ -93,6 +111,9 @@ public class Main : MonoBehaviour {
 			material.SetTexture("_MainTex", simulation.drawTexture);
 		}
 		loadedSimulation = true;
+
+		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
+			" seconds to load the simulation");
 	}
 	
 

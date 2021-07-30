@@ -48,7 +48,35 @@ public class Simulation {
 		public bool inMask; //Are we in the mask
 	}
 
+	//Airports, connections between two points, fire off airplanes
+	public struct Airport {
+		//Position in the world
+		public float lat;
+		public float lon;
+		//Position in the simulation
+		public Vector2Int simCoords;
+		public int index;
+		//Commercial operations, assumed to be a measure of the outgoing planes per year
+		public float commercialOps;
+
+		/*public Airport(float latitude, float longitude) {
+			lat = latitude;
+			lon = longitude;
+		}*/
+	}
+
+	//Airplanes from airports, containing people
+	public struct Airplane {
+		public float numberOfPeople;
+		public float susceptible;
+		public float infected;
+		public float dead;
+		public float exposed;
+		public float vaccinated;
+	}
+
 	//Texture metadata struct
+	//Mostly just here in case we need it
 	public struct TextureMetadata {
 		public float weight;
 	}

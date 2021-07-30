@@ -6,6 +6,7 @@ using OSGeo.GDAL;
 
 //Projects lat/longs into texture area coordinates and back again, among other things
 public class Projection {
+	//Shhhhhh, it works, let it be
 	public const int width = 1920;
 	public const int height = 1080;
 
