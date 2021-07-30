@@ -6,9 +6,9 @@ using OSGeo.GDAL;
 
 //Projects lat/longs into texture area coordinates and back again, among other things
 public class Projection {
-	//Shhhhhh, it works, let it be
-	public const int width = 1920;
-	public const int height = 1080;
+	//Width and height of the working texture
+	public const int width = 1920 / 4;
+	public const int height = 1080 / 4;
 
 	//Single number lat/longs
 	public static float projectLongitude(float x) {
@@ -76,10 +76,6 @@ public class Projection {
 
 	//The scaling factor of render space from projection space
 	public static float renderSpaceScalingFactor;
-
-	//The number of pixels that make up an actual pixel
-	//Set this one yourself, there are not functions to do it for you
-	public static int pixelSize;
 
 	//Offset between the 'real' texture and the big surrounding one
 	public static Vector2Int textureOffset;
@@ -179,11 +175,11 @@ public class Projection {
 	//Returns pixel size in lat long given pixel size in screen space
 	public static Vector2Double getPixelSizeInLatLong() {
 		//Get two screen pixels and convert them to lat longs
-		Vector2Double corner = new Vector2Double(0, 0) * pixelSize;
+		Vector2Double corner = new Vector2Double(0, 0);
 		Vector2Double projectedCornerCoords = renderSpaceToProjection(corner);
 		Vector2Double worldCornerCoords = projectionToLatLongs(projectedCornerCoords);
 
-		Vector2Double other = new Vector2Double(1, 1) * pixelSize;
+		Vector2Double other = new Vector2Double(1, 1);
 		Vector2Double projectedOtherCoords = renderSpaceToProjection(other);
 		Vector2Double worldOtherCoords = projectionToLatLongs(projectedOtherCoords);
 

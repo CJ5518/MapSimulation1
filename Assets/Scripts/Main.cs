@@ -12,8 +12,6 @@ using SimpleFileBrowser;
 
 //Main class
 public class Main : MonoBehaviour {
-	//Pixel size for the texture
-	const int pixelSize = 4;
 	const int framerate = 60;
 
 	const float simulationTicksPerSecond = 10.0f;
@@ -40,7 +38,6 @@ public class Main : MonoBehaviour {
 		string shapeFilePath = Application.streamingAssetsPath + "/USA_Reprojected.shp";
 
 		Projection.setRenderSpaceByShapeFile(shapeFilePath);
-		Projection.pixelSize = pixelSize;
 
 		//Init the Lua singleton
 		LuaSingleton.initLua();
@@ -71,9 +68,6 @@ public class Main : MonoBehaviour {
 	IEnumerator loadSimulation() {
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
-		int width = Projection.width / pixelSize;
-		int height = Projection.height / pixelSize;
-
 		//Load in the population data
 		Texture2D[] populationTextures = new Texture2D[(int)Population.PopulationCount];
 		RasterHandler rasterHandler;
@@ -81,18 +75,18 @@ public class Main : MonoBehaviour {
 		for (int q = 0; q < populationTextures.Length; q++) {
 			rasterHandler = new RasterHandler(RasterType.Population, q);
 
-			populationTextures[q] = rasterHandler.loadToTexture(width, height);
+			populationTextures[q] = rasterHandler.loadToTexture();
 
 			yield return null;
 		}
 
 		//Load in the elevation data
 		rasterHandler = new RasterHandler(RasterType.Elevation, null);
-		Texture2D elevationTexture = rasterHandler.loadToTexture(width, height);
+		Texture2D elevationTexture = rasterHandler.loadToTexture();
 
 		//Load in the vacc rate data
 		rasterHandler = new RasterHandler(RasterType.VaccRate, null);
-		Texture2D vaccRateTexture = rasterHandler.loadToTexture(width, height);
+		Texture2D vaccRateTexture = rasterHandler.loadToTexture();
 		
 		//Set up the simulation
 		simulation = new Simulation(

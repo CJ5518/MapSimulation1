@@ -43,12 +43,12 @@ public class RasterHandler {
 	}
 
 	//Loads the first band of the dataset to a texture
-	public Texture2D loadToTexture(int width, int height) {
+	public Texture2D loadToTexture() {
 		dataset = Gdal.Open(outputTifFilename, Access.GA_ReadOnly);
 		//The first band
 		Band rasterBand = dataset.GetRasterBand(1);
 		//Output texture
-		Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+		Texture2D texture = new Texture2D(Projection.width, Projection.height, TextureFormat.RGBA32, false);
 
 		//Raster data buffer
 		double[] doubleBuffer = new double[1];
