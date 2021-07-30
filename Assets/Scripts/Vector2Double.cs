@@ -61,6 +61,8 @@ public struct Vector2Double {
 	}
 
 	//Conversions
+
+	//Vector2 and Vector2Double
 	public static implicit operator Vector2Double(Vector2 vec) {
 		return new Vector2Double(vec.x, vec.y);
 	}
@@ -68,8 +70,15 @@ public struct Vector2Double {
 	public static explicit operator Vector2(Vector2Double vec) {
 		return new Vector2((float)vec.x, (float)vec.y);
 	}
+
+	//Vector2Int and Vector2Double
+
 	//Made explicit for the same reason as above
 	public static explicit operator Vector2Int(Vector2Double vec) {
 		return new Vector2Int((int)vec.x, (int)vec.y);
+	}
+
+	public static implicit operator Vector2Double(Vector2Int vec) {
+		return new Vector2Double(vec.x, vec.y);
 	}
 }

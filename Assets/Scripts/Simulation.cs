@@ -51,18 +51,23 @@ public class Simulation {
 	//Airports, connections between two points, fire off airplanes
 	public struct Airport {
 		//Position in the world
-		public float lat;
-		public float lon;
+		public double lat;
+		public double lon;
 		//Position in the simulation
 		public Vector2Int simCoords;
 		public int index;
 		//Commercial operations, assumed to be a measure of the outgoing planes per year
 		public float commercialOps;
 
-		/*public Airport(float latitude, float longitude) {
+		public Airport(double latitude, double longitude, float commercialOps) {
 			lat = latitude;
 			lon = longitude;
-		}*/
+			this.commercialOps = commercialOps;
+			simCoords = (Vector2Int)Projection.projectionToRenderSpace(
+				Projection.projectVector(new Vector2Double(lat, lon))
+			);
+			index = (simCoords.y * Projection.width) + simCoords.x;
+		}
 	}
 
 	//Airplanes from airports, containing people
@@ -357,7 +362,7 @@ public class Simulation {
 				if (readCell.numberOfPeople[(int)Population.FullPopulation] == 0) {
 					//And we're not in the USA
 					if (!IsPointInPolygon(renderSpaceUSA, 
-					new Vector2(x - Projection.textureOffset.x,y - Projection.textureOffset.y)
+					new Vector2(x, y)
 					)) {
 						readCell.inMask = false;
 					}
@@ -397,6 +402,7 @@ public class Simulation {
 		[ReadOnly] [NativeDisableParallelForRestriction]
 		public NativeArray<TextureMetadata> textureMetadataArray;
 
+		//We don't mess with the demographics at the moment, all we use is FullPop
 		const int FullPop = (int)Population.FullPopulation;
 
 		//The function that gets called for every index
@@ -485,6 +491,7 @@ public class Simulation {
 				float v;
 				float lerpAmount = 0.3f;
 				//This will likely be changed to an enum once more than two data layers exist
+				//Turns out I was wrong on that front
 				if (!data.drawElevation)
 					v = Mathf.Log10(writeCell.numberOfPeople[FullPop]) / Mathf.Log10(data.maxNumberOfPeople[FullPop]);
 				else {

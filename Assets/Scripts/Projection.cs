@@ -120,6 +120,9 @@ public class Projection {
 		//Scale up
 		point *= renderSpaceScalingFactor;
 
+		//Offset
+		point += textureOffset;
+
 		return point;
 	}
 	public static Vector2Double projectionToRenderSpace(Vector2Double point) {
@@ -129,6 +132,9 @@ public class Projection {
 
 		//Scale up
 		point *= renderSpaceScalingFactor;
+
+		//Offset
+		point += textureOffset;
 
 		return point;
 	}

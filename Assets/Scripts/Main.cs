@@ -10,6 +10,11 @@ using OSGeo.GDAL;
 using NLua;
 using SimpleFileBrowser;
 
+//TODO:
+//Maybe lean more/less on width/height being in projection
+//See where we calculate airport index in it's constructor
+//As that's where this thought comes from
+
 //Main class
 public class Main : MonoBehaviour {
 	const int framerate = 60;
@@ -44,6 +49,9 @@ public class Main : MonoBehaviour {
 
 		StartCoroutine("loadSimulation");
 
+
+		//Load airports
+
 		DataSource dataSource = Ogr.Open(Application.streamingAssetsPath + "/Data/Airports_Sorted.geojson", 0);
 		Layer layer = dataSource.GetLayerByIndex(0);
 
@@ -54,7 +62,10 @@ public class Main : MonoBehaviour {
 		
 		for (int q = 0; q < desiredAirportCount && q < actualAirportCount; q++) {
 			Feature feature = layer.GetNextFeature();
-			Debug.Log(feature.GetFieldAsString("Loc_Id"));
+			Geometry geometry = feature.GetGeometryRef();
+			//argout[0] is longitude
+			double[] argout = new double[2];
+			geometry.GetPoint(0, argout);
 		}
 
 		layer.Dispose();
