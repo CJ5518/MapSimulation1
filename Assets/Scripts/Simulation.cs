@@ -16,9 +16,17 @@ public class Simulation {
 	//Array of textures needed in the simulation itself
 	private Texture2D[] simulationTextures;
 
+	public Airport[] airports;
+
+	//Cell buffers
+	//Internally (Meaning the Execute function): you always read from readCells, and write to writeCells
+	//Externally: writeCells is fairly useless, read/write to readCells if you want to read/change state
+	public NativeArray<Cell> writeCells;
+	public NativeArray<Cell> readCells;
+
 	//Metadata for the textures
 	public NativeArray<TextureMetadata> textureMetadataArray;
-	//Pointers to the texutreArray that are almost never valid
+	//Pointers to the texutreArray that are only ever valid in the simulation job
 	private NativeArray<IntPtr> textureDataPointers;
 	//The background color of the draw texture
 	public Color backgroundColor = new Color(0.0939f, 0.1489f, 0.1698f);
@@ -59,12 +67,12 @@ public class Simulation {
 		//Commercial operations, assumed to be a measure of the outgoing planes per year
 		public float commercialOps;
 
-		public Airport(double latitude, double longitude, float commercialOps) {
+		public Airport(double longitude, double latitude, float commercialOps) {
 			lat = latitude;
 			lon = longitude;
 			this.commercialOps = commercialOps;
 			simCoords = (Vector2Int)Projection.projectionToRenderSpace(
-				Projection.projectVector(new Vector2Double(lat, lon))
+				Projection.projectVector(new Vector2Double(lon, lat))
 			);
 			index = (simCoords.y * Projection.width) + simCoords.x;
 		}
@@ -153,24 +161,21 @@ public class Simulation {
 		highestValidIndex = int.MinValue
 	};
 
-	//Cell buffers
-	//Internally: you always read from readCells, and write to writeCells
-	//Externally: writeCells is fairly useless, read/write to readCells if you want to read/change state
-	public NativeArray<Cell> writeCells;
-	public NativeArray<Cell> readCells;
-
 	//Constructor
 	//All textures must be of the same width and height, different formats are allowed
 	public Simulation(
 		Texture2D[] populationTextures,
 		Texture2D elevationTexture,
 		Texture2D vaccRateTexture,
-		Texture2D[] simulationTextures) 
+		Texture2D[] simulationTextures,
+		Airport[] airports
+		) 
 	{
 		this.populationTextures = populationTextures;
 		this.elevationTexture = elevationTexture;
 		this.vaccRateTexture = vaccRateTexture;
 		this.simulationTextures = simulationTextures;
+		this.airports = airports;
 
 
 		//We make the first one the example
@@ -198,6 +203,8 @@ public class Simulation {
 	public unsafe void beginTick() {
 		data.runCount++;
 		simulationIsRunning = true;
+
+		updateAirports();
 
 		//The unsafe part
 		//Get pointers to the raw texture data
@@ -247,6 +254,28 @@ public class Simulation {
 	public unsafe void tickSimulation() {
 		beginTick();
 		endTick();
+	}
+	
+	//Updates the airports, runs either before or after the simulation runs
+	private unsafe void updateAirports() {
+		return;
+		for (int q = 0; q < airports.Length; q++) {
+			Airport airport = airports[q];
+			Cell cell = readCells[airport.index];
+			//If there are infected persons at this airport
+			if (cell.infected[(int)Population.FullPopulation] >= 1.0f) {
+				//Pick another random airport
+				int otherAirportIndex = UnityEngine.Random.Range(0, airports.Length);
+				Airport otherAirport = airports[otherAirportIndex];
+				if (otherAirportIndex != q) {
+					Cell otherAiportCell = readCells[otherAirport.index];
+					if (otherAiportCell.susceptible[(int)Population.FullPopulation] >= 1.0f) {
+						otherAiportCell.infected[(int)Population.FullPopulation] += 1.0f;
+						otherAiportCell.susceptible[(int)Population.FullPopulation] -= 1.0f;
+					}
+				}
+			}
+		}
 	}
 
 	//Deletes the native arrays used by the simulation

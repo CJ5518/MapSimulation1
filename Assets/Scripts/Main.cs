@@ -49,28 +49,6 @@ public class Main : MonoBehaviour {
 
 		StartCoroutine("loadSimulation");
 
-
-		//Load airports
-
-		DataSource dataSource = Ogr.Open(Application.streamingAssetsPath + "/Data/Airports_Sorted.geojson", 0);
-		Layer layer = dataSource.GetLayerByIndex(0);
-
-		int desiredAirportCount = 5;
-		int actualAirportCount = (int)layer.GetFeatureCount(1);
-
-		layer.ResetReading();
-		
-		for (int q = 0; q < desiredAirportCount && q < actualAirportCount; q++) {
-			Feature feature = layer.GetNextFeature();
-			Geometry geometry = feature.GetGeometryRef();
-			//argout[0] is longitude
-			double[] argout = new double[2];
-			geometry.GetPoint(0, argout);
-		}
-
-		layer.Dispose();
-		dataSource.Dispose();
-
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
 			" seconds to run the Main.cs start function");
 	}
@@ -98,23 +76,52 @@ public class Main : MonoBehaviour {
 		//Load in the vacc rate data
 		rasterHandler = new RasterHandler(RasterType.VaccRate, null);
 		Texture2D vaccRateTexture = rasterHandler.loadToTexture();
+
+
+		//Load airports
+
+		DataSource dataSource = Ogr.Open(Application.streamingAssetsPath + "/Data/Airports_Sorted.geojson", 0);
+		Layer layer = dataSource.GetLayerByIndex(0);
+
+		int desiredAirportCount = 5;
+		int actualAirportCount = (int)layer.GetFeatureCount(1);
+		if (desiredAirportCount > actualAirportCount) actualAirportCount = desiredAirportCount;
+
+		layer.ResetReading();
+
+		Simulation.Airport[] airports = new Simulation.Airport[desiredAirportCount];
+		
+		for (int q = 0; q < desiredAirportCount; q++) {
+			Feature feature = layer.GetNextFeature();
+			Geometry geometry = feature.GetGeometryRef();
+			//argout[0] is longitude
+			double[] argout = new double[2];
+			geometry.GetPoint(0, argout);
+			//Strings of integers
+			int commOps = int.Parse(feature.GetFieldAsString("Commercial_Ops"));
+			Simulation.Airport airport = new Simulation.Airport(argout[0], argout[1], commOps);
+			airports[q] = airport;
+		}
+
+		layer.Dispose();
+		dataSource.Dispose();
 		
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,
 			elevationTexture,
 			vaccRateTexture,
-			new Texture2D[] { }
+			new Texture2D[] { },
+			airports
 		);
-		simulationCanvas.UpdateSliderValues();
+		
+		//Attach the draw texture to an object
+		Material material = objectWithMeshRenderer.GetComponent<MeshRenderer>().material;
+		MeshRenderer meshRenderer = objectWithMeshRenderer.GetComponent<MeshRenderer>();
+		
+		material.SetTexture("_MainTex", simulation.drawTexture);
 
-
-		if (objectWithMeshRenderer != null) {
-			Material material = objectWithMeshRenderer.GetComponent<MeshRenderer>().material;
-			MeshRenderer meshRenderer = objectWithMeshRenderer.GetComponent<MeshRenderer>();
-			
-			material.SetTexture("_MainTex", simulation.drawTexture);
-		}
+		//We're done
 		loadedSimulation = true;
 
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
