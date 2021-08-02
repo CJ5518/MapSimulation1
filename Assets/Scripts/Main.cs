@@ -114,6 +114,8 @@ public class Main : MonoBehaviour {
 			new Texture2D[] { },
 			airports
 		);
+
+		simulationCanvas.UpdateSliderValues();
 		
 		//Attach the draw texture to an object
 		Material material = objectWithMeshRenderer.GetComponent<MeshRenderer>().material;
@@ -160,7 +162,7 @@ public class Main : MonoBehaviour {
 			simulation.reset();
 
 		//Pixel coord on the draw texture
-		Vector2 pixel = simulationCanvas.getPixelFromScreenCoord(Input.mousePosition);
+		Vector2 pixel = SimulationCanvas.getPixelFromScreenCoord(Input.mousePosition);
 		int index = simulation.coordToIndex(pixel);
 
 		if (simulation.cellIsValid(index)) {

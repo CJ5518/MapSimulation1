@@ -113,7 +113,7 @@ public class SimulationCanvas : MonoBehaviour
 
     //Get a pixel on the texture from a screen (commonly mouse) coordinate
     //Technically this function gets a texture coord an *any* quad clicked on
-	public Vector2 getPixelFromScreenCoord(Vector2 coord) {
+	public static Vector2 getPixelFromScreenCoord(Vector2 coord) {
 		RaycastHit hit;
 		//Didn't hit anything
 		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))

@@ -75,6 +75,7 @@ public class Simulation {
 				Projection.projectVector(new Vector2Double(lon, lat))
 			);
 			index = (simCoords.y * Projection.width) + simCoords.x;
+			Debug.Log(Projection.width);
 		}
 	}
 
@@ -258,23 +259,27 @@ public class Simulation {
 	
 	//Updates the airports, runs either before or after the simulation runs
 	private unsafe void updateAirports() {
-		return;
 		for (int q = 0; q < airports.Length; q++) {
 			Airport airport = airports[q];
-			Cell cell = readCells[airport.index];
-			//If there are infected persons at this airport
+			int index = coordToIndex(airport.simCoords);
+			Cell cell = readCells[index];
+			
 			if (cell.infected[(int)Population.FullPopulation] >= 1.0f) {
 				//Pick another random airport
 				int otherAirportIndex = UnityEngine.Random.Range(0, airports.Length);
-				Airport otherAirport = airports[otherAirportIndex];
 				if (otherAirportIndex != q) {
-					Cell otherAiportCell = readCells[otherAirport.index];
+					Airport otherAirport = airports[otherAirportIndex];
+					int otherIndex = coordToIndex(otherAirport.simCoords);
+					Cell otherAiportCell = readCells[otherIndex];
 					if (otherAiportCell.susceptible[(int)Population.FullPopulation] >= 1.0f) {
 						otherAiportCell.infected[(int)Population.FullPopulation] += 1.0f;
 						otherAiportCell.susceptible[(int)Population.FullPopulation] -= 1.0f;
+						readCells[otherIndex] = otherAiportCell;
 					}
 				}
 			}
+
+			readCells[index] = cell;
 		}
 	}
 
