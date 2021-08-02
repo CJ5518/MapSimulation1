@@ -10,12 +10,15 @@ using ShapeImporter;
 
 //Handles a cell based simulation of stuff
 public class Simulation {
+	#region MemberVariables
+
 	private Texture2D[] populationTextures;
 	private Texture2D elevationTexture;
 	private Texture2D vaccRateTexture;
 	//Array of textures needed in the simulation itself
 	private Texture2D[] simulationTextures;
 
+	//This array is assumed to be sorted with high commerical_ops airports first
 	public Airport[] airports;
 
 	//Cell buffers
@@ -40,6 +43,9 @@ public class Simulation {
 	public static Color infectedColor = new Color32(255, 162, 0, 255);
 	public static Color deadColor = new Color32(255, 0, 255, 255);
 
+	#endregion
+
+	#region StructDefinitions
 
 	//Cell struct, contains all the individual information for a cell
 	public unsafe struct Cell {
@@ -74,7 +80,10 @@ public class Simulation {
 			simCoords = (Vector2Int)Projection.projectionToRenderSpace(
 				Projection.projectVector(new Vector2Double(lon, lat))
 			);
-			index = (simCoords.y * Projection.width) + simCoords.x;
+
+			//Projection.width is different from data.width and I'm not sure how so
+			//just calc this when you need it, simCoords is right
+			index = -1;
 			Debug.Log(Projection.width);
 		}
 	}
@@ -161,6 +170,9 @@ public class Simulation {
 		lowestValidIndex = int.MaxValue,
 		highestValidIndex = int.MinValue
 	};
+	#endregion
+
+	#region Constructor
 
 	//Constructor
 	//All textures must be of the same width and height, different formats are allowed
@@ -196,6 +208,10 @@ public class Simulation {
 		}
 		Init();
 	}
+
+	#endregion
+
+	#region UpdateFunctions
 
 	JobHandle jobHandle;
 	public bool simulationIsRunning = false;
@@ -283,6 +299,8 @@ public class Simulation {
 		}
 	}
 
+	#endregion
+
 	//Deletes the native arrays used by the simulation
 	//A required step that you can do in OnDestroy or whenever you're done with the simulation object
 	public void deleteNativeArrays() {
@@ -299,6 +317,8 @@ public class Simulation {
 		deleteNativeArrays();
 		Init();
 	}
+
+	#region InitFunctions
 
 	//Init everything
 	public unsafe void Init() {
@@ -417,6 +437,8 @@ public class Simulation {
 			}
 		}
 	}
+
+	#endregion
 
 
 	//The real meat and potatoes

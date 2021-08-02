@@ -77,7 +77,6 @@ public class Main : MonoBehaviour {
 		rasterHandler = new RasterHandler(RasterType.VaccRate, null);
 		Texture2D vaccRateTexture = rasterHandler.loadToTexture();
 
-
 		//Load airports
 
 		DataSource dataSource = Ogr.Open(Application.streamingAssetsPath + "/Data/Airports_Sorted.geojson", 0);
