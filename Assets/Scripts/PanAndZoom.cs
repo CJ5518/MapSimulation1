@@ -45,7 +45,11 @@ public class PanAndZoom : MonoBehaviour {
 		if (Input.GetMouseButtonUp(2)) {
 			DragEnd();
 		}
-		if (Input.mouseScrollDelta.y != 0)
+		if (
+			Input.mouseScrollDelta.y != 0 && //Mouse wheel scrolled
+			!(0 > Input.mousePosition.x || 0 > Input.mousePosition.y || //Mouse was on screen
+			Screen.width < Input.mousePosition.x || Screen.height < Input.mousePosition.y)
+		)
 			OnScroll();
 
 		//Update position if dragging
