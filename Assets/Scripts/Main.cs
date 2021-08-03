@@ -49,6 +49,8 @@ public class Main : MonoBehaviour {
 
 		StartCoroutine("loadSimulation");
 
+		DataHandler.loadAirportData();
+
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
 			" seconds to run the Main.cs start function");
 	}

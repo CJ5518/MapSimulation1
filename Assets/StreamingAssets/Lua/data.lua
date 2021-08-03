@@ -123,6 +123,7 @@ local function passengerData()
 	end
 	
 	--Output the matrix
+	--Row is origin, column is destination
 	local order = {};
 	outFile:write("X");
 	for i, v in pairs(tab) do
@@ -143,7 +144,7 @@ local function passengerData()
 		outFile:write("\n");
 	end
 
-	print(tab["ATL"]["LAX"]);
+	print(tab["ATL"]["JFK"]);
 
 	outFile:close();
 	inFile:close();

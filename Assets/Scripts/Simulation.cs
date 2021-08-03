@@ -216,7 +216,7 @@ public class Simulation {
 	JobHandle jobHandle;
 	public bool simulationIsRunning = false;
 	//Starts a tick of the simulation, MUST call endTick before calling this again
-	//You also mustn't write to readCells while simulationIsRunning
+	//You also mustn't write to readCells while simulationIsRunning is true
 	public unsafe void beginTick() {
 		data.runCount++;
 		simulationIsRunning = true;
