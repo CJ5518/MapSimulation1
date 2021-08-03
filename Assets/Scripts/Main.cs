@@ -49,8 +49,6 @@ public class Main : MonoBehaviour {
 
 		StartCoroutine("loadSimulation");
 
-		DataHandler.loadAirportPassengerData();
-
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
 			" seconds to run the Main.cs start function");
 	}
@@ -79,41 +77,13 @@ public class Main : MonoBehaviour {
 		rasterHandler = new RasterHandler(RasterType.VaccRate, null);
 		Texture2D vaccRateTexture = rasterHandler.loadToTexture();
 
-		//Load airports
-
-		DataSource dataSource = Ogr.Open(Application.streamingAssetsPath + "/Data/Airports_Sorted.geojson", 0);
-		Layer layer = dataSource.GetLayerByIndex(0);
-
-		int desiredAirportCount = 5;
-		int actualAirportCount = (int)layer.GetFeatureCount(1);
-		if (desiredAirportCount > actualAirportCount) actualAirportCount = desiredAirportCount;
-
-		layer.ResetReading();
-
-		Simulation.Airport[] airports = new Simulation.Airport[desiredAirportCount];
-		
-		for (int q = 0; q < desiredAirportCount; q++) {
-			Feature feature = layer.GetNextFeature();
-			Geometry geometry = feature.GetGeometryRef();
-			//argout[0] is longitude
-			double[] argout = new double[2];
-			geometry.GetPoint(0, argout);
-			//Strings of integers
-			int commOps = int.Parse(feature.GetFieldAsString("Commercial_Ops"));
-			Simulation.Airport airport = new Simulation.Airport(argout[0], argout[1], commOps);
-			airports[q] = airport;
-		}
-
-		layer.Dispose();
-		dataSource.Dispose();
 		
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTextures,
 			elevationTexture,
 			vaccRateTexture,
-			new Texture2D[] { },
-			airports
+			new Texture2D[] { }
 		);
 
 		simulationCanvas.UpdateSliderValues();
@@ -145,7 +115,7 @@ public class Main : MonoBehaviour {
 		if (!loadedSimulation) return;
 
 		//Horribly laggy
-		//simulationCanvas.UpdateCanvas();
+		simulationCanvas.UpdateCanvas();
 
 		//Make sure targetDemographic is in range
 		if (targetDemographic < 0)

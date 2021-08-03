@@ -149,5 +149,3 @@ local function passengerData()
 	outFile:close();
 	inFile:close();
 end
-
-passengerData();

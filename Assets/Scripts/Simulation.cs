@@ -8,8 +8,13 @@ using System;
 using System.Collections.Generic;
 using ShapeImporter;
 
+//TODO:
+//Have updateAirports use dt
+
 //Handles a cell based simulation of stuff
 public class Simulation {
+	//Because we don't use any of the other demographics at the moment
+	const int FullPop = (int)Population.FullPopulation;
 	#region MemberVariables
 
 	private Texture2D[] populationTextures;
@@ -20,6 +25,8 @@ public class Simulation {
 
 	//This array is assumed to be sorted with high commerical_ops airports first
 	public Airport[] airports;
+	//Our own local copy of the passenger data
+	public AirportPassengerData airportPassengerData;
 
 	//Cell buffers
 	//Internally (Meaning the Execute function): you always read from readCells, and write to writeCells
@@ -38,6 +45,8 @@ public class Simulation {
 	//Batch count, messing with this will impact performance
 	//See unity parallel for jobs
 	private const int batchCount = 32 * 32;
+	//The number of airports to have
+	int desiredAirportCount = 5;
 
 	public static Color vaccinatedColor = new Color32(34, 234, 255, 255);
 	public static Color infectedColor = new Color32(255, 162, 0, 255);
@@ -69,14 +78,17 @@ public class Simulation {
 		public double lon;
 		//Position in the simulation
 		public Vector2Int simCoords;
+		//Do not use
 		public int index;
-		//Commercial operations, assumed to be a measure of the outgoing planes per year
-		public float commercialOps;
 
-		public Airport(double longitude, double latitude, float commercialOps) {
+		public string code;
+
+		//List of other airports, used to keep track of the people we've sent
+
+		public Airport(double longitude, double latitude, string code) {
 			lat = latitude;
 			lon = longitude;
-			this.commercialOps = commercialOps;
+			this.code = code;
 			simCoords = (Vector2Int)Projection.projectionToRenderSpace(
 				Projection.projectVector(new Vector2Double(lon, lat))
 			);
@@ -93,9 +105,27 @@ public class Simulation {
 		public float numberOfPeople;
 		public float susceptible;
 		public float infected;
-		public float dead;
 		public float exposed;
 		public float vaccinated;
+		public const float capacity = 162.0f;
+
+		public unsafe Airplane(Cell cell) {
+			//Who will be on the airplane?
+			//Gather percentages of important demographics
+			float infectedPercentage = cell.infected[FullPop] / cell.numberOfPeople[FullPop];
+			float vaccinatedPercentage = cell.vaccinated[FullPop] / cell.numberOfPeople[FullPop];
+			float exposedPercentage = cell.exposed[FullPop] / cell.numberOfPeople[FullPop];
+			float susceptiblePercentage = cell.susceptible[FullPop] / cell.numberOfPeople[FullPop];
+
+			//Make sure there aren't more people on the plane than in the cell
+			numberOfPeople = capacity <= cell.numberOfPeople[FullPop] - cell.dead[FullPop] 
+			? capacity : cell.numberOfPeople[FullPop] - cell.dead[FullPop];
+
+			susceptible = numberOfPeople * numberOfPeople;
+			infected = infectedPercentage * numberOfPeople;
+			exposed = exposedPercentage * numberOfPeople;
+			vaccinated = vaccinatedPercentage * numberOfPeople;
+		}
 	}
 
 	//Texture metadata struct
@@ -175,20 +205,19 @@ public class Simulation {
 	#region Constructor
 
 	//Constructor
-	//All textures must be of the same width and height, different formats are allowed
+	//All textures must be of the same width and height, different formats are allowed,
+	//but will be turned into RGBA32 anyway
 	public Simulation(
 		Texture2D[] populationTextures,
 		Texture2D elevationTexture,
 		Texture2D vaccRateTexture,
-		Texture2D[] simulationTextures,
-		Airport[] airports
+		Texture2D[] simulationTextures
 		) 
 	{
 		this.populationTextures = populationTextures;
 		this.elevationTexture = elevationTexture;
 		this.vaccRateTexture = vaccRateTexture;
 		this.simulationTextures = simulationTextures;
-		this.airports = airports;
 
 
 		//We make the first one the example
@@ -279,23 +308,47 @@ public class Simulation {
 			Airport airport = airports[q];
 			int index = coordToIndex(airport.simCoords);
 			Cell cell = readCells[index];
-			
-			if (cell.infected[(int)Population.FullPopulation] >= 1.0f) {
-				//Pick another random airport
-				int otherAirportIndex = UnityEngine.Random.Range(0, airports.Length);
-				if (otherAirportIndex != q) {
-					Airport otherAirport = airports[otherAirportIndex];
-					int otherIndex = coordToIndex(otherAirport.simCoords);
-					Cell otherAiportCell = readCells[otherIndex];
-					if (otherAiportCell.susceptible[(int)Population.FullPopulation] >= 1.0f) {
-						otherAiportCell.infected[(int)Population.FullPopulation] += 1.0f;
-						otherAiportCell.susceptible[(int)Population.FullPopulation] -= 1.0f;
-						readCells[otherIndex] = otherAiportCell;
+
+			//Board the plane, but don't necessarily take off
+			Airplane airplane = new Airplane(cell);
+
+			//Where will the airplane go? Will it go?
+			//ATL to JFK for one whole year 511308
+			//about 58 people an hour
+			//so the chance that we'll send a plane over to JFK is that / capacity
+			for (int otherIdx = 0; otherIdx < airports.Length; otherIdx++) {
+				if (otherIdx != q) {
+					int transferRate = airportPassengerData.getValue(airport.code, airports[otherIdx].code);
+					//Here's where we assume that one tick is an hour
+					float personsPerDay = (transferRate / 365.0f) / 24.0f;
+					//Here's where we assume that one plane per hour is a maximum
+					float chanceToBeat = personsPerDay / Airplane.capacity;
+					//Fire away
+					if (UnityEngine.Random.value < chanceToBeat) {
+						cell.numberOfPeople[FullPop] -= airplane.numberOfPeople;
+						cell.infected[FullPop] -= airplane.infected;
+						cell.susceptible[FullPop] -= airplane.susceptible;
+						cell.vaccinated[FullPop] -= airplane.vaccinated;
+						cell.exposed[FullPop] -= airplane.exposed;
+
+						int otherCellIdx = coordToIndex(airports[otherIdx].simCoords);
+						Cell otherCell = readCells[otherCellIdx];
+
+						otherCell.numberOfPeople[FullPop] += airplane.numberOfPeople;
+						otherCell.infected[FullPop] += airplane.infected;
+						otherCell.susceptible[FullPop] += airplane.susceptible;
+						otherCell.vaccinated[FullPop] += airplane.vaccinated;
+						otherCell.exposed[FullPop] += airplane.exposed;
+
+						readCells[otherCellIdx] = otherCell;
+
+						airplane = new Airplane(cell);
 					}
 				}
 			}
-
 			readCells[index] = cell;
+
+
 		}
 	}
 
@@ -336,9 +389,8 @@ public class Simulation {
 			textureMetadata.weight = 1.0f / textureMetadataArray.Length;
 			textureMetadataArray[q] = textureMetadata;
 		}
-
-
-		//Fire off a different init function
+		//Fire off some other init functions
+		InitAirports();
 		InitCells();
 	}
 
@@ -436,6 +488,11 @@ public class Simulation {
 				writeCells[index] = readCell;
 			}
 		}
+	}
+
+	private void InitAirports() {
+		this.airports = DataHandler.loadAirports(desiredAirportCount);
+		this.airportPassengerData = new AirportPassengerData();
 	}
 
 	#endregion
