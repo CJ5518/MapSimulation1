@@ -24,9 +24,10 @@ public class Simulation {
 	private Texture2D[] simulationTextures;
 
 	//This array is assumed to be sorted with high commerical_ops airports first
+	//At least, the data that this array comes from is assumed to be sorted like that
 	public Airport[] airports;
 	//Our own local copy of the passenger data
-	public AirportPassengerData airportPassengerData;
+	public AirportData airportData;
 
 	//Cell buffers
 	//Internally (Meaning the Execute function): you always read from readCells, and write to writeCells
@@ -46,7 +47,7 @@ public class Simulation {
 	//See unity parallel for jobs
 	private const int batchCount = 32 * 32;
 	//The number of airports to have
-	int desiredAirportCount = 5;
+	int desiredAirportCount = 50;
 
 	public static Color vaccinatedColor = new Color32(34, 234, 255, 255);
 	public static Color infectedColor = new Color32(255, 162, 0, 255);
@@ -92,11 +93,16 @@ public class Simulation {
 			simCoords = (Vector2Int)Projection.projectionToRenderSpace(
 				Projection.projectVector(new Vector2Double(lon, lat))
 			);
-
-			//Projection.width is different from data.width and I'm not sure how so
-			//just calc this when you need it, simCoords is right
-			index = -1;
-			Debug.Log(Projection.width);
+			
+			int trueWidth = Projection.width + (Projection.textureOffset.x * 2);
+			int trueHeight = Projection.height + (Projection.textureOffset.y * 2);
+			index = (simCoords.y * trueWidth) + simCoords.x;
+			if (index < 0 || index >= trueHeight * trueWidth) {
+				index = -1;
+			}
+			if (code == "ATL") {
+				Debug.Log(index);
+			}
 		}
 	}
 
@@ -109,7 +115,17 @@ public class Simulation {
 		public float vaccinated;
 		public const float capacity = 162.0f;
 
+
+		//Creates an airplane coming from the given cell
 		public unsafe Airplane(Cell cell) {
+			if (cell.numberOfPeople[FullPop] == 0.0f) {
+				susceptible = 0.0f;
+				numberOfPeople = 0.0f;
+				infected = 0.0f;
+				exposed = 0.0f;
+				vaccinated = 0.0f;
+				return;
+			}
 			//Who will be on the airplane?
 			//Gather percentages of important demographics
 			float infectedPercentage = cell.infected[FullPop] / cell.numberOfPeople[FullPop];
@@ -121,10 +137,17 @@ public class Simulation {
 			numberOfPeople = capacity <= cell.numberOfPeople[FullPop] - cell.dead[FullPop] 
 			? capacity : cell.numberOfPeople[FullPop] - cell.dead[FullPop];
 
-			susceptible = numberOfPeople * numberOfPeople;
+			susceptible = susceptiblePercentage * numberOfPeople;
 			infected = infectedPercentage * numberOfPeople;
 			exposed = exposedPercentage * numberOfPeople;
 			vaccinated = vaccinatedPercentage * numberOfPeople;
+
+			susceptible = susceptible >= 1.0f ? susceptible : 0.0f;
+			infected = infected >= 1.0f ? infected : 0.0f;
+			exposed = exposed >= 1.0f ? exposed : 0.0f;
+			vaccinated = vaccinated >= 1.0f ? vaccinated : 0.0f;
+
+			numberOfPeople = susceptible + infected + exposed + vaccinated;
 		}
 	}
 
@@ -318,7 +341,7 @@ public class Simulation {
 			//so the chance that we'll send a plane over to JFK is that / capacity
 			for (int otherIdx = 0; otherIdx < airports.Length; otherIdx++) {
 				if (otherIdx != q) {
-					int transferRate = airportPassengerData.getValue(airport.code, airports[otherIdx].code);
+					int transferRate = airportData.getValue(airport.code, airports[otherIdx].code);
 					//Here's where we assume that one tick is an hour
 					float personsPerDay = (transferRate / 365.0f) / 24.0f;
 					//Here's where we assume that one plane per hour is a maximum
@@ -347,9 +370,8 @@ public class Simulation {
 				}
 			}
 			readCells[index] = cell;
-
-
 		}
+		
 	}
 
 	#endregion
@@ -492,7 +514,7 @@ public class Simulation {
 
 	private void InitAirports() {
 		this.airports = DataHandler.loadAirports(desiredAirportCount);
-		this.airportPassengerData = new AirportPassengerData();
+		this.airportData = new AirportData();
 	}
 
 	#endregion

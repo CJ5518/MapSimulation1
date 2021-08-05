@@ -99,7 +99,7 @@ end
 
 local function passengerData()
 	local inputFilename = dataFolder .. "/dd.db28dm.201901.201912.asc";
-	local outputFilename = dataFolder .. "/AirportMatrix.txt";
+	local outputFilename = dataFolder .. "/AirportDistanceMatrix.txt";
 	local inFile = io.open(inputFilename, "r");
 	local outFile = io.open(outputFilename, "w");
 
@@ -117,7 +117,9 @@ local function passengerData()
 		if codes[originCode] and codes[destCode] and passengerCount ~= 0 then
 			if not tab[originCode] then tab[originCode] = {}; end
 			if not tab[originCode][destCode] then tab[originCode][destCode] = 0; end
-			tab[originCode][destCode] = tab[originCode][destCode] + tonumber(passengerCount);
+			--tab[originCode][destCode] = tab[originCode][destCode] + tonumber(passengerCount);
+			--Generate the distance matrix instead
+			tab[originCode][destCode] = tonumber(distance);
 		end
 
 	end
@@ -149,3 +151,4 @@ local function passengerData()
 	outFile:close();
 	inFile:close();
 end
+passengerData();

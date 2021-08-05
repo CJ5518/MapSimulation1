@@ -15,6 +15,9 @@ using SimpleFileBrowser;
 //See where we calculate airport index in it's constructor
 //As that's where this thought comes from
 
+//Make Airports_Sorted be in line with the airport matrix
+//It works fine for low airport counts but otherwise it doesn't
+
 //Main class
 public class Main : MonoBehaviour {
 	const int framerate = 60;
@@ -115,7 +118,19 @@ public class Main : MonoBehaviour {
 		if (!loadedSimulation) return;
 
 		//Horribly laggy
-		simulationCanvas.UpdateCanvas();
+		//simulationCanvas.UpdateCanvas();
+
+		 //Find the hoverPixel
+        Vector2 hoverLocation = SimulationCanvas.getPixelFromScreenCoord(Input.mousePosition);
+        int indexOfPixel = simulation.coordToIndex(hoverLocation);
+
+		if (Input.GetKeyDown(KeyCode.R)) {
+			if (simulation.cellIsValid(indexOfPixel)) {
+				Simulation.Cell cell = simulation.readCells[indexOfPixel];
+				int x = (int)Population.FullPopulation;
+				Debug.Log("Cell: " + cell.infected[x] + " " + cell.numberOfPeople[x]);
+			}
+		}
 
 		//Make sure targetDemographic is in range
 		if (targetDemographic < 0)

@@ -10,8 +10,9 @@ using OSGeo.OGR;
 public class DataHandler {
 	public static string dataPath = Application.streamingAssetsPath + "/Data";
 	public static string aiportLocationFilepath = dataPath + "/Airports_Sorted.geojson";
-	//See AirportPassengerData.cs
+	//See AirportData.cs
 	public static string aiportMatrixFilepath = dataPath + "/AirportMatrix.txt";
+	public static string aiportDistanceMatrixFilepath = dataPath + "/AirportDistanceMatrix.txt";
 
 	//Creates an array of airports the size of desiredAirportCount
 	public static Simulation.Airport[] loadAirports(int desiredAirportCount) {
@@ -24,21 +25,23 @@ public class DataHandler {
 
 		layer.ResetReading();
 
-		Simulation.Airport[] airports = new Simulation.Airport[desiredAirportCount];
+		List<Simulation.Airport> airports = new List<Simulation.Airport>(desiredAirportCount);
 		
-		for (int q = 0; q < desiredAirportCount; q++) {
+		for (int q = 0; airports.Count < desiredAirportCount; q++) {
 			Feature feature = layer.GetNextFeature();
 			Geometry geometry = feature.GetGeometryRef();
 			//argout[0] is longitude
 			double[] argout = new double[2];
 			geometry.GetPoint(0, argout);
 			Simulation.Airport airport = new Simulation.Airport(argout[0], argout[1], feature.GetFieldAsString("Loc_Id"));
-			airports[q] = airport;
+			//Index will be -1 if the airport is invalid
+			if (airport.index >= 0)
+				airports.Add(airport);
 		}
 
 		layer.Dispose();
 		dataSource.Dispose();
 
-		return airports;
+		return airports.ToArray();
 	}
 }
