@@ -1,0 +1,756 @@
+fileFormatVersion: 2
+guid: 65a589c83dce15746b205861d1ada4a9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -552913474997583572
+    second: Crisp_Button_BR
+  - first:
+      213: -4215247482032542519
+    second: Crisp_Button_BL
+  - first:
+      213: -1526976366851385508
+    second: Crisp_Button_TR
+  - first:
+      213: -9130738361476077346
+    second: Crisp_Button_TL
+  - first:
+      213: -7730318098729605141
+    second: Crisp_ButtonL
+  - first:
+      213: 8854333087841917965
+    second: UI_GlowBar
+  - first:
+      213: -1365818054762641377
+    second: Crisp_ButtonLH_BR
+  - first:
+      213: 7830920246009828410
+    second: Crisp_ButtonLH_R
+  - first:
+      213: -4245768275024407072
+    second: Crisp_Button_TR
+  - first:
+      213: 2560441292889571811
+    second: Crisp_ButtonL_R
+  - first:
+      213: -973196039880224515
+    second: Crisp_ButtonLH_R
+  - first:
+      213: 8055182266292875686
+    second: Crisp_ButtonH_TR
+  - first:
+      213: 8191699595922877631
+    second: Crisp_ButtonH_BL
+  - first:
+      213: 7375387150626871096
+    second: Crisp_ButtonH_TL
+  - first:
+      213: 7683269561553839709
+    second: Crisp_ButtonLH
+  - first:
+      213: -7144064781160218087
+    second: Crisp_ButtonY_BR
+  - first:
+      213: 1843807865210758064
+    second: Crisp_ButtonY_TR
+  - first:
+      213: 2517046052807570409
+    second: Crisp_ButtonY_BL
+  - first:
+      213: -1487847544959919991
+    second: Crisp_ButtonY_TL
+  - first:
+      213: -5063680909102389302
+    second: Crisp_ButtonYH_BR
+  - first:
+      213: -3625949433267250666
+    second: Crisp_ButtonYH_TR
+  - first:
+      213: 883494616155581199
+    second: Crisp_ButtonYH_BL
+  - first:
+      213: 6880260998738914133
+    second: Crisp_ButtonYH_TL
+  - first:
+      213: -5722785815277303706
+    second: Crisp_Button_B
+  - first:
+      213: -4849825619513022806
+    second: Crisp_ButtonH_B
+  - first:
+      213: -3618586119084045760
+    second: UI_ButtonSeeThrough
+  - first:
+      213: -6910929347121942910
+    second: Crisp_Button_SideTR
+  - first:
+      213: 1960290477830290647
+    second: Crisp_Button_SideTL
+  - first:
+      213: -7296545263233727871
+    second: Crisp_ButtonH_SideTR
+  - first:
+      213: 4841045311222247098
+    second: Crisp_ButtonH_SideTL
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: -1
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 0
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Crisp_ButtonL_BR
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 112
+        width: 26
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 22, z: 22, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e51c88bf300415c0800000000000000
+      internalID: -4245768275024407072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonL_R
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 112
+        width: 26
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 22, z: 22, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3e1cce24ac3888320800000000000000
+      internalID: 2560441292889571811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_Button_BR
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 160
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 22, z: 22, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c210e3bbf18a358f0800000000000000
+      internalID: -552913474997583572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_Button_BL
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 160
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 22, z: 2, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9cc27199fbe6085c0800000000000000
+      internalID: -4215247482032542519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_Button_TR
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 112
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 2, z: 22, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c571869a5171fcae0800000000000000
+      internalID: -1526976366851385508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_Button_TL
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 112
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 2, z: 2, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed8af2346d9194180800000000000000
+      internalID: -9130738361476077346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonL
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 16
+        width: 6
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 2, z: 2, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be7e27c65a468b490800000000000000
+      internalID: -7730318098729605141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UI_GlowBar
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 6
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 5, y: 5, z: 5, w: 5}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d0c1ec7f709e0ea70800000000000000
+      internalID: 8854333087841917965
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonLH_BR
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 112
+        width: 26
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 22, z: 22, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f18ce0237b3ab0de0800000000000000
+      internalID: -1365818054762641377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonLH_R
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 112
+        width: 26
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 22, z: 22, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a3494d749740dac60800000000000000
+      internalID: 7830920246009828410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonH_BR
+      rect:
+        serializedVersion: 2
+        x: 156
+        y: 160
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 22, z: 22, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df05f12ab538e72f0800000000000000
+      internalID: -973196039880224515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonH_TR
+      rect:
+        serializedVersion: 2
+        x: 156
+        y: 112
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 2, z: 22, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a1b96fc791c9cf60800000000000000
+      internalID: 8055182266292875686
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonH_BL
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 160
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 22, z: 2, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fbca1b98163cea170800000000000000
+      internalID: 8191699595922877631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonH_TL
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 112
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 2, z: 2, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 837581a7983aa5660800000000000000
+      internalID: 7375387150626871096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonLH
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 16
+        width: 6
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 2, z: 2, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d56ecf165f470aa60800000000000000
+      internalID: 7683269561553839709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonY_BR
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 182
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 22, z: 22, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9120192beee2bdc90800000000000000
+      internalID: -7144064781160218087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonY_TR
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 156
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 2, z: 22, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0b365f70c75869910800000000000000
+      internalID: 1843807865210758064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonY_BL
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 130
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 22, z: 2, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9e3f4e49c085ee220800000000000000
+      internalID: 2517046052807570409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonY_TL
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 104
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 2, z: 2, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9881ab27a8a1a5be0800000000000000
+      internalID: -1487847544959919991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonYH_BR
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 78
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 22, z: 22, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ac7660daa013ab9b0800000000000000
+      internalID: -5063680909102389302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonYH_TR
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 52
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 2, y: 2, z: 22, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61a9398933a0eadc0800000000000000
+      internalID: -3625949433267250666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonYH_BL
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 26
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 22, z: 2, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f0b6ce42cadc24c00800000000000000
+      internalID: 883494616155581199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonYH_TL
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 0
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 2, z: 2, w: 22}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 55baec7dce89b7f50800000000000000
+      internalID: 6880260998738914133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_Button_B
+      rect:
+        serializedVersion: 2
+        x: 174
+        y: 64
+        width: 22
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 11, y: 11, z: 11, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 66880c22f949490b0800000000000000
+      internalID: -5722785815277303706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Crisp_ButtonH_B
+      rect:
+        serializedVersion: 2
+        x: 174
+        y: 16
+        width: 22
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 11, y: 11, z: 11, w: 2}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aa666566b45f1bcb0800000000000000
+      internalID: -4849825619513022806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UI_ButtonSeeThrough
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 59
+        width: 53
+        height: 53
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 16, y: 0, z: 16, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 04a06d6c81338cdc0800000000000000
+      internalID: -3618586119084045760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

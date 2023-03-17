@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 0
+    path: Assets/Scenes/OldScenes/SampleScene.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 0
+    path: Assets/Scenes/LandonSetup0.unity
+    guid: c7f1962e2a49abd41b8a037cba8e9105
+  - enabled: 1
+    path: Assets/Scenes/LandonSetup0 - Copy.unity
+    guid: 8ea455a141d93034f9e6e5b8177640fd
+  - enabled: 1
+    path: Assets/Scenes/UltraMainScene.unity
+    guid: ca90fed9d70084649baa9fa5e4e91a1c
+  m_configObjects: {}
