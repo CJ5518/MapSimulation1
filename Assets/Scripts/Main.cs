@@ -1,21 +1,14 @@
-﻿//By Carson Rueber
-
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using SimpleFileBrowser;
-
 
 //TODO:
 //Maybe lean more/less on width/height being in projection
 //See where we calculate airport index in it's constructor
 //As that's where this thought comes from
-
-//Make Airports_Sorted be in line with the airport matrix
-//It works fine for low airport counts but otherwise it doesn't
 
 //Main class
 public class Main : MonoBehaviour {
