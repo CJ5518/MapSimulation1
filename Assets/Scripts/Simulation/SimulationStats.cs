@@ -266,10 +266,17 @@ public class SimulationStats {
 		outputFile = new StreamWriter("C:/Users/carso/output.csv");
 		SimulationModel model = SimulationManager.simulation.model;
 		outputFile.Write("Time");
+		for (int stateId = 0; stateId < stateNames.Count; stateId++) {
+			for (int q = 0; q < model.compartmentCount; q++) {
+				string shortName = model.compartmentInfoArray[q].shortName;
+				outputFile.Write(",");
+				outputFile.Write(stateNames[stateId] + "_" + shortName);
+			}
+		}
 		for (int q = 0; q < model.compartmentCount; q++) {
 			string shortName = model.compartmentInfoArray[q].shortName;
 			outputFile.Write(",");
-			outputFile.Write(shortName);
+			outputFile.Write("Totals" + "_" + shortName);
 		}
 		outputFile.Write("\n");
 	}
@@ -277,7 +284,15 @@ public class SimulationStats {
 	//Update the output file, call on stats update or whenever you feel
 	private void updateFileWrite() {
 		SimulationModel model = SimulationManager.simulation.model;
+		
 		outputFile.Write(SimulationManager.simulation.dtSimulated.ToString());
+		for (int stateId = 0; stateId < charts.Count; stateId++) {
+			ChartData chartData = charts[stateId].GetComponent<ChartData>();
+			for (int q = 0; q < model.compartmentCount; q++) {
+				outputFile.Write(",");
+				outputFile.Write(chartData.series[q].data[chartData.series[q].data.Count-1].value);
+			}
+		}
 		for (int q = 0; q < model.compartmentCount; q++) {
 			outputFile.Write(",");
 			outputFile.Write(globalTotals.state[q].ToString());
