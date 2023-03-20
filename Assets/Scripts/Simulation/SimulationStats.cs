@@ -180,7 +180,7 @@ public class SimulationStats {
 		}
 		globalTotals = new DiseaseState(simulation.model.compartmentCount);
 
-		beingFileWrite();
+		beginFileWrite();
 	}
 
 	public void updateStats() {
@@ -258,7 +258,7 @@ public class SimulationStats {
 	}
 
 	StreamWriter outputFile;
-	private void beingFileWrite() {
+	private void beginFileWrite() {
 		//Set up on destroy
 		SimulationManager.main.onMainDestroy.AddListener(endFileWrite);
 
