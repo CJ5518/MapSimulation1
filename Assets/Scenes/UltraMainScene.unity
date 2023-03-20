@@ -858,8 +858,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -5.0004883, y: 20}
-  m_SizeDelta: {x: 74, y: 823.4}
+  m_AnchoredPosition: {x: -5.000366, y: 20}
+  m_SizeDelta: {x: 61, y: 823.4}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &71663251
 MonoBehaviour:
@@ -1115,7 +1115,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -5.0004883, y: 5}
+  m_AnchoredPosition: {x: -5.000366, y: 5}
   m_SizeDelta: {x: 473, y: 256}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &100584598
@@ -4206,7 +4206,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 5.0004883, y: 20}
+  m_AnchoredPosition: {x: 5.000366, y: 20}
   m_SizeDelta: {x: 900, y: 750}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &308007633
@@ -5090,7 +5090,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 5.0004883, y: 790}
+  m_AnchoredPosition: {x: 5.000366, y: 790}
   m_SizeDelta: {x: 900, y: 750}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &429987143
@@ -9745,8 +9745,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21e9a347e640acf48896ac061f37f4e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  oneLineMode: 1
-  outputString: 
 --- !u!224 &715225833 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6679497809747504646, guid: 7a0052649db2ebd40b3f73ddd897903f, type: 3}
@@ -9869,7 +9867,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -5.0004883, y: -800}
+  m_AnchoredPosition: {x: -5.000366, y: -800}
   m_SizeDelta: {x: 128, y: 512}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &717533383
@@ -10305,7 +10303,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 5.0004883, y: 5}
+  m_AnchoredPosition: {x: 5.000366, y: 5}
   m_SizeDelta: {x: 640, y: 600}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &783215373
@@ -12508,7 +12506,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Option A
+  m_text: Satelite
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 479653e99ecb70946be55de540d35cd8, type: 2}
   m_sharedMaterial: {fileID: -6925551466276566878, guid: 479653e99ecb70946be55de540d35cd8, type: 2}
@@ -16392,13 +16390,14 @@ GameObject:
   - component: {fileID: 1183144585}
   - component: {fileID: 1183144584}
   - component: {fileID: 1183144583}
+  - component: {fileID: 1183144586}
   m_Layer: 5
   m_Name: Dropdown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1183144582
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16472,15 +16471,27 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
-    - m_Text: Option A
+    - m_Text: Satelite
       m_Image: {fileID: 0}
-    - m_Text: Option B
+    - m_Text: Population
       m_Image: {fileID: 0}
-    - m_Text: Option C
+    - m_Text: Highways
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1183144586}
+        m_TargetAssemblyTypeName: SwapMapBaseTexture, Assembly-CSharp
+        m_MethodName: ChangeMaterial
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_AlphaFadeSpeed: 0.15
 --- !u!114 &1183144584
 MonoBehaviour:
@@ -16520,6 +16531,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1183144581}
   m_CullTransparentMesh: 1
+--- !u!114 &1183144586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183144581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34aabb06bf4aa9f4891aa8e05e42bd1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sateliteTex: {fileID: 2800000, guid: fd272608745610041a34b298c5af181e, type: 3}
+  populationTex: {fileID: 2800000, guid: 370520296561101449dada915f73097d, type: 3}
+  highwayTex: {fileID: 2800000, guid: 39fb9604085fe204fa28d0256ffa804a, type: 3}
+  mesh: {fileID: 493807890}
 --- !u!1 &1186611788
 GameObject:
   m_ObjectHideFlags: 0
@@ -25775,7 +25802,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -5.0004883, y: -280}
+  m_AnchoredPosition: {x: -5.000366, y: -280}
   m_SizeDelta: {x: 128, y: 512}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1832876802
