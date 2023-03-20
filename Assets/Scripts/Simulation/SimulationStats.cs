@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Aspose.Gis;
 using Aspose.Gis.Geometries;
 using ChartUtil;
+using System.IO;
 
 
 public class SimulationStats {
@@ -178,6 +179,8 @@ public class SimulationStats {
 			charts[q].SetActive(false);
 		}
 		globalTotals = new DiseaseState(simulation.model.compartmentCount);
+
+		beingFileWrite();
 	}
 
 	public void updateStats() {
@@ -251,7 +254,43 @@ public class SimulationStats {
 			//	break;
 			}
 		//}
+		updateFileWrite();
+	}
 
+	StreamWriter outputFile;
+	private void beingFileWrite() {
+		Debug.Log("BEGIN FILE WRITE");
+		//Set up on destroy
+		SimulationManager.main.onMainDestroy.AddListener(endFileWrite);
+
+		//Write the first line
+		outputFile = new StreamWriter("C:/Users/carso/output.csv");
+		SimulationModel model = SimulationManager.simulation.model;
+		for (int q = 0; q < model.compartmentCount; q++) {
+			string shortName = model.compartmentInfoArray[q].shortName;
+			if (q > 0) {
+				outputFile.Write(",");
+			}
+			outputFile.Write(shortName);
+		}
+		outputFile.Write("\n");
+	}
+
+	//Update the output file, call on stats update or whenever you feel
+	private void updateFileWrite() {
+		SimulationModel model = SimulationManager.simulation.model;
+		for (int q = 0; q < model.compartmentCount; q++) {
+			if (q > 0) {
+				outputFile.Write(",");
+			}
+			outputFile.Write(globalTotals.state[q].ToString());
+		}
+		outputFile.Write("\n");
+	}
+
+	private void endFileWrite() {
+		outputFile.Flush();
+		outputFile.Close();
 	}
 
 	//Get the state that the given lat long coord is in

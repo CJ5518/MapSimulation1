@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.Events;
 
 //TODO:
 //Maybe lean more/less on width/height being in projection
@@ -18,21 +19,22 @@ public class Main : MonoBehaviour {
 	public SimulationCanvas simulationCanvas;
 	public Simulation simulation;
 
-	
 	public GameObject settingsPanel;
 
 	public ParameterPanel parameterPanel;
 	public ColorSettingsPanel colorSettingsPanel;
 
+	//Event we emit, called in unity's own OnDestroy
+	public UnityEvent onMainDestroy;
 	
 	bool loadedSimulation = false;
 	bool hasPlacedAZombie = false;
 	float targetTickTime;
 
-
 	void Start() {
-
 		Application.targetFrameRate = framerate;
+
+		onMainDestroy = new UnityEvent();
 
 		//Set things externally
 		SimulationManager.parameterPanel = parameterPanel;
@@ -40,6 +42,7 @@ public class Main : MonoBehaviour {
 		SimulationManager.settingsPanel = settingsPanel;
 		SimulationManager.ParametersPanel = ParametersPanel;
 		SimulationManager.simulationCanvas = simulationCanvas;
+		SimulationManager.main = this;
 
 		SimulationManager.Initialize();
 		simulation = SimulationManager.simulation;
@@ -56,6 +59,7 @@ public class Main : MonoBehaviour {
 	void OnDestroy() {
 		simulation.endTick();
 		simulation.deleteNativeArrays();
+		onMainDestroy.Invoke();
 	}
 
 	//Print out some debug information about a cell and it's neighbors

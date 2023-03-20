@@ -5,11 +5,9 @@
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.SceneManagement;
-using Unity.Jobs;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using ShapeImporter;
 using System.Threading;
 using System.IO;
 using UnityEngine.Events;
