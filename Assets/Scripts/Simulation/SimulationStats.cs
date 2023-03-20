@@ -259,7 +259,6 @@ public class SimulationStats {
 
 	StreamWriter outputFile;
 	private void beingFileWrite() {
-		Debug.Log("BEGIN FILE WRITE");
 		//Set up on destroy
 		SimulationManager.main.onMainDestroy.AddListener(endFileWrite);
 
