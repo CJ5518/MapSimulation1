@@ -266,11 +266,10 @@ public class SimulationStats {
 		//Write the first line
 		outputFile = new StreamWriter("C:/Users/carso/output.csv");
 		SimulationModel model = SimulationManager.simulation.model;
+		outputFile.Write("Time");
 		for (int q = 0; q < model.compartmentCount; q++) {
 			string shortName = model.compartmentInfoArray[q].shortName;
-			if (q > 0) {
-				outputFile.Write(",");
-			}
+			outputFile.Write(",");
 			outputFile.Write(shortName);
 		}
 		outputFile.Write("\n");
@@ -279,10 +278,9 @@ public class SimulationStats {
 	//Update the output file, call on stats update or whenever you feel
 	private void updateFileWrite() {
 		SimulationModel model = SimulationManager.simulation.model;
+		outputFile.Write(SimulationManager.simulation.dtSimulated.ToString());
 		for (int q = 0; q < model.compartmentCount; q++) {
-			if (q > 0) {
-				outputFile.Write(",");
-			}
+			outputFile.Write(",");
 			outputFile.Write(globalTotals.state[q].ToString());
 		}
 		outputFile.Write("\n");
