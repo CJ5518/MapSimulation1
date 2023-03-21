@@ -261,10 +261,37 @@ public class SimulationStats {
 	private void beginFileWrite() {
 		//Set up on destroy
 		SimulationManager.main.onMainDestroy.AddListener(endFileWrite);
+		
+		System.DateTime time = System.DateTime.Now;
+
+		string dateString = $"{time.Year}_{time.Month}_{time.Day}_{time.Hour}{time.Minute}{time.Second}{time.Millisecond}";
+		string dataFileRootName = dateString + "-Data";
+		string outFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop) + "/OutbreakSimulator/";
+
+		System.IO.Directory.CreateDirectory(outFolder);
+
+		SimulationModel model = SimulationManager.simulation.model;
+
+		//Write the parameter file
+		StreamWriter paramFile = new StreamWriter(outFolder + dataFileRootName + "-Params.csv");
+		for (int q = 0; q < model.parameterCount; q++) {
+			if (q > 0) {
+				paramFile.Write(",");
+			}
+			paramFile.Write(model.parameterInfoArray[q].longName);
+		}
+		paramFile.Write("\n");
+		for (int q = 0; q < model.parameterCount; q++) {
+			if (q > 0) {
+				paramFile.Write(",");
+			}
+			paramFile.Write(model.parameters[q]);
+		}
+		paramFile.Flush();
+		paramFile.Close();
 
 		//Write the first line
-		outputFile = new StreamWriter("C:/Users/carso/output.csv");
-		SimulationModel model = SimulationManager.simulation.model;
+		outputFile = new StreamWriter(outFolder + dataFileRootName + ".csv");
 		outputFile.Write("Time");
 		for (int stateId = 0; stateId < stateNames.Count; stateId++) {
 			for (int q = 0; q < model.compartmentCount; q++) {
