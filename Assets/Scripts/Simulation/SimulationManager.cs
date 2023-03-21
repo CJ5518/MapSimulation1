@@ -7,6 +7,7 @@ using UnityEngine.Events;
 //Most everything related to the simulation that's in Main should be in here.
 public class SimulationManager {
 	public static Simulation simulation;
+	public static Main main;
 	public static SimulationCanvas simulationCanvas;
 	public static SimulationStats stats {
 		get {
@@ -239,7 +240,7 @@ public class SimulationManager {
 				nextTickTime = Time.realtimeSinceStartup + targetTickTime;
 			}
 			
-			if (simulation.runCount % 5 == 0)
+			if (simulation.runCount % 1 == 0)
 				stats.updateStats();
 			
 			Debug.Log(stats.globalTotals.numberOfPeople);

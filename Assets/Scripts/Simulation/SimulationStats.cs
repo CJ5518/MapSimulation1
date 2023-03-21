@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Aspose.Gis;
 using Aspose.Gis.Geometries;
 using ChartUtil;
+using System.IO;
 
 
 public class SimulationStats {
@@ -178,6 +179,8 @@ public class SimulationStats {
 			charts[q].SetActive(false);
 		}
 		globalTotals = new DiseaseState(simulation.model.compartmentCount);
+
+		beginFileWrite();
 	}
 
 	public void updateStats() {
@@ -251,7 +254,82 @@ public class SimulationStats {
 			//	break;
 			}
 		//}
+		updateFileWrite();
+	}
 
+	StreamWriter outputFile;
+	private void beginFileWrite() {
+		//Set up on destroy
+		SimulationManager.main.onMainDestroy.AddListener(endFileWrite);
+		
+		System.DateTime time = System.DateTime.Now;
+
+		string dateString = $"{time.Year}_{time.Month}_{time.Day}_{time.Hour}{time.Minute}{time.Second}{time.Millisecond}";
+		string dataFileRootName = dateString + "-Data";
+		string outFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop) + "/OutbreakSimulator/";
+
+		System.IO.Directory.CreateDirectory(outFolder);
+
+		SimulationModel model = SimulationManager.simulation.model;
+
+		//Write the parameter file
+		StreamWriter paramFile = new StreamWriter(outFolder + dataFileRootName + "-Params.csv");
+		for (int q = 0; q < model.parameterCount; q++) {
+			if (q > 0) {
+				paramFile.Write(",");
+			}
+			paramFile.Write(model.parameterInfoArray[q].longName);
+		}
+		paramFile.Write("\n");
+		for (int q = 0; q < model.parameterCount; q++) {
+			if (q > 0) {
+				paramFile.Write(",");
+			}
+			paramFile.Write(model.parameters[q]);
+		}
+		paramFile.Flush();
+		paramFile.Close();
+
+		//Write the first line
+		outputFile = new StreamWriter(outFolder + dataFileRootName + ".csv");
+		outputFile.Write("Time");
+		for (int stateId = 0; stateId < stateNames.Count; stateId++) {
+			for (int q = 0; q < model.compartmentCount; q++) {
+				string shortName = model.compartmentInfoArray[q].shortName;
+				outputFile.Write(",");
+				outputFile.Write(stateNames[stateId] + "_" + shortName);
+			}
+		}
+		for (int q = 0; q < model.compartmentCount; q++) {
+			string shortName = model.compartmentInfoArray[q].shortName;
+			outputFile.Write(",");
+			outputFile.Write("Totals" + "_" + shortName);
+		}
+		outputFile.Write("\n");
+	}
+
+	//Update the output file, call on stats update or whenever you feel
+	private void updateFileWrite() {
+		SimulationModel model = SimulationManager.simulation.model;
+		
+		outputFile.Write(SimulationManager.simulation.dtSimulated.ToString());
+		for (int stateId = 0; stateId < charts.Count; stateId++) {
+			ChartData chartData = charts[stateId].GetComponent<ChartData>();
+			for (int q = 0; q < model.compartmentCount; q++) {
+				outputFile.Write(",");
+				outputFile.Write(chartData.series[q].data[chartData.series[q].data.Count-1].value);
+			}
+		}
+		for (int q = 0; q < model.compartmentCount; q++) {
+			outputFile.Write(",");
+			outputFile.Write(globalTotals.state[q].ToString());
+		}
+		outputFile.Write("\n");
+	}
+
+	private void endFileWrite() {
+		outputFile.Flush();
+		outputFile.Close();
 	}
 
 	//Get the state that the given lat long coord is in
