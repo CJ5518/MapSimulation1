@@ -8,7 +8,7 @@ public class SimulationAirports {
 	private string airportLocationsPath = Application.streamingAssetsPath + "/Data/AirportData/cj-airports-locations.csv";
 
 	// Run time settings \\
-	bool drawPlaneTrails = true;
+	public bool drawPlaneTrails = true;
 
 	// Compile time settings \\
 
@@ -189,6 +189,7 @@ public class SimulationAirports {
 	const float planeTrailLifetime = 1.0f;
 
 	private void doPlaneTrail(string originCode, string destCode, float dt) {
+		if (!drawPlaneTrails) return;
 		if (!planeTrailsLast.ContainsKey(originCode + destCode)) {
 			planeTrailsLast[originCode + destCode] = dt;
 		} else {

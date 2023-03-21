@@ -15,7 +15,13 @@ public class DisplaySettingsEvents : MonoBehaviour {
 			TurnOnStateLines();
 		else
 			TurnOffStateLines();
+	}
 
+	public void SetPlaneTrailsActive(Toggle toggle) {
+		SetPlaneTrailsActive(toggle.isOn);
+	}
+	public void SetPlaneTrailsActive(bool state) {
+		SimulationManager.simulation.simulationAirports.drawPlaneTrails = state;
 	}
 	private void TurnOffStateLines() {
 		USAMesh.GetComponent<MeshRenderer>().material.SetTexture("_Details", NoStateLinesTexture);

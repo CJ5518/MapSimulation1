@@ -8268,7 +8268,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Show Population
+  m_Text: Draw Plane Trails
 --- !u!222 &621183904
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8740,7 +8740,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1091742668}
   m_HandleRect: {fileID: 1091742667}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -9952,6 +9952,9 @@ MonoBehaviour:
   settingsPanel: {fileID: 288666872}
   parameterPanel: {fileID: 2737455005326099594}
   colorSettingsPanel: {fileID: 1169906250}
+  onMainDestroy:
+    m_PersistentCalls:
+      m_Calls: []
   xCoordSub: 5
   widthSub: 33
   yCoordSub: 8
@@ -12548,7 +12551,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &905674126
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12617,13 +12620,13 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 493807894}
-        m_TargetAssemblyTypeName: TogglePopulationDisplay, Assembly-CSharp
-        m_MethodName: ToggleSusceptible
-        m_Mode: 1
+      - m_Target: {fileID: 71663254}
+        m_TargetAssemblyTypeName: DisplaySettingsEvents, Assembly-CSharp
+        m_MethodName: SetPlaneTrailsActive
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 905674127}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Toggle, UnityEngine.UI
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -16816,7 +16819,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sateliteTex: {fileID: 2800000, guid: fd272608745610041a34b298c5af181e, type: 3}
-  populationTex: {fileID: 2800000, guid: 370520296561101449dada915f73097d, type: 3}
+  populationTex: {fileID: 2800000, guid: 459beeabf922f9e4e94d2466ed1f3e16, type: 3}
   highwayTex: {fileID: 2800000, guid: 39fb9604085fe204fa28d0256ffa804a, type: 3}
   mesh: {fileID: 493807890}
 --- !u!1 &1186611788
