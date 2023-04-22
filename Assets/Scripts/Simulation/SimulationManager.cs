@@ -153,7 +153,7 @@ public class SimulationManager {
 		Debug.Log("Infection Duration: " + SimulationSetupData.infectionLength);
 
 		Debug.Log(simulation.model.parameters[0] + simulation.model.parameters[1] + " " + 1/SimulationSetupData.infectionLength);
-		Debug.Log(SimulationSetupData.movementModel);
+		Debug.Log("Movement model id: " + SimulationSetupData.movementModel);
 		
 		simulation.drawTexture.filterMode = FilterMode.Point;
 		mainTexture = new Texture2D(simulation.drawTexture.width, simulation.drawTexture.height, simulation.drawTexture.format, false);
@@ -166,9 +166,9 @@ public class SimulationManager {
 		material.SetTexture("_MainTex", mainTexture);
 		material.SetTexture("_SecondTex", secondTexture);
 
+		Debug.Log(simulation.useTauLeaping ? "Tau leaping" : "Deterministic");
 		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
 			" seconds to load the simulation");
-		Debug.Log(simulation.useTauLeaping ? "Tau leaping" : "Deterministic");
 	}
 
 	//Target amount of ticks per second, ONLY used at the start
@@ -190,7 +190,7 @@ public class SimulationManager {
 	static float targetTickTime;
 
 	//Some vars for testing purposes
-	static int tickCount = 0;
+	public static int tickCountThisSecond = 0;
 	//Negative Zero
 	static float aStartTime = -0.0f;
 	static float previousTickStart = 0.0f;
@@ -243,7 +243,8 @@ public class SimulationManager {
 			if (simulation.runCount % 1 == 0)
 				stats.updateStats();
 			
-			Debug.Log(stats.globalTotals.numberOfPeople);
+			//TODO this is really a test case to verify that the number of people doesn't change because it shouldn't
+			//Debug.Log(stats.globalTotals.numberOfPeople);
 			colorSettingsPanel.setSimulationColors(ref simulation);
 			simulationCanvas.UpdateCanvas();
 			simulationCanvas.UpdateSliderValues();
@@ -261,10 +262,10 @@ public class SimulationManager {
 			Graphics.CopyTexture(simulation.drawTexture, secondTexture);
 			
 			//Debug.Log("Tick finito");
-			tickCount++;
+			tickCountThisSecond++;
 			if (Time.realtimeSinceStartup - aStartTime >= 1.0f) {
 				//Debug.Log("TPS: " + (tickCount / (Time.realtimeSinceStartup - aStartTime)));
-				tickCount = 0;
+				tickCountThisSecond = 0;
 				aStartTime = Time.realtimeSinceStartup;
 			}
 			//In the case where we are just waiting in between ticks

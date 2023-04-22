@@ -377,18 +377,6 @@ public class Simulation {
 	//simple function, create the simulation airports object
 	private void InitAirports() {
 		simulationAirports = new SimulationAirports(10, this);
-		Debug.Log("-------BEGIN-------");
-		Vector2Int OG = new Vector2Int(20,20);
-		Vector2Double latLons = Projection.renderSpaceToLatLongs(OG);
-		
-		Vector2Double renderAgain = Projection.latLongsToRenderSpace(latLons);
-		Debug.Log($"OG: {OG} LatLons: {latLons}");
-		Debug.Log($"LatLons: {latLons} RenderAgain: {renderAgain}");
-		//46423
-		Vector2Int coord = indexToCoord(46423);
-
-		Debug.Log($"Coord: {coord} Latlon = {Projection.renderSpaceToLatLongs((Vector2Double)coord)}");
-		Debug.Log("-------END-------");
 	}
 
 	#region UpdateFunctions

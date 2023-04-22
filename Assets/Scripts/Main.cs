@@ -34,6 +34,9 @@ public class Main : MonoBehaviour {
 	void Start() {
 		Application.targetFrameRate = framerate;
 
+		string[] args = System.Environment.GetCommandLineArgs();
+		GlobalSettings.initFromCommandLine(args);
+
 		onMainDestroy = new UnityEvent();
 
 		//Set things externally
@@ -55,6 +58,10 @@ public class Main : MonoBehaviour {
 
 	private unsafe void Update() {
 		SimulationManager.Update();
+		if (!hasPlacedAZombie && Application.isBatchMode) {
+			dropZombieAtIndex(45908);
+		}
+		Debug.Log(SimulationManager.stats.dtElapsed);
 	}
 	void OnDestroy() {
 		simulation.endTick();
@@ -95,6 +102,10 @@ public class Main : MonoBehaviour {
 
 		const int zombieCount = 30;
 
+		dropZombieAtIndex(index, zombieCount);
+	}
+
+	public void dropZombieAtIndex(int index, int zombieCount = 30) {
 		if (simulation.cellIsValid(index)) {
 
 			Simulation.Cell cell = simulation.readCells[index];

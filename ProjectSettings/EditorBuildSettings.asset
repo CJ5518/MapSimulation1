@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/LandonSetup0.unity
     guid: c7f1962e2a49abd41b8a037cba8e9105
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/LandonSetup0 - Copy.unity
     guid: 8ea455a141d93034f9e6e5b8177640fd
   - enabled: 1

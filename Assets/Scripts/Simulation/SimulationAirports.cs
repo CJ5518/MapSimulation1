@@ -79,12 +79,7 @@ public class SimulationAirports {
 			//If this airport is on the map (Removes Alaska and some other invalids)
 			Vector2Int renderCoords = (Vector2Int)Projection.latLongsToRenderSpace(latLongs);
 			Vector2Int? renderCoordsMaybe = wiggleRenderCoords(renderCoords);
-
-			if (fields[2] == "LAX") {
-				Debug.Log("LAX");
-				Debug.Log(renderCoords + " " + renderCoordsMaybe);
-				Debug.Log(simulationCoordIsValid(renderCoords));
-			}
+			
 			if (renderCoordsMaybe == null) {
 				continue;
 			} else {

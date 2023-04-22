@@ -26,6 +26,12 @@ public class SimulationStats {
 	public GameObject usaChartObj;
 	public DiseaseState globalTotals;
 
+	public float dtElapsed {
+		get {
+			return globalTotals.dt;
+		}
+	}
+
 	//Events
 	public UnityEvent<int> infectionReachesState = new UnityEvent<int>();
 
