@@ -49,7 +49,7 @@ public class SimulationManager {
 		loadSimulation();
 		targetTickTime = 1.0f / _targetTps;
 
-		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
+		Logger.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
 			" seconds to run the Main.cs start function");
 	}
 
@@ -143,17 +143,17 @@ public class SimulationManager {
 		simulationCanvas.UpdateSliderValues();
 		
 		//Debug the model parameters
-		Debug.Log("MortalityRate:" + SimulationSetupData.mortalityRate);
-		Debug.Log("recoveryRate:" + SimulationSetupData.recoveryRate);
-		Debug.Log("waningImmunity:" + 1.0f/SimulationSetupData.waningImmunity);
-		Debug.Log("latencyEI:" + SimulationSetupData.latencyEI + " " + simulation.model.parameters[5]);
-		Debug.Log("contactRate:" + SimulationSetupData.contactRate + " " + (SimulationSetupData.contactRate / 24.0f));
-		Debug.Log("infectionProbability:" + SimulationSetupData.infectionProbability);
-		Debug.Log("Beta: " + simulation.model.parameters[6] + " " + (SimulationSetupData.contactRate / 24.0f) * SimulationSetupData.infectionProbability);
-		Debug.Log("Infection Duration: " + SimulationSetupData.infectionLength);
+		Logger.Log("MortalityRate:" + SimulationSetupData.mortalityRate);
+		Logger.Log("recoveryRate:" + SimulationSetupData.recoveryRate);
+		Logger.Log("waningImmunity:" + 1.0f/SimulationSetupData.waningImmunity);
+		Logger.Log("latencyEI:" + SimulationSetupData.latencyEI + " " + simulation.model.parameters[5]);
+		Logger.Log("contactRate:" + SimulationSetupData.contactRate + " " + (SimulationSetupData.contactRate / 24.0f));
+		Logger.Log("infectionProbability:" + SimulationSetupData.infectionProbability);
+		Logger.Log("Beta: " + simulation.model.parameters[6] + " " + (SimulationSetupData.contactRate / 24.0f) * SimulationSetupData.infectionProbability);
+		Logger.Log("Infection Duration: " + SimulationSetupData.infectionLength);
 
-		Debug.Log(simulation.model.parameters[0] + simulation.model.parameters[1] + " " + 1/SimulationSetupData.infectionLength);
-		Debug.Log("Movement model id: " + SimulationSetupData.movementModel);
+		Logger.Log(simulation.model.parameters[0] + simulation.model.parameters[1] + " " + 1/SimulationSetupData.infectionLength);
+		Logger.Log("Movement model id: " + SimulationSetupData.movementModel);
 		
 		simulation.drawTexture.filterMode = FilterMode.Point;
 		mainTexture = new Texture2D(simulation.drawTexture.width, simulation.drawTexture.height, simulation.drawTexture.format, false);
@@ -166,8 +166,8 @@ public class SimulationManager {
 		material.SetTexture("_MainTex", mainTexture);
 		material.SetTexture("_SecondTex", secondTexture);
 
-		Debug.Log(simulation.useTauLeaping ? "Tau leaping" : "Deterministic");
-		Debug.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
+		Logger.Log(simulation.useTauLeaping ? "Tau leaping" : "Deterministic");
+		Logger.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
 			" seconds to load the simulation");
 	}
 
@@ -244,7 +244,7 @@ public class SimulationManager {
 				stats.updateStats();
 			
 			//TODO this is really a test case to verify that the number of people doesn't change because it shouldn't
-			//Debug.Log(stats.globalTotals.numberOfPeople);
+			//Logger.Log(stats.globalTotals.numberOfPeople);
 			colorSettingsPanel.setSimulationColors(ref simulation);
 			simulationCanvas.UpdateCanvas();
 			simulationCanvas.UpdateSliderValues();
@@ -261,10 +261,10 @@ public class SimulationManager {
 			Graphics.CopyTexture(secondTexture, mainTexture);
 			Graphics.CopyTexture(simulation.drawTexture, secondTexture);
 			
-			//Debug.Log("Tick finito");
+			//Logger.Log("Tick finito");
 			tickCountThisSecond++;
 			if (Time.realtimeSinceStartup - aStartTime >= 1.0f) {
-				//Debug.Log("TPS: " + (tickCount / (Time.realtimeSinceStartup - aStartTime)));
+				//Logger.Log("TPS: " + (tickCount / (Time.realtimeSinceStartup - aStartTime)));
 				tickCountThisSecond = 0;
 				aStartTime = Time.realtimeSinceStartup;
 			}

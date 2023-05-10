@@ -64,7 +64,7 @@ public class SliderText : MonoBehaviour
 					InverseText.text = "";
 					return;
 				default:
-					Debug.Log("SliderText.MovementModel value default");
+					Logger.Log("SliderText.MovementModel value default");
 					return;
 			}
 		}
@@ -94,7 +94,7 @@ public class SliderText : MonoBehaviour
 					InverseText.text = "Complete immobilization";
 					return;
 				default:
-					Debug.Log("SliderText.DiseaseImmobilizationTexts value default");
+					Logger.Log("SliderText.DiseaseImmobilizationTexts value default");
 					return;
 			}
 		}
@@ -124,7 +124,7 @@ public class SliderText : MonoBehaviour
 					InverseText.text = "Mandatory at-airport testing";
 					return;
 				default:
-					Debug.Log("SliderText.AirportText value default");
+					Logger.Log("SliderText.AirportText value default");
 					return;
 			}
 		}
@@ -154,7 +154,7 @@ public class SliderText : MonoBehaviour
 					InverseText.text = "No.  For this simulation vaccines should not be used.";
 					return;
 				default:
-					Debug.Log("SliderText.VaccinationHesitancy value default");
+					Logger.Log("SliderText.VaccinationHesitancy value default");
 					return;
 			}
 		}
@@ -185,7 +185,7 @@ public class SliderText : MonoBehaviour
 					InverseText.text = "Small changes in elevation significantly affect disease transmission";
 					return;
 				default:
-					Debug.Log("SliderText.ElevationText value default");
+					Logger.Log("SliderText.ElevationText value default");
 					return;
 			}
 		}
@@ -215,7 +215,7 @@ public class SliderText : MonoBehaviour
 					InverseText.text = "Highways guarentee transmission to neighboring highway cells.";
 					return;
 				default:
-					Debug.Log("SliderText.HighwayText value default");
+					Logger.Log("SliderText.HighwayText value default");
 					return;
 			}
 		}
@@ -245,7 +245,7 @@ public class SliderText : MonoBehaviour
 					InverseText.text = "Water prevents transmission to neighboring cells.";
 					return;
 				default:
-					Debug.Log("SliderText.WaterText value default");
+					Logger.Log("SliderText.WaterText value default");
 					return;
 			}
 		}
@@ -275,7 +275,7 @@ public class SliderText : MonoBehaviour
 					InverseText.text = "Major increase";
 					return;
 				default:
-					Debug.Log("SliderText.IncomeText value default");
+					Logger.Log("SliderText.IncomeText value default");
 					return;
 			}
 		}

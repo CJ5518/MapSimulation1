@@ -59,19 +59,19 @@ public static class CompartmentEvents
 	/// <param name="newValue"></param>
 	public static void SetNewValue(int newValue)
 	{
-		//Debug.Log($"SetNewValue {newValue}");
+		//Logger.Log($"SetNewValue {newValue}");
 		if (newValue == currVal)
 		{
 			return;
 		}
 		if(!(minVal <= newValue && newValue <= maxVal))
 		{
-			//Debug.Log($"SetNewVal OOB: {newValue} Truth values {minVal <= newValue} && {newValue <= maxVal} : {minVal <= newValue && newValue <= maxVal} ! {!(minVal <= newValue && newValue <= maxVal)}");
+			//Logger.Log($"SetNewVal OOB: {newValue} Truth values {minVal <= newValue} && {newValue <= maxVal} : {minVal <= newValue && newValue <= maxVal} ! {!(minVal <= newValue && newValue <= maxVal)}");
 			return;
 		}
 		oldVal = currVal;
 		currVal = newValue;
-		//Debug.Log($"Old: {oldVal} New: {newValue} Curr: {currVal} ");
+		//Logger.Log($"Old: {oldVal} New: {newValue} Curr: {currVal} ");
 		OnValueChange?.Invoke(newValue);
 	}
 
@@ -111,7 +111,7 @@ public static class CompartmentEvents
 
 	public static void LoadPreset(int value)
 	{
-		Debug.Log("Loading preset");
+		Logger.Log("Loading preset");
 		SimulationSetupData.useTheseNumbers = true;
 		OnLoadPreset?.Invoke(value);
 	}

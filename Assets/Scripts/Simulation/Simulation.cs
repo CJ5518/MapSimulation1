@@ -369,7 +369,7 @@ public class Simulation {
 				//Write back the cell
 				readCells[index] = readCell;
 				writeCells[index] = readCell;
-				//Debug.Log("Max nuber of people in one cell: " + data.maxNumberOfPeople);
+				//Logger.Log("Max nuber of people in one cell: " + data.maxNumberOfPeople);
 			}
 		}
 	}
@@ -500,7 +500,7 @@ public class Simulation {
 			//Color32* textureDataPointer = (Color32*)textureDataPointers[texIdx];
 			//Then just use it as an array
 
-			//if (writeCell.state.vaccinated > 0.0f) Debug.Log("Index #" + index + " has been naughty");
+			//if (writeCell.state.vaccinated > 0.0f) Logger.Log("Index #" + index + " has been naughty");
 			//Spread in this cell, because of other cells
 
 			int[] neighborIndices = getNeighborIndices(index);

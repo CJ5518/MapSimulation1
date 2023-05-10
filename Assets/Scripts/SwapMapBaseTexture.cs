@@ -11,7 +11,7 @@ public class SwapMapBaseTexture : MonoBehaviour {
 	public Renderer mesh;
 
 	public void ChangeMaterial(int index){
-		Debug.Log(index);
+		Logger.Log(index);
 		if(index == 0){
 			mesh.material.SetTexture("_BaseTex", sateliteTex);
 		}

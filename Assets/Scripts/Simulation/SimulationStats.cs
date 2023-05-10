@@ -43,7 +43,7 @@ public class SimulationStats {
 
 		using (VectorLayer layer = VectorLayer.Open(Application.streamingAssetsPath + relativeStateShapefilePath, Drivers.Shapefile)) {
 			if (layer == null) {
-				Debug.LogError("Error loading US shapefile");
+				Logger.LogError("Error loading US shapefile");
 			}
 			foreach (Feature feature in layer) {
 				if (feature.Geometry.GeometryType == GeometryType.Polygon) {
@@ -96,7 +96,7 @@ public class SimulationStats {
 			}
 
 			prevStateIdx = stateIdx;
-			//Debug.Log(stateIdx + " " + stateIndices.Count);
+			//Logger.Log(stateIdx + " " + stateIndices.Count);
 			if (stateIdx >= 0) {
 				stateIndices[stateIdx].Add(q);
 				indexToState[q] = stateIdx;
@@ -146,7 +146,7 @@ public class SimulationStats {
 		}
 
 
-		Debug.Log("State thingy took " + (Time.realtimeSinceStartupAsDouble - startTime));
+		Logger.Log("State thingy took " + (Time.realtimeSinceStartupAsDouble - startTime));
 
 
 		//Initialize the chart datas

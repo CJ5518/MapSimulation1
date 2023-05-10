@@ -72,7 +72,7 @@ public class ModelCreatorScript : MonoBehaviour {
 				propensityFuncs += $"ret.propensityDetails[{q}] = new int[3] {{0,{arrows[q].idxFrom},{q}}};\n";
 			}
 		}
-		Debug.Log(propensityFuncs);
+		Logger.Log(propensityFuncs);
 		string stoichString = "";
 		//Stringify the stoichiometry
 		//It was easier in my head to first put it in the array and then stringify it
@@ -81,7 +81,7 @@ public class ModelCreatorScript : MonoBehaviour {
 				stoichString += $"ret.stoichiometry[{x},{y}] = {stoichiometry[x,y]};\n";
 			}
 		}
-		Debug.Log(stoichString);
+		Logger.Log(stoichString);
 	}
 
 	void OnGUI() {

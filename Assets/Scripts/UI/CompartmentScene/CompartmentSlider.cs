@@ -17,7 +17,7 @@ public class CompartmentSlider : MonoBehaviour
         }
         if(targetQuestion == CompartmentEnum.Questions.None)
         {
-            Debug.LogError("Please assign a question to this slider");
+            Logger.LogError("Please assign a question to this slider");
         }
         slider.minValue = CompartmentEnum.QuestionsMinMax[(int)targetQuestion].min;
         slider.maxValue = CompartmentEnum.QuestionsMinMax[(int)targetQuestion].max;
