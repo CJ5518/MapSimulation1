@@ -13,7 +13,7 @@ public class CompartmentToggle : MonoBehaviour
         if (toggle == null) toggle = GetComponent<Toggle>();
         if(targetQuestion == CompartmentEnum.Questions.None)
         {
-            Logger.Log($"{transform.parent.parent.parent.name} {transform.parent.name} {name} Please assign a target question in the editor");
+            Debug.Log($"{transform.parent.parent.parent.name} {transform.parent.name} {name} Please assign a target question in the editor");
         }
         toggle.onValueChanged.AddListener(PrintName);
     }

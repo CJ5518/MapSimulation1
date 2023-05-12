@@ -14,7 +14,7 @@ public class SliderTextWholeNums : MonoBehaviour
         slider = GetComponent<Slider>();
         if (handle == null)
         {
-            Logger.Log("Null handle");
+            Debug.Log("Null handle");
             return;
         }
         slider.onValueChanged.AddListener(UpdateTexts);

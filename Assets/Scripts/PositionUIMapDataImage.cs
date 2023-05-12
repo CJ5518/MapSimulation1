@@ -32,7 +32,7 @@ public class PositionUIMapDataImage : MonoBehaviour {
 
 	void UpdateValue(float value) {
 		sliderValue = Mathf.RoundToInt(value);
-		//Logger.Log("slider value: " + sliderValue);
+		//Debug.Log("slider value: " + sliderValue);
 		UpdatePositionGoals();
 	}
 	void UpdatePositionGoals() {

@@ -11,7 +11,7 @@ public class GlobalSettings : MonoBehaviour {
 
 	public static void initFromCommandLine(string[] argv) {
 		for (int q = 0; q < argv.Length; q++) {
-			Logger.Log(q + ": " + argv[q]);
+			Debug.Log(q + ": " + argv[q]);
 		}
 	}
 }

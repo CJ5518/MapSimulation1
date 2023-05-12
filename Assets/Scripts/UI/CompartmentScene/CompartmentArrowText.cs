@@ -24,7 +24,7 @@ public class CompartmentArrowText : MonoBehaviour
 
     private void CompartmentEvents_OnQuestionValueChange(CompartmentEnum.Questions question, float newValue)
     {
-        //Logger.Log("Button.Onquestionvaluechange");
+        //Debug.Log("Button.Onquestionvaluechange");
         if (targetQuestions.Contains(question))
         {
             targetValues[targetQuestions.IndexOf(question)] = newValue;

@@ -24,8 +24,8 @@ public class CompartmentQuestion : MonoBehaviour
     }
     public void UpdateBox(int value)
     {
-        //Logger.Log("Hello");
-        //Logger.Log($"{value} {CompartmentEnum.QuestionIndex[value]}");
+        //Debug.Log("Hello");
+        //Debug.Log($"{value} {CompartmentEnum.QuestionIndex[value]}");
         if (question == (CompartmentEnum.QuestionIndex[value]))
         {
             for (int i = 0; i < transform.childCount; i++)

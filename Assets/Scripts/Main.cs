@@ -62,7 +62,7 @@ public class Main : MonoBehaviour {
 		if (!hasPlacedAZombie && Application.isBatchMode) {
 			dropZombieAtIndex(45908);
 		}
-		Logger.Log(SimulationManager.stats.dtElapsed);
+		Debug.Log(SimulationManager.stats.dtElapsed);
 	}
 	void OnDestroy() {
 		simulation.endTick();
@@ -77,9 +77,9 @@ public class Main : MonoBehaviour {
 		float comingToUs = 0.0f;
 		for (int q = 0; q < res.Length; q++) {
 			comingToUs += simulation.movementModel.getCellSpreadValue(res[q], index, simulation);
-			Logger.Log($"{q}={res[q]} {simulation.readCells[res[q]].state.state[simulation.model.droppingStateIdx]} {simulation.readCells[res[q]].state.state[simulation.model.startingStateIdx]} +{simulation.movementModel.getCellSpreadValue(index, res[q], simulation)}");
+			Debug.Log($"{q}={res[q]} {simulation.readCells[res[q]].state.state[simulation.model.droppingStateIdx]} {simulation.readCells[res[q]].state.state[simulation.model.startingStateIdx]} +{simulation.movementModel.getCellSpreadValue(index, res[q], simulation)}");
 		}
-		Logger.Log($"-1={index} {simulation.readCells[index].state.state[simulation.model.droppingStateIdx]} {simulation.readCells[index].state.state[simulation.model.startingStateIdx]} +{comingToUs}");
+		Debug.Log($"-1={index} {simulation.readCells[index].state.state[simulation.model.droppingStateIdx]} {simulation.readCells[index].state.state[simulation.model.startingStateIdx]} +{comingToUs}");
 	}
 
 	//Functions called by other scripts

@@ -77,7 +77,7 @@ public class CompartmentHeaderTabs : MonoBehaviour
         }
         else
         {
-            Logger.LogError("HeaderTabs Error: value outside of range");
+            Debug.LogError("HeaderTabs Error: value outside of range");
         }
 
     }

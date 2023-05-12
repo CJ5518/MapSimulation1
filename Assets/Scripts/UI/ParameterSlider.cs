@@ -42,7 +42,7 @@ public class ParameterSlider : Slider {
 				case ScaleType.None:
 				return m_Value;
 			}
-			Logger.LogError("Scale type not accounted for!");
+			Debug.LogError("Scale type not accounted for!");
 			throw new System.NotImplementedException();
 		}
 	}

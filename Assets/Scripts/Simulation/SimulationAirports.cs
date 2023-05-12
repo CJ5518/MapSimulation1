@@ -164,7 +164,7 @@ public class SimulationAirports {
 					string destCode = upperDictPair.Value[q].Value;
 
 					DiseaseState originState = simulation.readCells[airportCodeToSimCellIdx[originCode]].state;
-					//Logger.Log(originState.state[simulation.model.droppingStateIdx] / (float)originState.numberOfPeople +" "+ 1.0f / planeSize + " " + originCode + " " + airportCodeToSimCellIdx[originCode]);
+					//Debug.Log(originState.state[simulation.model.droppingStateIdx] / (float)originState.numberOfPeople +" "+ 1.0f / planeSize + " " + originCode + " " + airportCodeToSimCellIdx[originCode]);
 					if (originState.state[simulation.model.droppingStateIdx] / (float)originState.numberOfPeople > 1.0f / planeSize) {
 						Simulation.Cell destCell = simulation.readCells[airportCodeToSimCellIdx[destCode]];
 						if (destCell.state.state[simulation.model.startingStateIdx] > 2) {

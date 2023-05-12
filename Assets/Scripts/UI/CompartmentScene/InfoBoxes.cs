@@ -14,7 +14,7 @@ public class InfoBoxes : MonoBehaviour
         //BackupCode
         //if(questionsStr == null)
         //{
-        //    Logger.Log("Please add questions for this info box");
+        //    Debug.Log("Please add questions for this info box");
         //}
         //questions = new List<CompartmentQuestions.Questions>();
         //foreach(string str in questionsStr)
@@ -25,7 +25,7 @@ public class InfoBoxes : MonoBehaviour
         //    }
         //    else
         //    {
-        //        Logger.LogError($"{name} was unable to map {str} to a valid question");
+        //        Debug.LogError($"{name} was unable to map {str} to a valid question");
         //    }
         //}
         CompartmentEvents.OnValueChange += UpdateBox;
