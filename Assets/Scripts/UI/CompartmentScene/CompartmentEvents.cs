@@ -13,7 +13,7 @@ public static class CompartmentEvents
 	//THESE VALUES MEAN NOTHING, CHECK INIT
 	public static int currVal = 0;
 	public static int oldVal = 0;
-	public static int maxVal = 14;
+	public static int maxVal = 23;
 	public static int minVal = 0;
 
 	//Integer
@@ -27,7 +27,7 @@ public static class CompartmentEvents
 	public static void init() {
 		currVal = 0;
 		oldVal = 0;
-		maxVal = 14;
+		maxVal = 23;
 		minVal = 0;
 
 		//Clear the old event handlers because shit gets fucked if we don't when we reload the scene

@@ -15899,9 +15899,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34aabb06bf4aa9f4891aa8e05e42bd1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sateliteTex: {fileID: 2800000, guid: fd272608745610041a34b298c5af181e, type: 3}
+  sateliteTex: {fileID: 2800000, guid: ef14df36afb62f8488b216b664ab0e08, type: 3}
   populationTex: {fileID: 2800000, guid: 459beeabf922f9e4e94d2466ed1f3e16, type: 3}
-  highwayTex: {fileID: 2800000, guid: 39fb9604085fe204fa28d0256ffa804a, type: 3}
+  highwayTex: {fileID: 2800000, guid: 9693445031f0b97428ea882f6ea99dac, type: 3}
   mesh: {fileID: 493807890}
 --- !u!1 &1186611788
 GameObject:
