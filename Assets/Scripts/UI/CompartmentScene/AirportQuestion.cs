@@ -3,9 +3,9 @@ using UnityEngine.UI;
 
 //Didn't feel like dealing with the rest of the thing so I just hacked this question in
 public class AirportQuestion : MonoBehaviour {
-	public Toggle deterministicToggle;
+	public Toggle enableToggle;
 
 	void OnDisable() {
-		SimulationSetupData.useStochasticModel = !deterministicToggle.isOn;
+		SimulationSetupData.enableAirports = enableToggle.isOn;
 	}
 }

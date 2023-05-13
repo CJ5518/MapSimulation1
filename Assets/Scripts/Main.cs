@@ -36,8 +36,7 @@ public class Main : MonoBehaviour {
 
 		string[] args = System.Environment.GetCommandLineArgs();
 		GlobalSettings.initFromCommandLine(args);
-
-		Application.Quit();
+		
 		onMainDestroy = new UnityEvent();
 
 		//Set things externally

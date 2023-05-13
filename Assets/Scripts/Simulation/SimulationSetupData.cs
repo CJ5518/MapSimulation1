@@ -65,6 +65,8 @@ public static class SimulationSetupData {
 	public static float airplaneSecurityAgainstInfected = 0.0f;
 	public static int confidenceAirplaneSecurityAgainstInfected = 0;
 
+	public static bool enableAirports = true;
+
 	//Get elated
 	//Thank you Ryan, I now feel elated
 	public static float elevation = 0.0f;

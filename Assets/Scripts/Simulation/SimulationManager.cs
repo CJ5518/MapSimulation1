@@ -136,6 +136,7 @@ public class SimulationManager {
 			simulation.model.parameters[4] = 0;//SimulationSetupData.breakthroughRate;
 			simulation.model.parameters[5] = 1.0f / SimulationSetupData.latencyEI;
 			simulation.model.parameters[6] = (SimulationSetupData.contactRate / 24.0f) * SimulationSetupData.infectionProbability;
+			simulation.enableAirplanes = SimulationSetupData.enableAirports;
 		}
 
 		//More peripherals, this time it's parameter sliders
