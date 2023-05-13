@@ -18,6 +18,7 @@ public class GlobalSettings {
 			{ "t|maxSimTime=",      v => data = v },
 			{ "v|verbose",  v => { ++verbose; } },
 			{ "h|?|help",   v => help = v != null },
+			//{ "dataFilePath",   v => help = v != null },
 		};
 		List<string> extra = p.Parse (argv);*/
 	}
