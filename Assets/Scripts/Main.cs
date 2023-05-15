@@ -61,6 +61,7 @@ public class Main : MonoBehaviour {
 		if (!hasPlacedAZombie && Application.isBatchMode) {
 			dropZombieAtIndex(45908);
 		}
+		SimulationManager.simulationCanvas.getRealCoordFromSimCoord(new Vector2(0,0));
 		Debug.Log(SimulationManager.stats.dtElapsed);
 	}
 	void OnDestroy() {

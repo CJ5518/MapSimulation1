@@ -48,6 +48,8 @@ public class BuildScript {
 
 		if (target == BuildTarget.StandaloneOSX) {
 			options.locationPathName = "./Builds/OSX/test";
+		} else if (target == BuildTarget.StandaloneWindows) {
+			options.locationPathName = "./Builds/Windows/test/MapSimulation1.exe";
 		}
 
 		options.target = target;

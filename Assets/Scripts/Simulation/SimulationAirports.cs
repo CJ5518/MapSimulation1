@@ -185,6 +185,8 @@ public class SimulationAirports {
 
 	private void doPlaneTrail(string originCode, string destCode, float dt) {
 		if (!drawPlaneTrails) return;
+
+		//This one has not been idk even TODO fix this
 		if (!planeTrailsLast.ContainsKey(originCode + destCode)) {
 			planeTrailsLast[originCode + destCode] = dt;
 		} else {
