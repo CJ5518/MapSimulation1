@@ -34,6 +34,7 @@ public class BuildScript {
 
 	private static void build(BuildTarget target, bool isHeadless, bool isDevelopment) {
 		BuildPlayerOptions options = new BuildPlayerOptions();
+		
 		BuildOptions buildOptions = BuildOptions.None;
 
 		if (isHeadless) {
@@ -43,21 +44,24 @@ public class BuildScript {
 			options.scenes = new[] { "Assets/Scenes/LandonSetup0.unity", "Assets/Scenes/UltraMainScene.unity" };
 		}
 		if (isDevelopment) {
-			buildOptions |= BuildOptions.Development;
+			buildOptions |= BuildOptions.Development | BuildOptions.AllowDebugging;
 		}
 
 		if (target == BuildTarget.StandaloneOSX) {
 			options.locationPathName = "./Builds/OSX/test";
 		} else if (target == BuildTarget.StandaloneWindows) {
-			options.locationPathName = "./Builds/Windows/test/MapSimulation1.exe";
+			options.locationPathName = "./Builds/Windows/MapSimulation1.exe";
 		}
-
+		
 		options.target = target;
-		BuildReport report = BuildPipeline.BuildPlayer(options);
+		BuildReport report = null;//BuildPipeline.BuildPlayer(options);
+		//https://answers.unity.com/questions/1642506/getting-the-current-buildoptions.html
+		//BuildBuildPlayerWindow.DefaultBuildMethods.GetBuildPlayerOptions(new BuildPlayerOptions());
 		BuildSummary summary = report.summary;
 
 		if (summary.result == BuildResult.Succeeded) {
 			Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
+			Debug.Log(buildOptions);
 		}
 
 		if (summary.result == BuildResult.Failed) {

@@ -275,7 +275,6 @@ public class Simulation {
 		
 		//Thread stuff
 		threadCount = SystemInfo.processorCount;
-		threadCount = 1;
 		simulationThreads = new Thread[threadCount];
 
 		#if _DEBUG
