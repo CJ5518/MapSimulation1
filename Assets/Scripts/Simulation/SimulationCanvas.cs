@@ -164,13 +164,11 @@ public class SimulationCanvas : MonoBehaviour
 		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
 			return new Vector2(-1,-1);
 
-		Renderer rend;
-		
-		try {
-			rend = hit.transform.GetComponent<Renderer>();
-		} catch {
+		Renderer rend = hit.transform.GetComponent<Renderer>();
+
+		if (rend == null)
 			return new Vector2(-1,-1);
-		}
+
 		MeshCollider meshCollider = hit.collider as MeshCollider;
 
 		Texture tex = rend.material.mainTexture;
