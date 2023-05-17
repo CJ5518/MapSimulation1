@@ -6,62 +6,47 @@ public class LineRenderPlaneTrail : MonoBehaviour {
 
 	LineRenderer line;
 
-	public Transform start;
-	public Transform end;
+	public Vector3 start;
+	public Vector3 end;
+	//Lifetime is used here for animation
+	//Actual life and death is covered in SimulationAirports
+	public float lifetime;
+	private float lifeStart = 0.0f;
 	
 	Vector3[] positions = new Vector3[15];
-
 
 	void Start() {
 		line = GetComponent<LineRenderer>();
 		line.positionCount = positions.Length+1;
-		SetCurveFancy();
+		var tmp = start;
+		start = end;
+		end = tmp;
+		SetCurve();
+		lifeStart = Time.realtimeSinceStartup;
     }
 
-	void SetCurve() {  // Cubic Bézier curve =D   //(position * 1.2f moves out on sphere centered at origin)
-		for (int i = 0; i < positions.Length; i++) {
-			float distance = (float)i / positions.Length;
-			Vector3 upLine = Vector3.Lerp(start.position, start.position * 1.2f, distance);
-			Vector3 downLine = Vector3.Lerp(end.position * 1.2f, end.position, distance);
-			Vector3 curve = Vector3.Lerp(upLine, downLine, distance);
-			line.SetPosition(i, curve);
-		}
-		line.SetPosition(positions.Length, end.position);
+	void Update() {
+		Material material = GetComponent<LineRenderer>().material;
+		//animation goes from -.5 to 1
+		material.SetTextureOffset("_MainTex", new Vector2(Mathf.Lerp(-0.5f, 1.0f, (Time.realtimeSinceStartup - lifeStart) / lifetime), material.GetTextureOffset("_MainTex").y));
 	}
 
-	void SetCurveFancy() { // higher-order curve  =o
-		float SquareTravelDistance = Vector3.SqrMagnitude(end.position - start.position);  //usually between 0 and 7000 for this model
-		float raiseProportion = (SquareTravelDistance + 50f)/ 70000f;
-		Vector3 raisedStart = start.position + start.position * raiseProportion;
-		Vector3 raisedEnd = end.position + end.position * raiseProportion;
+	void SetCurve() { // Cubic Bézier curve =D
+		float SquareTravelDistance = Vector3.SqrMagnitude(end - start);  //usually between 0 and 7000 for this model
+		//What do these numbers mean?
+		float raiseProportion = (SquareTravelDistance + 2000f)/ 70000f;
+		Vector3 raisedStart = start + start * raiseProportion;
+		Vector3 raisedEnd = end + end * raiseProportion;
 		for (int i = 0; i < positions.Length; i++) {
 			float progress = (float)i / positions.Length;
-			Vector3 upLine = Vector3.Lerp(start.position, raisedStart, progress);
+			Vector3 upLine = Vector3.Lerp(start, raisedStart, progress);
 			Vector3 hozLine = Vector3.Lerp(raisedStart, raisedEnd, progress);
-			Vector3 downLine = Vector3.Lerp(raisedEnd, end.position, progress);
+			Vector3 downLine = Vector3.Lerp(raisedEnd, end, progress);
 			Vector3 upCurve = Vector3.Lerp(upLine, hozLine, progress);
 			Vector3 downCurve = Vector3.Lerp(hozLine, downLine, progress);
 			Vector3 curve = Vector3.Lerp(upCurve, downCurve, progress);
 			line.SetPosition(i, curve);
 		}
-		line.SetPosition(positions.Length, end.position);
+		line.SetPosition(positions.Length, end);
 	}
 }
-
-	/*   //backup of old way of creating lift
-	void SetCurveSteepOnPlane() {
-		Vector3 travel = end.position - start.position;
-		Vector3 lift = Vector3.forward * (10f + Vector3.Magnitude(travel)/5f);
-		for (int i = 0; i < positions.Length; i++) {
-			float distance = (float)i / positions.Length;
-			Vector3 upLine = Vector3.Lerp(start.position, start.position + lift, distance);
-			Vector3 hozLine = Vector3.Lerp(start.position + lift, end.position + lift, distance);
-			Vector3 downLine = Vector3.Lerp(end.position + lift, end.position, distance);
-			Vector3 upCurve = Vector3.Lerp(upLine, hozLine, distance);
-			Vector3 downCurve = Vector3.Lerp(hozLine, downLine, distance);
-			Vector3 curve = Vector3.Lerp(upCurve, downCurve, distance);
-			line.SetPosition(i, curve);
-		}
-		line.SetPosition(positions.Length, end.position);
-	}
-	*/

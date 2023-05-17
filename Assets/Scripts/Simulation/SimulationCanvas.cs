@@ -164,8 +164,13 @@ public class SimulationCanvas : MonoBehaviour
 		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
 			return new Vector2(-1,-1);
 
+		Renderer rend;
 		
-		Renderer rend = hit.transform.GetComponent<Renderer>();
+		try {
+			rend = hit.transform.GetComponent<Renderer>();
+		} catch {
+			return new Vector2(-1,-1);
+		}
 		MeshCollider meshCollider = hit.collider as MeshCollider;
 
 		Texture tex = rend.material.mainTexture;
@@ -195,27 +200,22 @@ public class SimulationCanvas : MonoBehaviour
 		//Fetch the minimum and maximum bounds of the Collider volume
 		Vector3 m_Min = m_Collider.bounds.min;
 		Vector3 m_Max = m_Collider.bounds.max;
-
-		//21 pixels up top
-		//5 pixels on the left (washington)
-		//27 on the right
-		//2 on the bottom
+		
 
 
-		//Vector2 texCoord = SimulationCanvas.getPixelFromScreenCoord(Input.mousePosition);
-		float xPercent = (coord.x - main.xCoordSub)/ ((float)main.simulation.width - main.widthSub);
-		float yPercent = (coord.y-main.yCoordSub) / ((float)main.simulation.height-main.heightSub);
-		float xPos = Mathf.Lerp(m_Max.x, m_Min.x, xPercent);
-		float yPos = Mathf.Lerp(m_Min.y, m_Max.y, yPercent);
+	//	Vector3 top = new Vector3(xPos, yPos, m_Max.z);
+	//	Vector3 bottom = new Vector3(xPos, yPos, m_Min.z);
+	//	RaycastHit hit;
+	//	bool didHit = Physics.Raycast(top, new Vector3(0,0,-1), out hit, 20.0f);
 
-		Vector3 top = new Vector3(xPos, yPos, m_Max.z);
-		Vector3 bottom = new Vector3(xPos, yPos, m_Min.z);
+		Vector2 latLongs = Projection.renderSpaceToLatLongs(coord);
+		Vector3 pos = Quaternion.AngleAxis(latLongs.x + 90, -Vector3.up)
+			* Quaternion.AngleAxis(latLongs.y, -Vector3.right)
+			* new Vector3(0, 0, 149);
+
 		RaycastHit hit;
-		bool didHit = Physics.Raycast(top, new Vector3(0,0,-1), out hit, 20.0f);
-
-
-
-		return didHit ? hit.point : bottom;
+		bool didHit = Physics.Raycast(pos, new Vector3(0,0,0) - pos, out hit, 200.0f);
+		return didHit ? hit.point : new Vector3(0,200,0);
 	}
 	
 

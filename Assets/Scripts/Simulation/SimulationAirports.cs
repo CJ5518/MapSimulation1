@@ -197,8 +197,9 @@ public class SimulationAirports {
 		Vector3 realEnd = SimulationManager.simulationCanvas.getRealCoordFromSimCoord(SimulationManager.simulation.indexToCoord(airportCodeToSimCellIdx[destCode]));
 		Vector3 realStart = SimulationManager.simulationCanvas.getRealCoordFromSimCoord(SimulationManager.simulation.indexToCoord(airportCodeToSimCellIdx[originCode]));
 		LineRenderPlaneTrail planeTrail = GameObject.Instantiate(planeTrailRenderer.gameObject).GetComponent<LineRenderPlaneTrail>();
-		planeTrail.start.position = realStart;
-		planeTrail.end.position = realEnd;
+		planeTrail.start = realStart;
+		planeTrail.end = realEnd;
+		planeTrail.lifetime = planeTrailLifetime;
 		planeTrail.gameObject.SetActive(true);
 		GameObject.Destroy(planeTrail.gameObject, planeTrailLifetime);
 	}
