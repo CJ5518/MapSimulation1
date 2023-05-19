@@ -19,7 +19,7 @@ public class CompartmentButton : MonoBehaviour
         }
         //if (button == null)
         //{
-        //    Debug.LogError("Do not assign this to a nonbutton");
+        //    Logger.LogError("Do not assign this to a nonbutton");
         //    return;
         //}
 
@@ -27,7 +27,7 @@ public class CompartmentButton : MonoBehaviour
 
     private void CompartmentEvents_OnQuestionValueChange(CompartmentEnum.Questions question, float newValue)
     {
-        //Debug.Log("Button.Onquestionvaluechange");
+        //Logger.Log("Button.Onquestionvaluechange");
         if (question != target)
         {
             return;
@@ -56,7 +56,7 @@ public class CompartmentButton : MonoBehaviour
 
     public void SetValueEnum()
     {
-        //Debug.Log($"{target} {CompartmentEnum.QuestionIndex.IndexOf(target)}");
+        //Logger.Log($"{target} {CompartmentEnum.QuestionIndex.IndexOf(target)}");
         CompartmentEvents.SetNewValue((CompartmentEnum.QuestionIndex.IndexOf(target)));
     }
     
@@ -68,8 +68,8 @@ public class CompartmentButton : MonoBehaviour
         }
         if (float.TryParse(inputField.text, out float result))
         {
-            Debug.Log($"{inputField.text} mapped to {result}");
-            Debug.Log($"{target.ToString()} {((int)target).ToString()}: min {CompartmentEnum.QuestionsMinMax[(int)target].min} max {CompartmentEnum.QuestionsMinMax[(int)target].max}");
+            Logger.Log($"{inputField.text} mapped to {result}");
+            Logger.Log($"{target.ToString()} {((int)target).ToString()}: min {CompartmentEnum.QuestionsMinMax[(int)target].min} max {CompartmentEnum.QuestionsMinMax[(int)target].max}");
             if (CompartmentEnum.QuestionsMinMax[(int)target].min <= result && result <= CompartmentEnum.QuestionsMinMax[(int)target].max)
             {
                 if (errorBox != null)
@@ -91,7 +91,7 @@ public class CompartmentButton : MonoBehaviour
         }
         else
         {
-            Debug.Log("Couldn't map float");
+            Logger.Log("Couldn't map float");
         }
 
     }
@@ -111,7 +111,7 @@ public class CompartmentButton : MonoBehaviour
 
     public void DestroyErrorBox(string val)
     {
-        Debug.Log("Fired");
+        Logger.Log("Fired");
         Destroy(errorBox);
     }
 

@@ -39,11 +39,11 @@ public class BuildScript {
 		BuildSummary summary = report.summary;
 
 		if (summary.result == BuildResult.Succeeded) {
-			Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
+			Logger.Log("Build succeeded: " + summary.totalSize + " bytes");
 		}
 
 		if (summary.result == BuildResult.Failed) {
-			Debug.Log("Build failed");
+			Logger.Log("Build failed");
 		}
 	}
 
@@ -76,12 +76,12 @@ public class BuildScript {
 		BuildSummary summary = report.summary;
 
 		if (summary.result == BuildResult.Succeeded) {
-			Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
-			Debug.Log(buildOptions);
+			Logger.Log("Build succeeded: " + summary.totalSize + " bytes");
+			Logger.Log(buildOptions);
 		}
 
 		if (summary.result == BuildResult.Failed) {
-			Debug.Log("Build failed");
+			Logger.Log("Build failed");
 		}
 	}
 }

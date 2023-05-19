@@ -16,7 +16,7 @@ public class StateDropdown : MonoBehaviour
         for (int i = 0; i < SimulationManager.stats.stateNames.Count; i++)
         {
             dropdown.options.Add((new TMP_Dropdown.OptionData(alphabeticalList[i])));
-            //Debug.Log(SimulationStats.stateNames[i]);
+            //Logger.Log(SimulationStats.stateNames[i]);
         }
         dropdown.onValueChanged.AddListener(OnValueChanged);
         //dropdown.options.AddRange(SimulationStats.stateNames);

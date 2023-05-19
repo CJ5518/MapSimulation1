@@ -9,7 +9,7 @@ using NDesk.Options;
 public class GlobalSettings {
 	public static void initFromCommandLine(string[] argv) {
 		for (int q = 0; q < argv.Length; q++) {
-			Debug.Log(q + ": " + argv[q]);
+			Logger.Log(q + ": " + argv[q]);
 		}
 		string data = null;
 		bool help   = false;

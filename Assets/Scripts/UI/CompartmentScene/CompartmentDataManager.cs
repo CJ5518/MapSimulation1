@@ -17,7 +17,7 @@ public class CompartmentDataManager : MonoBehaviour
 
 	private void SetData(CompartmentEnum.Questions question, float value)
 	{
-		//Debug.Log($"SetData {question.ToString()}, {value}");
+		//Logger.Log($"SetData {question.ToString()}, {value}");
 		switch(question)
 		{
 			case CompartmentEnum.Questions.ContactRate:
@@ -175,7 +175,7 @@ public class CompartmentDataManager : MonoBehaviour
 
 			default:
 			{
-					Debug.LogError("CompartmentDataManager.SetData switch default");
+					Logger.LogError("CompartmentDataManager.SetData switch default");
 					return;
 			}
 		}
@@ -183,7 +183,7 @@ public class CompartmentDataManager : MonoBehaviour
 
 	private void SetConfidence(CompartmentEnum.Questions question, int value)
 	{
-		//Debug.Log($"SetData {question.ToString()}, {value}");
+		//Logger.Log($"SetData {question.ToString()}, {value}");
 		switch (question)
 		{
 			case CompartmentEnum.Questions.ContactRate:
@@ -294,7 +294,7 @@ public class CompartmentDataManager : MonoBehaviour
 				}
 			default:
 				{
-					Debug.LogError("CompartmentDataManager.SetData switch default");
+					Logger.LogError("CompartmentDataManager.SetData switch default");
 					return;
 				}
 		}
@@ -302,7 +302,7 @@ public class CompartmentDataManager : MonoBehaviour
 
 	public void PrintData()
 	{
-		Debug.Log($"Contact Rate {SimulationSetupData.contactRate} {SimulationSetupData.confidenceContact}\n" +
+		Logger.Log($"Contact Rate {SimulationSetupData.contactRate} {SimulationSetupData.confidenceContact}\n" +
 			$"Infection Probability {SimulationSetupData.infectionProbability} {SimulationSetupData.confidenceInfectionProb}\n" +
 			$"LatencyEI {SimulationSetupData.latencyEI} {SimulationSetupData.confidenceEI}\n" +
 			$"RecoveryRate {SimulationSetupData.recoveryRate} {SimulationSetupData.confidenceIR}\n" +
@@ -337,7 +337,7 @@ public class CompartmentDataManager : MonoBehaviour
 		//if (index == 0) return;
 		if(index > presets.Count)
 		{
-			Debug.LogError("DataManager.LoadPreset: index out of bounds");
+			Logger.LogError("DataManager.LoadPreset: index out of bounds");
 			return;
 		}
 
@@ -369,7 +369,7 @@ public class CompartmentDataManager : MonoBehaviour
 		/*
 		 * Temporary for the light demo
 		 */
-		Debug.Log("Here's a reminder that you've modified the preset functionality. When you try to plug everything back in, change this.");
+		Logger.Log("Here's a reminder that you've modified the preset functionality. When you try to plug everything back in, change this.");
 		CompartmentEvents.SetNewQuestionValue(CompartmentEnum.Questions.MovementModel, 1f);
 
 		//index--; //Offset for array

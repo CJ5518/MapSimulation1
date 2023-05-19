@@ -8,7 +8,7 @@ public class QuestionManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //Debug.Log(transform.childCount);
+        //Logger.Log(transform.childCount);
 
         //CompartmentEvents.OnValueChange += SetValue;
         //transform.GetChild(0).gameObject.SetActive(true);
@@ -28,7 +28,7 @@ public class QuestionManager : MonoBehaviour
         for(int i = 0; i < transform.childCount; i++)
         {
             //transform.GetChild(i).gameObject.SetActive(false);
-            //Debug.Log($"Adding {transform.GetChild(i).GetComponent<CompartmentQuestion>().question} to list");
+            //Logger.Log($"Adding {transform.GetChild(i).GetComponent<CompartmentQuestion>().question} to list");
             //Each question self enrolls at start
             CompartmentEnum.QuestionIndex.Add(transform.GetChild(i).GetComponent<CompartmentQuestion>().question);
         }
@@ -39,7 +39,7 @@ public class QuestionManager : MonoBehaviour
         //Cyclical calling by ListenerWrapper
         if (newValue == CompartmentEvents.oldVal)
         {
-            Debug.LogError("QuestionManager.SetValue new value same as old");
+            Logger.LogError("QuestionManager.SetValue new value same as old");
             return;
         }
         transform.GetChild(CompartmentEvents.oldVal - 1).gameObject.SetActive(false);

@@ -26,7 +26,7 @@ public class PresetButton : MonoBehaviour
     public void AskForLoad(bool val)
     {
         if (val == false) return;
-        //Debug.Log(int.Parse(name));
+        //Logger.Log(int.Parse(name));
         CompartmentEvents.LoadPreset(int.Parse(name));
     }
 }

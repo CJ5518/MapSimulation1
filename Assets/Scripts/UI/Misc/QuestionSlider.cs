@@ -30,7 +30,7 @@ public class QuestionSlider : MonoBehaviour {
 		//Cyclical calling by ListenerWrapper
 		if (newValue == questionSlider.value)
 		{
-			//Debug.LogError("QuestionSlider.SetValue new value same as old");
+			//Logger.LogError("QuestionSlider.SetValue new value same as old");
 			return;
 		}
 		questionSlider.value = newValue;
