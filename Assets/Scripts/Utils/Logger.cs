@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Logger : MonoBehaviour {
+public class Logger {
 	public static void Log(object obj) {
 		if (Application.isBatchMode) {
 			System.Console.WriteLine(obj);
 		} else {
-			Logger.Log(obj);
+			Debug.Log(obj);
 		}
 	}
 
@@ -16,14 +16,14 @@ public class Logger : MonoBehaviour {
 		if (Application.isBatchMode) {
 			System.Console.WriteLine(obj);
 		} else {
-			Logger.LogWarning(obj);
+			Debug.LogWarning(obj);
 		}
 	}
 	public static void LogError(object obj) {
 		if (Application.isBatchMode) {
 			System.Console.WriteLine(obj);
 		} else {
-			Logger.LogError(obj);
+			Debug.LogError(obj);
 		}
 	}
 }
