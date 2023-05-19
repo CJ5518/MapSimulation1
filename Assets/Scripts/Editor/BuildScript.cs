@@ -30,6 +30,22 @@ public class BuildScript {
 	public static void BuildMacOSHeadless() {
 		build(BuildTarget.StandaloneOSX, true, false);
 	}
+	[MenuItem("Build/DoThing")]
+	public static void doThing() {
+		var x = BuildPlayerWindow.DefaultBuildMethods.GetBuildPlayerOptions(new BuildPlayerOptions());
+		BuildReport report = BuildPipeline.BuildPlayer(x);
+		//https://answers.unity.com/questions/1642506/getting-the-current-buildoptions.html
+		//BuildBuildPlayerWindow.DefaultBuildMethods.GetBuildPlayerOptions(new BuildPlayerOptions());
+		BuildSummary summary = report.summary;
+
+		if (summary.result == BuildResult.Succeeded) {
+			Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
+		}
+
+		if (summary.result == BuildResult.Failed) {
+			Debug.Log("Build failed");
+		}
+	}
 
 
 	private static void build(BuildTarget target, bool isHeadless, bool isDevelopment) {
@@ -54,7 +70,7 @@ public class BuildScript {
 		}
 		
 		options.target = target;
-		BuildReport report = null;//BuildPipeline.BuildPlayer(options);
+		BuildReport report = BuildPipeline.BuildPlayer(options);
 		//https://answers.unity.com/questions/1642506/getting-the-current-buildoptions.html
 		//BuildBuildPlayerWindow.DefaultBuildMethods.GetBuildPlayerOptions(new BuildPlayerOptions());
 		BuildSummary summary = report.summary;
