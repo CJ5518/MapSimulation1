@@ -275,6 +275,8 @@ public class Simulation {
 		
 		//Thread stuff
 		threadCount = SystemInfo.processorCount;
+		Debug.LogError("You have threadcount set to 1");
+		threadCount = 1;
 		simulationThreads = new Thread[threadCount];
 
 		#if _DEBUG

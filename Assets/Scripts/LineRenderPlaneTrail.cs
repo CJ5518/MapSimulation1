@@ -11,6 +11,7 @@ public class LineRenderPlaneTrail : MonoBehaviour {
 	//Lifetime is used here for animation
 	//Actual life and death is covered in SimulationAirports
 	public float lifetime;
+	public float startDelay;
 	private float lifeStart = 0.0f;
 	
 	Vector3[] positions = new Vector3[15];
@@ -22,13 +23,18 @@ public class LineRenderPlaneTrail : MonoBehaviour {
 		start = end;
 		end = tmp;
 		SetCurve();
-		lifeStart = Time.realtimeSinceStartup;
+		StartCoroutine("doAnimation");
     }
 
-	void Update() {
-		Material material = GetComponent<LineRenderer>().material;
-		//animation goes from -.5 to 1
-		material.SetTextureOffset("_MainTex", new Vector2(Mathf.Lerp(-0.5f, 1.0f, (Time.realtimeSinceStartup - lifeStart) / lifetime), material.GetTextureOffset("_MainTex").y));
+	IEnumerator doAnimation() {
+		yield return new WaitForSeconds(startDelay);
+		lifeStart = Time.realtimeSinceStartup;
+		while (true) {
+			Material material = GetComponent<LineRenderer>().material;
+			//animation goes from -.5 to 1
+			material.SetTextureOffset("_MainTex", new Vector2(Mathf.Lerp(-0.5f, 1.0f, (Time.realtimeSinceStartup - lifeStart) / lifetime), material.GetTextureOffset("_MainTex").y));
+			yield return null;
+		}
 	}
 
 	void SetCurve() { // Cubic Bézier curve =D

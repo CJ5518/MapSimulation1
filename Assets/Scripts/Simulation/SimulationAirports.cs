@@ -196,12 +196,15 @@ public class SimulationAirports {
 		}
 		Vector3 realEnd = SimulationManager.simulationCanvas.getRealCoordFromSimCoord(SimulationManager.simulation.indexToCoord(airportCodeToSimCellIdx[destCode]));
 		Vector3 realStart = SimulationManager.simulationCanvas.getRealCoordFromSimCoord(SimulationManager.simulation.indexToCoord(airportCodeToSimCellIdx[originCode]));
+		float squaredDistance = (realEnd - realStart).sqrMagnitude;
 		LineRenderPlaneTrail planeTrail = GameObject.Instantiate(planeTrailRenderer.gameObject).GetComponent<LineRenderPlaneTrail>();
 		planeTrail.start = realStart;
 		planeTrail.end = realEnd;
-		planeTrail.lifetime = planeTrailLifetime;
+		planeTrail.lifetime = (squaredDistance + 1000f) / 4000f;
+		planeTrail.startDelay = Random.Range(0.0f, 0.5f);
 		planeTrail.gameObject.SetActive(true);
-		GameObject.Destroy(planeTrail.gameObject, planeTrailLifetime);
+		//The 1000 and 4000 make it look good
+		GameObject.Destroy(planeTrail.gameObject, planeTrail.lifetime + planeTrail.startDelay);
 	}
 
 	//"Wiggles" the render coords to get them onto the map if they happen to be off the map, which happens to be the case for LAX
