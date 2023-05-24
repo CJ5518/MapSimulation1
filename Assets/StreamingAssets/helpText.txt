@@ -45,3 +45,9 @@ This option does NOT force output file creation
 Usage:
 	$(EXEPATH) -opost "Run77"
 %%end%%
+deterministic:
+Enable the deterministic model, default is the stochastic model
+%%end%%
+airports:
+Enable airports and air travel, default is disabled
+%%end%%

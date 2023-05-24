@@ -13,6 +13,11 @@ public class GlobalSettings {
 	// -nowrite
 	public static bool writeOutputFiles = true;
 
+	// -deterministic
+	public static bool useDeterministic = false;
+	// -airports
+	public static bool useAirports = false;
+
 	//Not set by any specific arg
 	public static bool quitApplication = false;
 
@@ -27,6 +32,8 @@ public class GlobalSettings {
 			.Add ("o=|outputPath=", v => {outputPath = v; writeOutputFiles = true;})
 			.Add ("nowrite", v => writeOutputFiles = v == null)
 			.Add ("opost=|outputFilePostfix=", v => outputFilePostfix = v)
+			.Add ("deterministic", v => useDeterministic = true)
+			.Add ("airports", v => useAirports = true)
 			.Add ("h:|help:", (string v) => {printHelpMessage(v); quitApplication = true;});
 			p.Parse(argv);
 

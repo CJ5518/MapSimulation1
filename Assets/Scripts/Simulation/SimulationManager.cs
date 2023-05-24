@@ -106,8 +106,6 @@ public class SimulationManager {
 			SimulationModelPresets.getPreset(3),
 			movementModel
 		);
-
-		simulation.useTauLeaping = SimulationSetupData.useStochasticModel;
 		
 		//Set up peripherals
 		stats.init();
@@ -136,7 +134,12 @@ public class SimulationManager {
 			simulation.model.parameters[4] = 0;//SimulationSetupData.breakthroughRate;
 			simulation.model.parameters[5] = 1.0f / SimulationSetupData.latencyEI;
 			simulation.model.parameters[6] = (SimulationSetupData.contactRate / 24.0f) * SimulationSetupData.infectionProbability;
+
 			simulation.enableAirplanes = SimulationSetupData.enableAirports;
+			simulation.useTauLeaping = SimulationSetupData.useStochasticModel;
+		} else {
+			simulation.useTauLeaping = !GlobalSettings.useDeterministic;
+			simulation.enableAirplanes = GlobalSettings.useAirports;
 		}
 
 		//More peripherals, this time it's parameter sliders

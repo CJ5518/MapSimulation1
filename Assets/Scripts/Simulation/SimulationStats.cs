@@ -288,6 +288,9 @@ public class SimulationStats {
 			}
 			paramFile.Write(model.parameterInfoArray[q].longName);
 		}
+
+		paramFile.Write(",Airports,Deterministic");
+		
 		paramFile.Write("\n");
 		for (int q = 0; q < model.parameterCount; q++) {
 			if (q > 0) {
@@ -295,6 +298,7 @@ public class SimulationStats {
 			}
 			paramFile.Write(model.parameters[q]);
 		}
+		paramFile.Write("," + SimulationManager.simulation.enableAirplanes + "," + !SimulationManager.simulation.useTauLeaping);
 		paramFile.Flush();
 		paramFile.Close();
 
