@@ -39,3 +39,9 @@ Turn off output data file creation
 Usage:
 	$(EXEPATH) -nowrite
 %%end%%
+opost,outputFilePostfix:
+Define text to append to the filename of the output data
+This option does NOT force output file creation
+Usage:
+	$(EXEPATH) -opost "Run77"
+%%end%%

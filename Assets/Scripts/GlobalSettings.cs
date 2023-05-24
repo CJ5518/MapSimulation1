@@ -9,6 +9,8 @@ public class GlobalSettings {
 	public static float stopTime = 200.0f;
 	// -o or -outputPath
 	public static string outputPath = "./";
+	public static string outputFilePostfix = "";
+	// -nowrite
 	public static bool writeOutputFiles = true;
 
 	//Not set by any specific arg
@@ -24,6 +26,7 @@ public class GlobalSettings {
 			.Add ("stop=|stopTime=", v => float.TryParse(v, out stopTime))
 			.Add ("o=|outputPath=", v => {outputPath = v; writeOutputFiles = true;})
 			.Add ("nowrite", v => writeOutputFiles = v == null)
+			.Add ("opost=|outputFilePostfix=", v => outputFilePostfix = v)
 			.Add ("h:|help:", (string v) => {printHelpMessage(v); quitApplication = true;});
 			p.Parse(argv);
 

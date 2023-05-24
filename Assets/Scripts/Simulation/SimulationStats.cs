@@ -273,7 +273,7 @@ public class SimulationStats {
 		System.DateTime time = System.DateTime.Now;
 
 		string dateString = $"{time.Year}_{time.Month}_{time.Day}_{time.Hour}{time.Minute}{time.Second}{time.Millisecond}";
-		string dataFileRootName = dateString + "-Data";
+		string dataFileRootName = dateString + "-Data" + GlobalSettings.outputFilePostfix;
 		string outFolder = GlobalSettings.outputPath;
 
 		System.IO.Directory.CreateDirectory(outFolder);
