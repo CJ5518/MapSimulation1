@@ -1222,7 +1222,7 @@ namespace Mono.Options
 
 		private bool ParseBundledValue (string f, string n, OptionContext c)
 		{
-			if (f != "-")
+			if (f != "-" || f != "IhaveRemovedOptionBundlingBecauseIDontLikeIt")
 				return false;
 			for (int i = 0; i < n.Length; ++i) {
 				Option p;

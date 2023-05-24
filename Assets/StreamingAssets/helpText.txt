@@ -1,0 +1,35 @@
+default:
+Usage: $(EXEPATH) <args>
+Getting help:
+	-h | --help	print this help message
+	-h | --help <option_without_dashes> print detailed help about an option: -h stop
+Arguments:
+	-stop | --stopTime <time>	at what time do we stop the simulation?
+	-o | --outputPath	path to a folder (ending in a slash) to put the output data files, default: ./
+%%end%%
+h,help:
+Used to provide information about command line arguments
+Usage:
+	$(EXEPATH) -h <arg>
+Example:
+	$(EXEPATH) -h help	(shows this message)
+	$(EXEPATH) --help stopTime
+%%end%%
+stop,stopTime:
+Provide the time the simulation will stop, a maximum running time
+Floats are parsed with float.TryParse so any valid string float representation will work
+Usage:
+	$(EXEPATH) -stop <time>
+Example:
+	$(EXEPATH) -stop 2e5
+%%end%%
+o,outputPath:
+Provides a path to the output folder for the simulation
+Also forces output file creation
+NOTE:
+	Paths must end with a '/' otherwise the output files will be written strangely in the parent directory
+Usage:
+	$(EXEPATH) -o <folder>
+Example:
+	$(EXEPATH) -o "./FolderName/"
+%%end%%

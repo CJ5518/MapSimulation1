@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.Events;
+using System.Runtime.InteropServices;
 
 //TODO:
 //Maybe lean more/less on width/height being in projection
@@ -36,6 +37,11 @@ public class Main : MonoBehaviour {
 
 		string[] args = System.Environment.GetCommandLineArgs();
 		GlobalSettings.initFromCommandLine(args);
+
+		if (GlobalSettings.quitApplication) {
+			ExitProgram(true);
+			return;
+		}
 		
 		onMainDestroy = new UnityEvent();
 
@@ -58,16 +64,21 @@ public class Main : MonoBehaviour {
 
 	private unsafe void Update() {
 		SimulationManager.Update();
+		GlobalSettings.Update();
+		if (GlobalSettings.quitApplication) {
+			ExitProgram(true, 0);
+		}
+
 		if (!hasPlacedAZombie && Application.isBatchMode) {
 			dropZombieAtIndex(45908);
 		}
 		SimulationManager.simulationCanvas.getRealCoordFromSimCoord(new Vector2(0,0));
-		Logger.Log(SimulationManager.stats.dtElapsed);
 	}
 	void OnDestroy() {
 		simulation.endTick();
 		simulation.deleteNativeArrays();
 		onMainDestroy.Invoke();
+		
 	}
 
 	//Print out some debug information about a cell and it's neighbors
@@ -84,7 +95,7 @@ public class Main : MonoBehaviour {
 
 	//Functions called by other scripts
 
-	public static void ExitProgram() {
+	public static void ExitProgram(bool hard = false, int code = 0) {
 		Application.Quit();
 	}
 
