@@ -26,10 +26,16 @@ Example:
 o,outputPath:
 Provides a path to the output folder for the simulation
 Also forces output file creation
+Default is "./"
 NOTE:
 	Paths must end with a '/' otherwise the output files will be written strangely in the parent directory
 Usage:
 	$(EXEPATH) -o <folder>
 Example:
 	$(EXEPATH) -o "./FolderName/"
+%%end%%
+nowrite:
+Turn off output data file creation
+Usage:
+	$(EXEPATH) -nowrite
 %%end%%

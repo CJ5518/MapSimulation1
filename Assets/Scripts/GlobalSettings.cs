@@ -9,6 +9,7 @@ public class GlobalSettings {
 	public static float stopTime = 200.0f;
 	// -o or -outputPath
 	public static string outputPath = "./";
+	public static bool writeOutputFiles = true;
 
 	//Not set by any specific arg
 	public static bool quitApplication = false;
@@ -21,11 +22,13 @@ public class GlobalSettings {
 
 		OptionSet p = new OptionSet ()
 			.Add ("stop=|stopTime=", v => float.TryParse(v, out stopTime))
-			.Add ("o=|outputPath=", v => outputPath = v)
-			.Add ("h:|help:", (string v) => {Logger.Log("HERE: " + v); printHelpMessage(v); quitApplication = true;});
+			.Add ("o=|outputPath=", v => {outputPath = v; writeOutputFiles = true;})
+			.Add ("nowrite", v => writeOutputFiles = v == null)
+			.Add ("h:|help:", (string v) => {printHelpMessage(v); quitApplication = true;});
 			p.Parse(argv);
 
 		Logger.Log(stopTime);
+		Logger.Log(writeOutputFiles);
 	}
 
 	//Checks for the exit conditions of the simulation

@@ -57,6 +57,7 @@ public class Main : MonoBehaviour {
 		simulation = SimulationManager.simulation;
 	}
 	
+	//Used for the offset of something, pretty sure it's not used anymore actually
 	public int xCoordSub = 5;
 	public int widthSub = 33;
 	public int yCoordSub = 9;

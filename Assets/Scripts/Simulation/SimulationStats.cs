@@ -186,7 +186,8 @@ public class SimulationStats {
 		}
 		globalTotals = new DiseaseState(simulation.model.compartmentCount);
 
-		beginFileWrite();
+		if (GlobalSettings.writeOutputFiles)
+			beginFileWrite();
 	}
 
 	public void updateStats() {
@@ -260,7 +261,8 @@ public class SimulationStats {
 			//	break;
 			}
 		//}
-		updateFileWrite();
+		if (GlobalSettings.writeOutputFiles)
+			updateFileWrite();
 	}
 
 	StreamWriter outputFile;
