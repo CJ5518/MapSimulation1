@@ -6,6 +6,10 @@ Getting help:
 Arguments:
 	-stop | --stopTime <time>	at what time do we stop the simulation?
 	-o | --outputPath	path to a folder (ending in a slash) to put the output data files, default: ./
+	-nowrite	Disable output data file creation
+	-opost | --outputFilePostfix	Postfix appended to the name of the output data files
+	-deterministic	Use the deterministic model
+	-airports	Enable airports
 %%end%%
 h,help:
 Used to provide information about command line arguments

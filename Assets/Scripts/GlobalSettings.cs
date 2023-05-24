@@ -35,7 +35,7 @@ public class GlobalSettings {
 			.Add ("deterministic", v => useDeterministic = true)
 			.Add ("airports", v => useAirports = true)
 			.Add ("h:|help:", (string v) => {printHelpMessage(v); quitApplication = true;});
-			p.Parse(argv);
+		p.Parse(argv);
 
 		Logger.Log(stopTime);
 		Logger.Log(writeOutputFiles);
