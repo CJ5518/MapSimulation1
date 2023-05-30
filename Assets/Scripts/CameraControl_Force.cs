@@ -1,14 +1,10 @@
 using UnityEngine;
 
-
 public class CameraControl_Force : MonoBehaviour {
 	
 	Transform cam;
-	
 	float zoomInput = 0f;
 	Vector2 rotationInput = Vector2.zero;
-	Vector2 sunRotationInput = Vector2.zero;
-
 	Vector2 zoomRange = new Vector2(-155f, -250f);
 	Vector2 zoomSpeedRange = new Vector2(0.1f, 1f);
 	float zoomPercent = 0.442f;
@@ -16,24 +12,18 @@ public class CameraControl_Force : MonoBehaviour {
 	float zoomDamping = 5f;
 	Vector2 zoomAngleRange = new Vector2(-50f, 0f);
 	float zoomAngleCurveSharpness = 5f;
-
-	Vector3 eulerRotation = Vector3.zero;
 	Vector2 rotationSpeedRange = new Vector2(200f,5000f);
-	float rotationDamping = 3f;
-
 	Vector2 lastMousePos;
-	
+	Vector4 bounds = new Vector4(24f,45f,163f,212f); //xmin,xmax,ymin,ymax
 
 	void Start() {
 		cam = Camera.main.transform;
 	}
-	void Update() {
+	void FixedUpdate() {
 		UpdateInputs();
-
 		Zoom();
 		Rotation();
-		//NorthUpAuto();
-		NorthUp();
+		ClampRotation();
 	}
 
 	void UpdateInputs() {
@@ -44,7 +34,6 @@ public class CameraControl_Force : MonoBehaviour {
 		zoomInput += Input.GetMouseButton(2) ? mouseDelta.y / 5f : 0;
 		float KeyZoom = Input.GetKey(KeyCode.Z) ? -1f : Input.GetKey(KeyCode.X) ? 1f : 0f;
 		zoomInput += KeyZoom;
-
 		rotationInput = Input.GetMouseButton(1) ? mouseDelta : Vector2.zero;
 	}
 	void Zoom() {
@@ -55,7 +44,8 @@ public class CameraControl_Force : MonoBehaviour {
 		ZoomRotation();
 	}
 	void ZoomRotation() {
-		float anglePercent = (-1 / (1 + zoomAngleCurveSharpness * zoomPercent) + 1) * (zoomAngleCurveSharpness + 1) / zoomAngleCurveSharpness;
+		float currentZoomPercent = -(cam.localPosition.z - zoomRange.x) / (zoomRange.x - zoomRange.y);
+		float anglePercent = (-1 / (1 + zoomAngleCurveSharpness * currentZoomPercent) + 1) * (zoomAngleCurveSharpness + 1) / zoomAngleCurveSharpness;
 		float angle = Mathf.Lerp(zoomAngleRange.x, zoomAngleRange.y, anglePercent);
 		cam.localRotation = Quaternion.Euler(angle, 0f, 0f);
 	}
@@ -74,42 +64,18 @@ public class CameraControl_Force : MonoBehaviour {
 		rot *= rotationSpeed;
 		GetComponent<Rigidbody>().AddTorque(rot);
 	}
-	/*
-	void SunRotation() {
-		float sunInputX = sunRotationInput.x;
-		float sunInputY = sunRotationInput.y;
-		if (sunInputX == 0 && sunInputY == 0) return;
-		
-		//raw sun rotation - rotation relative to camera controller (this) based on input;
-		Vector3 sunRot = (sunInputY * transform.right - sunInputX * transform.up);
-		//correct sun roation - move the sun towards the plane of its rotation;
-		Vector3 sunIdealForward = Vector3.ProjectOnPlane(sun.transform.forward, sunRot);
-		sunRot += Vector3.Cross(sun.transform.forward, sunIdealForward);
-		sun.AddTorque(sunRot);
-	}*/
 	void NorthUp() {
-		if (!Input.GetMouseButton(0) || !Input.GetMouseButton(1)) return;
-		
+		/************************************ smooth
 		Vector3 rot = Vector3.zero;
 		Vector3 idealNorth = Vector3.ProjectOnPlane(Vector3.up, transform.forward);
 		rot += Vector3.Cross(transform.up, idealNorth);
-		rot *= 20000;
-		GetComponent<Rigidbody>().AddTorque(rot);
+		rot *= 30000;
+		GetComponent<Rigidbody>().AddTorque(rot); */
 	}
-	void NorthUpAuto() {
-		Vector3 rot = Vector3.zero;
-		Vector3 idealNorth = Vector3.ProjectOnPlane(Vector3.up, transform.forward);
-		rot += Vector3.Cross(transform.up, idealNorth);
-		rot *= 1000;
-		GetComponent<Rigidbody>().AddTorque(rot);
+	void ClampRotation() {
+		Vector3 rot = transform.rotation.eulerAngles;
+		rot.x = Mathf.Clamp(rot.x, bounds.x, bounds.y);
+		rot.y = Mathf.Clamp(rot.y, bounds.z, bounds.w);
+		transform.rotation = Quaternion.Euler(rot.x, rot.y, 0f);
 	}
 }
-
-/*	void Rotation() {
-		// Euler fixed rotation
-		float rotationSpeed = Mathf.Lerp(rotationSpeedRange.x, rotationSpeedRange.y, zoomPercent);
-		eulerRotation.x += rotationInput.y * rotationSpeed * Time.deltaTime;
-		eulerRotation.y -= rotationInput.x * rotationSpeed * Time.deltaTime;
-		transform.rotation = Quaternion.Euler(eulerRotation.x, eulerRotation.y, 0f);
-	}
-*/
