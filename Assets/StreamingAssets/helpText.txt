@@ -43,6 +43,12 @@ Turn off output data file creation
 Usage:
 	$(EXEPATH) -nowrite
 %%end%%
+simlog:
+Provide a path for the simulations debug output, if none is given output will be written to the console
+The problem with that is that unity also outputs a lot of stuff to the console
+Usage:
+	$(EXEPATH) -simlog ./simout.txt
+%%end%%
 opost,outputFilePostfix:
 Define text to append to the filename of the output data
 This option does NOT force output file creation
@@ -54,4 +60,19 @@ Enable the deterministic model, default is the stochastic model
 %%end%%
 airports:
 Enable airports and air travel, default is disabled
+%%end%%
+params,p:
+Define parameters to be used by the simulation
+Parameters are defined in the following form:
+	-params ir=0.3,id=.87
+ir means infected to recovered
+se means susceptible to exposed
+sv means susceptible to vaccinated
+Define the value with se=<value>
+Add extra param definitions by seperating them with a comma
+Do not include any white space
+Example:
+	$(EXEPATH) -params ir=0.3,id=.87,rs=0.3,sv=.87,vs=0.3,ei=.87,se=0.3
+This example contains all of the possible parameters
+Any valid float representation should work for the numbers, i.e 2e-5 will work properly
 %%end%%
