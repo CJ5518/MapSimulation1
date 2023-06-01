@@ -56,6 +56,7 @@ public class SimulationAirports {
 	}
 
 	//Load data from the csv file
+	//Airport count is NOT used
 	private void loadData(int airportCount) {
 		airportData = new AirportData();
 
