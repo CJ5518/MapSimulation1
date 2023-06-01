@@ -185,12 +185,11 @@ public class SimulationStats {
 			charts[q].SetActive(false);
 		}
 		globalTotals = new DiseaseState(simulation.model.compartmentCount);
-
-		if (GlobalSettings.writeOutputFiles)
-			beginFileWrite();
 	}
 
 	public void updateStats() {
+		if (GlobalSettings.writeOutputFiles && !beganFileWrite)
+			beginFileWrite();
 		Simulation simulation = SimulationManager.simulation;
 		if (lastStatsUpdate == simulation.runCount) {
 			return;
@@ -266,7 +265,11 @@ public class SimulationStats {
 	}
 
 	StreamWriter outputFile;
+	bool beganFileWrite = false;
 	private void beginFileWrite() {
+		if (beganFileWrite)
+			return;
+		beganFileWrite = true;
 		//Set up on destroy
 		SimulationManager.main.onMainDestroy.AddListener(endFileWrite);
 		

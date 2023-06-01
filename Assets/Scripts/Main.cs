@@ -44,6 +44,7 @@ public class Main : MonoBehaviour {
 		}
 		
 		onMainDestroy = new UnityEvent();
+		onMainDestroy.AddListener(Logger.onExit);
 
 		//Set things externally
 		SimulationManager.parameterPanel = parameterPanel;

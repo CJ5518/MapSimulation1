@@ -109,7 +109,6 @@ public class SimulationManager {
 		
 		//Set up peripherals
 		stats.init();
-		stats.updateStats();
 		
 		colorSettingsPanel.loadInSettings(ref simulation.model);
 		
@@ -120,7 +119,6 @@ public class SimulationManager {
 		//I'm not sure what that comment means
 		colorSettingsPanel.setSimulationColors(ref simulation);
 		simulation.tickSimulation();
-		stats.updateStats();
 
 
 		//Set the parameters of the model
@@ -140,7 +138,17 @@ public class SimulationManager {
 		} else {
 			simulation.useTauLeaping = !GlobalSettings.useDeterministic;
 			simulation.enableAirplanes = GlobalSettings.useAirports;
+
+			//Params from the command line
+			if (GlobalSettings.setupParams != null) {
+				//hardcoded 7 because we've committed to having only 7 params at this point
+				for (int q = 0; q < 7; q++) {
+					simulation.model.parameters[q] = GlobalSettings.setupParams[q] < 0.0f ? simulation.model.parameters[q] : GlobalSettings.setupParams[q];
+				}
+			}
 		}
+
+		stats.updateStats();
 
 		//More peripherals, this time it's parameter sliders
 		parameterPanel.loadInSliders(ref simulation.model, ref simulation.movementModel);

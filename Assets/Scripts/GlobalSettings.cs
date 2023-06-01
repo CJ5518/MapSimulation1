@@ -18,6 +18,10 @@ public class GlobalSettings {
 	// -airports
 	public static bool useAirports = false;
 
+	//Simulation params, values of -1 indicate the user did not specify
+	//If this is null, use ALL defaults
+	public static float[] setupParams = null;
+
 	//Not set by any specific arg
 	public static bool quitApplication = false;
 
@@ -31,9 +35,23 @@ public class GlobalSettings {
 			.Add ("stop=|stopTime=", v => float.TryParse(v, out stopTime))
 			.Add ("o=|outputPath=", v => {outputPath = v; writeOutputFiles = true;})
 			.Add ("nowrite", v => writeOutputFiles = v == null)
+			.Add ("simlog=", v => Logger.outputFilePath = v)
 			.Add ("opost=|outputFilePostfix=", v => outputFilePostfix = v)
 			.Add ("deterministic", v => useDeterministic = true)
 			.Add ("airports", v => useAirports = true)
+			.Add ("params=|p=", v => {
+				//7 parameters
+				setupParams = new float[7];
+				for(int q = 0; q < setupParams.Length; q++) {
+					//default is -1
+					setupParams[q] = -1.0f;
+				}
+				string[] paramDefs = v.Split(',');
+				for (int q = 0; q < paramDefs.Length; q++) {
+					string[] paramDeats = paramDefs[q].Split('=');
+					setupParams[paramNameToIdx[paramDeats[0]]] = float.Parse(paramDeats[1]);
+				}
+			})
 			.Add ("h:|help:", (string v) => {printHelpMessage(v); quitApplication = true;});
 		p.Parse(argv);
 
@@ -50,8 +68,10 @@ public class GlobalSettings {
 	}
 
 	private static Dictionary<string, string> helpTextDictionary;
+	private static Dictionary<string, int> paramNameToIdx;
 
 	static GlobalSettings() {
+		//Init help text
 		helpTextDictionary = new Dictionary<string, string>();
 		string line;
 		//Are we currently in the lines of a help text section?
@@ -83,6 +103,16 @@ public class GlobalSettings {
 				}
 			}
 		}
+
+		//Init the parameter dictionary
+		paramNameToIdx = new Dictionary<string, int>();
+		paramNameToIdx.Add("id", 0);
+		paramNameToIdx.Add("ir", 1);
+		paramNameToIdx.Add("rs", 2);
+		paramNameToIdx.Add("sv", 3);
+		paramNameToIdx.Add("vs", 4);
+		paramNameToIdx.Add("ei", 5);
+		paramNameToIdx.Add("se", 6);
 	}
 
 	private static void printHelpMessage(string arg) {
