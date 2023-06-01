@@ -41,7 +41,7 @@ public class SimulationAirports {
 	//obj[a] is a list of keyValue pairs, the airport paths that have this requency
 	
 	Dictionary<int, List<KeyValuePair<string, string>>> airportFireFrequency;
-	Dictionary<string, int> airportCodeToSimCellIdx;
+	public Dictionary<string, int> airportCodeToSimCellIdx;
 
 	
 

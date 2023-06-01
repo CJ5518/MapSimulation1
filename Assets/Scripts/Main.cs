@@ -72,7 +72,13 @@ public class Main : MonoBehaviour {
 		}
 
 		if (!hasPlacedAZombie && Application.isBatchMode) {
-			dropZombieAtIndex(45908);
+			//dropZombieAtIndex(45908);
+			if (simulation.simulationAirports.airportCodeToSimCellIdx.ContainsKey(GlobalSettings.airportStartAt.ToUpper())) {
+				dropZombieAtIndex(simulation.simulationAirports.airportCodeToSimCellIdx[GlobalSettings.airportStartAt.ToUpper()]);
+			} else {
+				Logger.LogError("Bad airport code passed to simulation, couldn't find: " + GlobalSettings.airportStartAt.ToUpper());
+				ExitProgram(true, 1);
+			}
 		}
 		SimulationManager.simulationCanvas.getRealCoordFromSimCoord(new Vector2(0,0));
 	}

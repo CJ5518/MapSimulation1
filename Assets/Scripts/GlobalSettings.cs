@@ -22,6 +22,8 @@ public class GlobalSettings {
 	//If this is null, use ALL defaults
 	public static float[] setupParams = null;
 
+	public static string airportStartAt = "ATL";
+
 	//Not set by any specific arg
 	public static bool quitApplication = false;
 
@@ -51,6 +53,9 @@ public class GlobalSettings {
 					string[] paramDeats = paramDefs[q].Split('=');
 					setupParams[paramNameToIdx[paramDeats[0]]] = float.Parse(paramDeats[1]);
 				}
+			})
+			.Add("startat=", v => {
+				airportStartAt = v;
 			})
 			.Add ("h:|help:", (string v) => {printHelpMessage(v); quitApplication = true;});
 		p.Parse(argv);

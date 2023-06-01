@@ -10,6 +10,7 @@ Arguments:
 	-opost | --outputFilePostfix	Postfix appended to the name of the output data files
 	-deterministic	Use the deterministic model
 	-airports	Enable airports
+	-startat <airport>	Starts the simulation at a certain airport (30 infected)
 %%end%%
 h,help:
 Used to provide information about command line arguments
