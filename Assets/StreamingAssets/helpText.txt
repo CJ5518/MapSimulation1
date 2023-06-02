@@ -10,6 +10,7 @@ Arguments:
 	-opost | --outputFilePostfix	Postfix appended to the name of the output data files
 	-deterministic	Use the deterministic model
 	-airports	Enable airports
+	-gravity <arg>	Use the gravity model, args are in the format: "0.2,1.2" where the first one is alpha, second number is beta
 	-startat <airport>	Starts the simulation at a certain airport (30 infected)
 %%end%%
 h,help:

@@ -17,6 +17,9 @@ public class GlobalSettings {
 	public static bool useDeterministic = false;
 	// -airports
 	public static bool useAirports = false;
+	// -gravity
+	public static bool useGravityModel = false;
+	public static float[] gravityModelParams;
 
 	//Simulation params, values of -1 indicate the user did not specify
 	//If this is null, use ALL defaults
@@ -41,6 +44,12 @@ public class GlobalSettings {
 			.Add ("opost=|outputFilePostfix=", v => outputFilePostfix = v)
 			.Add ("deterministic", v => useDeterministic = true)
 			.Add ("airports", v => useAirports = true)
+			.Add ("gravity=", v => {
+				gravityModelParams = new float[2];
+				string[] cmdParams = v.Split(',');
+				gravityModelParams[0] = float.Parse(cmdParams[0]);
+				gravityModelParams[1] = float.Parse(cmdParams[1]);
+			})
 			.Add ("params=|p=", v => {
 				//7 parameters
 				setupParams = new float[7];

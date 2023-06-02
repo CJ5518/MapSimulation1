@@ -138,6 +138,14 @@ public class SimulationManager {
 		} else {
 			simulation.useTauLeaping = !GlobalSettings.useDeterministic;
 			simulation.enableAirplanes = GlobalSettings.useAirports;
+			if (GlobalSettings.useGravityModel) {
+				LocalizedGravityMovementModel gravityMovementModel = new LocalizedGravityMovementModel();
+				gravityMovementModel.parameters[0] = GlobalSettings.gravityModelParams[0];
+				gravityMovementModel.parameters[1] = GlobalSettings.gravityModelParams[1];
+				simulation.movementModel = gravityMovementModel;
+			} else {
+				simulation.movementModel = new CJsMovementModel();
+			}
 
 			//Params from the command line
 			if (GlobalSettings.setupParams != null) {

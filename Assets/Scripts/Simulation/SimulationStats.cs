@@ -292,7 +292,7 @@ public class SimulationStats {
 			paramFile.Write(model.parameterInfoArray[q].longName);
 		}
 
-		paramFile.Write(",Airports,Deterministic");
+		paramFile.Write(",Airports,Deterministic,Gravity");
 		
 		paramFile.Write("\n");
 		for (int q = 0; q < model.parameterCount; q++) {
@@ -301,7 +301,10 @@ public class SimulationStats {
 			}
 			paramFile.Write(model.parameters[q]);
 		}
-		paramFile.Write("," + SimulationManager.simulation.enableAirplanes + "," + !SimulationManager.simulation.useTauLeaping);
+		paramFile.Write(
+			"," + SimulationManager.simulation.enableAirplanes +
+			"," + !SimulationManager.simulation.useTauLeaping + 
+			"," + (SimulationManager.simulation.movementModel.GetType() == typeof(LocalizedGravityMovementModel)));
 		paramFile.Flush();
 		paramFile.Close();
 
