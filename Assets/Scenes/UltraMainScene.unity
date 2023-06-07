@@ -3547,7 +3547,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &223796189
 GameObject:
   m_ObjectHideFlags: 0
@@ -8161,7 +8161,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0014829311}
+  m_AnchoredPosition: {x: 0, y: 0.0013956598}
   m_SizeDelta: {x: -24, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &604108727
@@ -9859,6 +9859,9 @@ MonoBehaviour:
   parameterPanel: {fileID: 2737455005326099594}
   colorSettingsPanel: {fileID: 1169906250}
   onMainDestroy:
+    m_PersistentCalls:
+      m_Calls: []
+  onZombieDropped:
     m_PersistentCalls:
       m_Calls: []
   xCoordSub: 5

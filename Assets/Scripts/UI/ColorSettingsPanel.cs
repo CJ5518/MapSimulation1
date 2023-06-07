@@ -24,7 +24,10 @@ public class ColorSettingsPanel : MonoBehaviour {
 			toggles[q] = newObject;
 		}
 		//Temp thing to make the display settings what we want for the demo
-		setToggleState(1, false);
+		setToggleState(1, true);
+		setToggleState(0, false);
+		setToggleState(3, false);
+		setToggleState(4, true);
 		onSettingsChanged();
 	}
 
