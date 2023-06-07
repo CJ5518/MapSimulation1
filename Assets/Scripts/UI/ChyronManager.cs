@@ -22,7 +22,12 @@ public class ChyronManager : MonoBehaviour {
 
 	void Start() {
 		SimulationManager.stats.infectionReachesState.AddListener(onInfectionReachesStates);
+		SimulationManager.stats.infectionDiesOut.AddListener(onInfectionDiesOut);
 		scrollbar.onValueChanged.AddListener(onScrollSliderValueChanged);
+	}
+
+	void onInfectionDiesOut() {
+		createElement($"Infection died out!");
 	}
 	
 	void onInfectionReachesStates(int stateIdx) {

@@ -134,6 +134,7 @@ public class Main : MonoBehaviour {
 		const int zombieCount = 30;
 
 		dropZombieAtIndex(index, zombieCount);
+		onZombieDropped.Invoke();
 	}
 
 	public void dropZombieAtIndex(int index, int zombieCount = 30) {
