@@ -271,8 +271,8 @@ public class Simulation {
 		
 		//Thread stuff
 		threadCount = SystemInfo.processorCount;
-		Logger.LogError("You have threadcount set to 1");
-		threadCount = 1;
+		//Logger.LogError("You have threadcount set to 1");
+		//threadCount = 1;
 		simulationThreads = new Thread[threadCount];
 
 		#if _DEBUG
@@ -289,6 +289,7 @@ public class Simulation {
 
 		//Set the maximum to 0
 		maxNumberOfPeople = 0;
+		int goodCellCount = 0;
 
 		//Init every cell
 		for (int x = 0; x < width; x++) {
@@ -355,6 +356,7 @@ public class Simulation {
 				readCell.roadPercent = ((float)color.r) / 255.0f;
 
 				if (readCell.inMask) {
+					goodCellCount++;
 					if (index < lowestValidIndex) {
 						lowestValidIndex = index;
 					}
@@ -369,6 +371,9 @@ public class Simulation {
 				//Logger.Log("Max nuber of people in one cell: " + data.maxNumberOfPeople);
 			}
 		}
+
+		//Now that we know how many good cells there are, let's demarcate them
+
 	}
 
 	//simple function, create the simulation airports object
@@ -386,7 +391,7 @@ public class Simulation {
 		get {
 			if (startedTick) {
 				for (int q = 0; q < threadCount; q++) {
-					if (!simulationThreads[q].Join(TimeSpan.Zero)) {
+					if (simulationThreads[q].IsAlive) {
 						return true;
 					}
 				}

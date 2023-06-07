@@ -259,14 +259,19 @@ public class SimulationManager {
 			if (previousTickStart != 0.0f) {
 				nextTickTime = Time.realtimeSinceStartup + targetTickTime;
 			}
-			stats.updateStats();
+			
+			Logger.Log(simulation.runCount);
+			Logger.Log(GlobalSettings.ticksPerStatsUpdate);
+			Logger.Log(simulation.runCount % GlobalSettings.ticksPerStatsUpdate);
+			if (simulation.runCount % GlobalSettings.ticksPerStatsUpdate == 0) {
+				stats.updateStats();
+				simulationCanvas.UpdateCanvas();
+			}
 			
 			//TODO this is really a test case to verify that the number of people doesn't change because it shouldn't
 			//Logger.Log(stats.globalTotals.numberOfPeople);
 			colorSettingsPanel.setSimulationColors(ref simulation);
-			simulationCanvas.UpdateCanvas();
 			simulationCanvas.UpdateSliderValues();
-
 
 			//Start the next tick
 			simulation.beginTick();
