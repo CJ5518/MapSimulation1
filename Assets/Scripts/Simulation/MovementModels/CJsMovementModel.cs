@@ -27,7 +27,7 @@ public class CJsMovementModel : SimulationMovementModel {
 		float roadFactor = receiverCell.roadPercent >= 0.4f ? receiverCell.roadPercent * simulation.roadMultiplier : 1.0f;
 
 		//Water
-		float waterFactor = simulation.waterAffectsZombies ? (1.0f - receiverCell.waterLevel) : 1.0f;
+		float waterFactor = simulation.waterAffectsZombies ? (1.0f - receiverCell.waterLevel) : 0.3f;
 
 		//Multiply it by 2 because the misc factors generally go to 1
 		amount *= spreadRate * elevationFactor * populationFactor * 2.0f * simulation.dt * waterFactor * roadFactor;
