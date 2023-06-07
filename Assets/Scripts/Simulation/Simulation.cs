@@ -93,14 +93,14 @@ public class Simulation {
 		public float vaccRate;
 		//0-1 the amount of this cell that has water in it
 		public float waterLevel;
-		//True if this cell has a major road in it
-		public bool hasRoad;
+		//How much road we got? 1 is maximum roadage 0 is no rodage
+		public float roadPercent;
 
 		public bool inMask; //Are we in the mask
 
 		public Cell(Cell otherCell) {
 			elevation = otherCell.elevation;
-			hasRoad = otherCell.hasRoad;
+			roadPercent = otherCell.roadPercent;
 			inMask = otherCell.inMask;
 			vaccRate = otherCell.vaccRate;
 			waterLevel = otherCell.waterLevel;
@@ -150,10 +150,6 @@ public class Simulation {
 	public float logDrawSMax;
 	//Do we discretize like a chode or stochastize like a chad?
 	public bool useTauLeaping = false;
-
-	//Gravity model parameters
-	float gravityMovementAlpha = 0.6f;
-	float gravityMovementBeta = 0.3f;
 
 	//Should be something like zombie climbing multiplier
 	public bool zombiesCanClimbMountains = true;
@@ -356,7 +352,7 @@ public class Simulation {
 
 				//Presence of road
 				color = roadsTexture.GetPixel(x,y);
-				readCell.hasRoad = colorToInt(color) == 1;
+				readCell.roadPercent = ((float)color.r) / 255.0f;
 
 				if (readCell.inMask) {
 					if (index < lowestValidIndex) {

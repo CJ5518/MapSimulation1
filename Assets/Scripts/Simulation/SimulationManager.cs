@@ -259,9 +259,7 @@ public class SimulationManager {
 			if (previousTickStart != 0.0f) {
 				nextTickTime = Time.realtimeSinceStartup + targetTickTime;
 			}
-			
-			if (simulation.runCount % 1 == 0)
-				stats.updateStats();
+			stats.updateStats();
 			
 			//TODO this is really a test case to verify that the number of people doesn't change because it shouldn't
 			//Logger.Log(stats.globalTotals.numberOfPeople);

@@ -24,7 +24,7 @@ public class CJsMovementModel : SimulationMovementModel {
 		elevationFactor = simulation.zombiesCanClimbMountains ? elevationFactor : 0.0f;
 
 		//Roads
-		float roadFactor = receiverCell.hasRoad ? simulation.roadMultiplier : 1.0f;
+		float roadFactor = receiverCell.roadPercent >= 0.4f ? receiverCell.roadPercent * simulation.roadMultiplier : 1.0f;
 
 		//Water
 		float waterFactor = simulation.waterAffectsZombies ? (1.0f - receiverCell.waterLevel) : 1.0f;
