@@ -34,6 +34,9 @@ public class SimulationStats {
 
 	//Events
 	public UnityEvent<int> infectionReachesState = new UnityEvent<int>();
+	public UnityEvent infectionDiesOut = new UnityEvent();
+	//Used to prevent the above event from firing too many times
+	private bool invokedDeathOut = false;
 
 
 	public SimulationStats() {
@@ -65,6 +68,7 @@ public class SimulationStats {
 	//Init stat tracking 
 	public void init() {
 		Simulation simulation = SimulationManager.simulation;
+		SimulationManager.main.onZombieDropped.AddListener(onZombieDropped);
 		stateIndices = new List<List<int>>();
 		for (int q = 0; q < stateNames.Count; q++) {
 			stateIndices.Add(new List<int>());
@@ -230,6 +234,7 @@ public class SimulationStats {
 						&& totals.state[simulation.model.droppingStateIdx] > 0
 						) {
 						//Then fire the infection event
+						//NOTE: This fires when anything in the state changes, so vaccinations cause this as well
 						infectionReachesState.Invoke(q);
 					}
 
@@ -262,7 +267,21 @@ public class SimulationStats {
 		//}
 		if (GlobalSettings.writeOutputFiles)
 			updateFileWrite();
+		//Fire event if the infection has died out
+		if (globalTotals.state[SimulationManager.simulation.model.droppingStateIdx] == 0 && SimulationManager.simulation.dtSimulated >= 10 && !invokedDeathOut) {
+			infectionDiesOut.Invoke();
+			invokedDeathOut = true;
+		}
 	}
+
+	//Event handlers for events we subscribe to
+
+	//Set the invoked death var to false,
+	//Basically meaning we've started a new pandemic, so it can die out again, later, maybe
+	void onZombieDropped() {
+		invokedDeathOut = false;
+	}
+
 
 	StreamWriter outputFile;
 	bool beganFileWrite = false;

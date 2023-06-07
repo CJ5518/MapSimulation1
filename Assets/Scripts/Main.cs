@@ -25,8 +25,10 @@ public class Main : MonoBehaviour {
 	public ParameterPanel parameterPanel;
 	public ColorSettingsPanel colorSettingsPanel;
 
-	//Event we emit, called in unity's own OnDestroy
+	//Events we emit
+	//called in unity's own OnDestroy
 	public UnityEvent onMainDestroy;
+	public UnityEvent onZombieDropped = new UnityEvent();
 	
 	bool loadedSimulation = false;
 	bool hasPlacedAZombie = false;
@@ -37,6 +39,11 @@ public class Main : MonoBehaviour {
 
 		string[] args = System.Environment.GetCommandLineArgs();
 		GlobalSettings.initFromCommandLine(args);
+		
+		//Hook up some batch mode events
+		if (Application.isBatchMode) {
+			SimulationManager.stats.infectionDiesOut.AddListener(ExitProgramNoArgs);
+		}
 
 		if (GlobalSettings.quitApplication) {
 			ExitProgram(true);
@@ -105,6 +112,10 @@ public class Main : MonoBehaviour {
 
 	public static void ExitProgram(bool hard = false, int code = 0) {
 		Application.Quit();
+	}
+
+	public static void ExitProgramNoArgs() {
+		ExitProgram(true);
 	}
 
 	public static void ResetScene() {
