@@ -19,9 +19,11 @@ public class CameraControl_Force : MonoBehaviour {
 	void Start() {
 		cam = Camera.main.transform;
 	}
-	void FixedUpdate() {
+	void Update() {
 		UpdateInputs();
 		Zoom();
+	}
+	void FixedUpdate() {
 		Rotation();
 		ClampRotation();
 	}
