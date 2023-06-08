@@ -260,9 +260,6 @@ public class SimulationManager {
 				nextTickTime = Time.realtimeSinceStartup + targetTickTime;
 			}
 			
-			Logger.Log(simulation.runCount);
-			Logger.Log(GlobalSettings.ticksPerStatsUpdate);
-			Logger.Log(simulation.runCount % GlobalSettings.ticksPerStatsUpdate);
 			if (simulation.runCount % GlobalSettings.ticksPerStatsUpdate == 0) {
 				stats.updateStats();
 				simulationCanvas.UpdateCanvas();
@@ -287,7 +284,7 @@ public class SimulationManager {
 			//Logger.Log("Tick finito");
 			tickCountThisSecond++;
 			if (Time.realtimeSinceStartup - aStartTime >= 1.0f) {
-				//Logger.Log("TPS: " + (tickCount / (Time.realtimeSinceStartup - aStartTime)));
+				Logger.Log("TPS: " + (tickCountThisSecond / (Time.realtimeSinceStartup - aStartTime)));
 				tickCountThisSecond = 0;
 				aStartTime = Time.realtimeSinceStartup;
 			}

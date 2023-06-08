@@ -68,6 +68,9 @@ public class Simulation {
 	private Thread[] simulationThreads;
 	private int threadCount;
 
+	//Array of good cell ids, all of them
+	public int[] goodCellIds;
+
 	//Metadata for the textures
 	public NativeArray<TextureMetadata> textureMetadataArray;
 	//Pointers to the texutreArray that are only ever valid in the simulation job
@@ -111,8 +114,6 @@ public class Simulation {
 			}
 		}
 	}
-
-
 
 	//Texture metadata struct
 	//Mostly just here in case we need it
@@ -270,9 +271,9 @@ public class Simulation {
 		statesToDraw = new List<int>();
 		
 		//Thread stuff
-		threadCount = SystemInfo.processorCount;
+		threadCount = SystemInfo.processorCount - 1;
+		threadCount = threadCount <= 0 ? 1 : threadCount;
 		//Logger.LogError("You have threadcount set to 1");
-		//threadCount = 1;
 		simulationThreads = new Thread[threadCount];
 
 		#if _DEBUG
@@ -289,7 +290,7 @@ public class Simulation {
 
 		//Set the maximum to 0
 		maxNumberOfPeople = 0;
-		int goodCellCount = 0;
+		List<int> goodCellIdsList = new List<int>();
 
 		//Init every cell
 		for (int x = 0; x < width; x++) {
@@ -356,7 +357,7 @@ public class Simulation {
 				readCell.roadPercent = ((float)color.r) / 255.0f;
 
 				if (readCell.inMask) {
-					goodCellCount++;
+					goodCellIdsList.Add(index);
 					if (index < lowestValidIndex) {
 						lowestValidIndex = index;
 					}
@@ -372,8 +373,8 @@ public class Simulation {
 			}
 		}
 
-		//Now that we know how many good cells there are, let's demarcate them
-
+		//Now that we have all the good cells in our list, put it into an array
+		goodCellIds = goodCellIdsList.ToArray();
 	}
 
 	//simple function, create the simulation airports object
@@ -417,13 +418,11 @@ public class Simulation {
 		}
 		drawTextureData = drawTexture.GetRawTextureData<Color32>();
 
-		int sizeOfEach = highestValidIndex - lowestValidIndex;
+		int sizeOfEach = goodCellIds.Length;
 		sizeOfEach = ((threadCount - (sizeOfEach % threadCount)) + sizeOfEach) / threadCount;
-		
 		for (int q = 0; q < threadCount; q++) {
-			int startIdx = lowestValidIndex + (q * sizeOfEach);
-			int endIdx = lowestValidIndex + ((q+1) * sizeOfEach);
-			endIdx = endIdx <= highestValidIndex+1 ? endIdx : highestValidIndex+1;
+			int startIdx = (q * sizeOfEach);
+			int endIdx = ((q+1) * sizeOfEach);
 			simulationThreads[q] = new Thread(() => updateSimulation(startIdx, endIdx));
 			simulationThreads[q].Priority = System.Threading.ThreadPriority.Lowest;
 			simulationThreads[q].Start();
@@ -488,7 +487,9 @@ public class Simulation {
 
 	//The function that gets called for every index [start, endIdx)
 	public void updateSimulation(int startIdx, int endIdx) {
-		for (int index = startIdx; index < endIdx; index++) {
+		for (int fakeIndex = startIdx; fakeIndex < endIdx && fakeIndex < goodCellIds.Length; fakeIndex++) {
+			int index = goodCellIds[fakeIndex];
+
 			if (!cellIsValid(index)) {
 				drawTextureData[index] = new Color32(0,0,0,0);
 				continue;
