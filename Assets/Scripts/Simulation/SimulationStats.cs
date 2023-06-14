@@ -11,6 +11,12 @@ using System.IO;
 public class SimulationStats {
 	public int lastStatsUpdate = -1;
 
+	//Some settings - Both are UNUSED cjnote
+	//Store at minimum 200 hours of data
+	public int graphTimeRangeMin = 200;
+	//Store at maximum 250 hours of data
+	public int graphTimeRangeMax = 250;
+
 	public const string relativeStateShapefilePath = "/USA_States_Expanded.shp";
 	//The shapes of every state
 	public List<Vector2[]> stateShapes;
@@ -234,7 +240,7 @@ public class SimulationStats {
 						&& totals.state[simulation.model.droppingStateIdx] > 0
 						) {
 						//Then fire the infection event
-						//NOTE: This fires when anything in the state changes, so vaccinations cause this as well
+						//cjnote: This fires when anything in the state changes, so vaccinations cause this as well
 						infectionReachesState.Invoke(q);
 					}
 
@@ -243,6 +249,7 @@ public class SimulationStats {
 						chartData.series[j].data.Add(new Data(totals.state[j]));
 					}
 					chartData.categories.Add(simulation.dtSimulated.ToString());
+					
 					//Only do this once
 					break;
 				}
