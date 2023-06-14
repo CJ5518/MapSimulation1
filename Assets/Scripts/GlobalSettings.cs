@@ -6,7 +6,7 @@ using System.IO;
 
 public class GlobalSettings {
 	// -t or -stopTime
-	public static float stopTime = 200.0f;
+	public static float stopTime = 500.0f;
 	// -o or -outputPath
 	public static string outputPath = "./";
 	public static string outputFilePostfix = "";
@@ -78,8 +78,10 @@ public class GlobalSettings {
 	//Checks for the exit conditions of the simulation
 	//If anything is amiss it will set quitApplication to true
 	public static void Update() {
-		if (SimulationManager.simulation.dtSimulated >= stopTime) {
-			quitApplication = true;
+		if (Application.isBatchMode) {
+			if (SimulationManager.simulation.dtSimulated >= stopTime) {
+				quitApplication = true;
+			}
 		}
 	}
 

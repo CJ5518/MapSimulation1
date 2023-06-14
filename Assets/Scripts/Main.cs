@@ -111,6 +111,7 @@ public class Main : MonoBehaviour {
 	//Functions called by other scripts
 
 	public static void ExitProgram(bool hard = false, int code = 0) {
+		Logger.Log("---------------------------------Quitting application---------------------------------");
 		Application.Quit();
 	}
 
