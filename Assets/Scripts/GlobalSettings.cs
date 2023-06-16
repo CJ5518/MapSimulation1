@@ -27,7 +27,7 @@ public class GlobalSettings {
 
 	public static string airportStartAt = "ATL";
 
-	public static int ticksPerStatsUpdate = 5;
+	public static int ticksPerStatsUpdate = 1;
 
 	//Not set by any specific arg
 	public static bool quitApplication = false;
@@ -46,6 +46,7 @@ public class GlobalSettings {
 			.Add ("opost=|outputFilePostfix=", v => outputFilePostfix = v)
 			.Add ("deterministic", v => useDeterministic = true)
 			.Add ("airports", v => useAirports = true)
+			.Add ("ticksPerStats=", v => int.TryParse(v, out ticksPerStatsUpdate))
 			.Add ("gravity=", v => {
 				gravityModelParams = new float[2];
 				string[] cmdParams = v.Split(',');
