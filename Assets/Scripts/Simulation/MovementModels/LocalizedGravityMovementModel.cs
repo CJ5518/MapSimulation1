@@ -1,6 +1,7 @@
 using UnityEngine;
 
 //https://www.nature.com/articles/nature10856
+//Also hey check out this paper: https://www.pnas.org/doi/full/10.1073/pnas.0906910106
 public class LocalizedGravityMovementModel : SimulationMovementModel {
 	//param[0] = alpha
 	//param[1] = beta
