@@ -357,6 +357,7 @@ public class Simulation {
 				readCell.roadPercent = ((float)color.r) / 255.0f;
 
 				if (readCell.inMask) {
+					Logger.Log(readCell.elevation);
 					goodCellIdsList.Add(index);
 					if (index < lowestValidIndex) {
 						lowestValidIndex = index;

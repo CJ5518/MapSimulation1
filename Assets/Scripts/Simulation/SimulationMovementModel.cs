@@ -8,6 +8,9 @@ public abstract class SimulationMovementModel {
 	//give to the cell identified by the receiver index
 	public abstract float getCellSpreadValue(int idxGiver, int idxReceiver, Simulation simulation);
 
+	public float waterFactor = 1.0f;
+	public float heightFactor = 1.0f;
+	public float roadFactor = 1.0f;
 
 	//Instead of these two functions, maybe something like
 	//movementModel.parameters or smthn

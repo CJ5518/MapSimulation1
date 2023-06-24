@@ -15,26 +15,22 @@ public class CJsMovementModel : SimulationMovementModel {
 		float populationFactor = Mathf.Clamp(Mathf.Sqrt(giverCell.state.numberOfPeople), float.Epsilon, float.MaxValue)
 			/ Mathf.Sqrt(simulation.maxNumberOfPeople);
 
+		amount *= populationFactor;
+
 		//Elevation
-		float elevationDiff = receiverCell.elevation - giverCell.elevation;
-		float elevationFactor = 1.0f - (elevationDiff / 250.0f);
-		//If less than 0, be 0 instead
-		elevationFactor = elevationFactor > 0.0f ? elevationFactor : 0.0f;
-		//Set to 0 if zombiesCanClimbMountains is false
-		elevationFactor = simulation.zombiesCanClimbMountains ? elevationFactor : 0.0f;
+		amount += amount * (-receiverCell.waterLevel * waterFactor);
+		amount += amount * (receiverCell.roadPercent * roadFactor);
+		
+		//If positive, means going up
+		int elevationDiff = receiverCell.elevation - giverCell.elevation;
 
-		//Roads
-		float roadFactor = receiverCell.roadPercent >= 0.4f ? receiverCell.roadPercent * simulation.roadMultiplier : 1.0f;
+		amount += amount * ((-elevationDiff/3000.0f) * roadFactor);
 
-		//Water
-		float waterFactor = simulation.waterAffectsZombies ? (1.0f - receiverCell.waterLevel) : 0.3f;
 
-		//Multiply it by 2 because the misc factors generally go to 1
-		amount *= spreadRate * elevationFactor * populationFactor * 2.0f * simulation.dt * waterFactor * roadFactor;
 		//Lame fix for the bug where a cell would give too many things
 		if (amount > giverCell.state.state[simulation.model.droppingStateIdx] / 15.0f) amount = giverCell.state.state[simulation.model.droppingStateIdx] / 15.0f;
 		//Make sure it's greater than one * dt on our way out
-		return amount >= 1.0f * simulation.dt ? amount : 0.0f;
+		return amount;
 	}
 
 	public override ParameterSliderSettings[] getSliderSettings(bool duringSimulation) {
