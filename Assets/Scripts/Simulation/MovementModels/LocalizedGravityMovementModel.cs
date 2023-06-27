@@ -43,13 +43,7 @@ public class LocalizedGravityMovementModel : SimulationMovementModel {
 		* Mathf.Pow(receiverCell.state.state[simulation.model.startingStateIdx], parameters[1])
 		) / (distance * 121.0f);
 
-		amount += amount * (-receiverCell.waterLevel * waterFactor);
-		amount += amount * (receiverCell.roadPercent * roadFactor);
-		
-		//If positive, means going up
-		int elevationDiff = receiverCell.elevation - giverCell.elevation;
-
-		amount += amount * ((-elevationDiff/3000.0f) * roadFactor);
+		amount = doBasicDataLayers(amount, ref receiverCell, ref giverCell);
 
 		//Lame fix for the bug where a cell would give too many things
 		//As well as the negative people bug

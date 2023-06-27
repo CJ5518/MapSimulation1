@@ -136,6 +136,7 @@ public class SimulationManager {
 			simulation.enableAirplanes = SimulationSetupData.enableAirports;
 			simulation.useTauLeaping = SimulationSetupData.useStochasticModel;
 		} else {
+			//Question scene not used, check global settings
 			simulation.useTauLeaping = !GlobalSettings.useDeterministic;
 			simulation.enableAirplanes = GlobalSettings.useAirports;
 			if (GlobalSettings.useGravityModel) {
@@ -146,6 +147,11 @@ public class SimulationManager {
 			} else {
 				simulation.movementModel = new CJsMovementModel();
 			}
+
+			//Set up the generic movement model params
+			simulation.movementModel.roadFactor = GlobalSettings.roadFactor;
+			simulation.movementModel.waterFactor = GlobalSettings.waterFactor;
+			simulation.movementModel.heightFactor = GlobalSettings.heightFactor;
 
 			//Params from the command line
 			if (GlobalSettings.setupParams != null) {

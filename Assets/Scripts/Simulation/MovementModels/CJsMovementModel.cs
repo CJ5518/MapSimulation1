@@ -15,17 +15,9 @@ public class CJsMovementModel : SimulationMovementModel {
 		float populationFactor = Mathf.Clamp(Mathf.Sqrt(giverCell.state.numberOfPeople), float.Epsilon, float.MaxValue)
 			/ Mathf.Sqrt(simulation.maxNumberOfPeople);
 
-		amount *= populationFactor;
+		amount *= populationFactor * spreadRate;
 
-		//Elevation
-		amount += amount * (-receiverCell.waterLevel * waterFactor);
-		amount += amount * (receiverCell.roadPercent * roadFactor);
-		
-		//If positive, means going up
-		int elevationDiff = receiverCell.elevation - giverCell.elevation;
-
-		amount += amount * ((-elevationDiff/3000.0f) * roadFactor);
-
+		amount = doBasicDataLayers(amount, ref receiverCell, ref giverCell);
 
 		//Lame fix for the bug where a cell would give too many things
 		if (amount > giverCell.state.state[simulation.model.droppingStateIdx] / 15.0f) amount = giverCell.state.state[simulation.model.droppingStateIdx] / 15.0f;

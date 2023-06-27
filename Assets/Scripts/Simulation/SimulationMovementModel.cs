@@ -8,6 +8,25 @@ public abstract class SimulationMovementModel {
 	//give to the cell identified by the receiver index
 	public abstract float getCellSpreadValue(int idxGiver, int idxReceiver, Simulation simulation);
 
+
+	//Does basic adjustments to "amount" based on the data layers, same for every model anyway
+	public float doBasicDataLayers(float amount, ref Simulation.Cell receiverCell, ref Simulation.Cell giverCell) {
+		float road,water,height;
+
+		water = amount * (-receiverCell.waterLevel * waterFactor);
+		road = amount * (receiverCell.roadPercent * roadFactor);
+		
+		//If positive, means going up
+		int elevationDiff = receiverCell.elevation - giverCell.elevation;
+
+		height = amount * ((-elevationDiff/3000.0f) * roadFactor);
+
+		amount += road;
+		amount += water;
+		amount += height;
+		return amount;
+	}
+
 	public float waterFactor = 1.0f;
 	public float heightFactor = 1.0f;
 	public float roadFactor = 1.0f;
