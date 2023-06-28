@@ -25,9 +25,11 @@ public class GlobalSettings {
 	//If this is null, use ALL defaults
 	public static float[] setupParams = null;
 
-	public static float waterFactor = 1.0f;
-	public static float roadFactor = 1.0f;
-	public static float heightFactor = 1.0f;
+	public static float waterFactor = 0.1f;
+	public static float roadFactor = 0.1f;
+	public static float heightFactor = 0.1f;
+
+	public static float cjspreadRate = 1.0f;
 
 	public static string airportStartAt = "ATL";
 
@@ -70,9 +72,10 @@ public class GlobalSettings {
 					setupParams[paramNameToIdx[paramDeats[0]]] = float.Parse(paramDeats[1]);
 				}
 			})
-			.Add("waterFactor=", v=> float.TryParse(v, out waterFactor))
-			.Add("roadFactor=", v=> float.TryParse(v, out roadFactor))
-			.Add("heightFactor=", v=> float.TryParse(v, out heightFactor))
+			.Add("waterFactor=", v => float.TryParse(v, out waterFactor))
+			.Add("roadFactor=", v => float.TryParse(v, out roadFactor))
+			.Add("heightFactor=", v => float.TryParse(v, out heightFactor))
+			.Add("cjspreadRate=", v => float.TryParse(v, out cjspreadRate))
 			.Add("startat=", v => {
 				airportStartAt = v;
 			})

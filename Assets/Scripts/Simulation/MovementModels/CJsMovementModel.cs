@@ -1,9 +1,22 @@
 using UnityEngine;
 
 public class CJsMovementModel : SimulationMovementModel {
+	ParameterSliderSettings[] settingsArray;
 
 	//Fudge factor
 	float spreadRate = 1.0f;
+
+	public CJsMovementModel(float spreadRate) {
+		this.spreadRate = spreadRate;
+		settingsArray[0] = new ParameterSliderSettings();
+		settingsArray[0].displayType = ParameterSlider.DisplayType.Default;
+		settingsArray[0].scaleType = ParameterSlider.ScaleType.None;
+		settingsArray[0].minValue = 0;
+		settingsArray[0].maxValue = 2;
+		settingsArray[0].startingValue = spreadRate;
+		settingsArray[0].textPrefix = "Spread Rate:";
+		settingsArray = new ParameterSliderSettings[1];
+	}
 
 	public override float getCellSpreadValue(int idxGiver, int idxReceiver, Simulation simulation) {
 		Simulation.Cell giverCell = simulation.readCells[idxGiver];
@@ -26,14 +39,6 @@ public class CJsMovementModel : SimulationMovementModel {
 	}
 
 	public override ParameterSliderSettings[] getSliderSettings(bool duringSimulation) {
-		ParameterSliderSettings[] settingsArray = new ParameterSliderSettings[1];
-		settingsArray[0] = new ParameterSliderSettings();
-		settingsArray[0].displayType = ParameterSlider.DisplayType.Default;
-		settingsArray[0].scaleType = ParameterSlider.ScaleType.None;
-		settingsArray[0].minValue = 0;
-		settingsArray[0].maxValue = 2;
-		settingsArray[0].startingValue = spreadRate;
-		settingsArray[0].textPrefix = "Spread Rate:";
 		return settingsArray;
 	}
 

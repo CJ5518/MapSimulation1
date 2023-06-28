@@ -8,24 +8,24 @@ public class LocalizedGravityMovementModel : SimulationMovementModel {
 	public float[] parameters = new float[2];
 	ParameterSliderSettings[] sliderSettings;
 
-	public LocalizedGravityMovementModel() {
+	public LocalizedGravityMovementModel(float alpha, float beta) {
 		sliderSettings = new ParameterSliderSettings[2];
 		sliderSettings[0].displayType = ParameterSlider.DisplayType.Default;
 		sliderSettings[0].maxValue = 2.0f;
 		sliderSettings[0].minValue = 0.0f;
 		sliderSettings[0].scaleType = ParameterSlider.ScaleType.None;
-		sliderSettings[0].startingValue = 1.0f;
+		sliderSettings[0].startingValue = alpha;
 		sliderSettings[0].textPrefix = "Alpha: ";
 
 		sliderSettings[1].displayType = ParameterSlider.DisplayType.Default;
 		sliderSettings[1].maxValue = 2.0f;
 		sliderSettings[1].minValue = 0.0f;
 		sliderSettings[1].scaleType = ParameterSlider.ScaleType.None;
-		sliderSettings[1].startingValue = 1.0f;
+		sliderSettings[1].startingValue = beta;
 		sliderSettings[1].textPrefix = "Beta: ";
 
-		parameters[0] = 1.0f;
-		parameters[1] = 1.0f;
+		parameters[0] = alpha;
+		parameters[1] = beta;
 	}
 
 

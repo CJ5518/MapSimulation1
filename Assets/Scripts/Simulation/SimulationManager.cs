@@ -85,10 +85,10 @@ public class SimulationManager {
 		SimulationMovementModel movementModel;
 		switch (SimulationSetupData.movementModel) {
 			case 0:
-			movementModel = new LocalizedGravityMovementModel();
+			movementModel = new LocalizedGravityMovementModel(0.35f, 0.35f);
 			break;
 			case 1:
-			movementModel = new CJsMovementModel();
+			movementModel = new CJsMovementModel(1.0f);
 			break;
 			default:
 			throw new System.Exception(
@@ -140,12 +140,13 @@ public class SimulationManager {
 			simulation.useTauLeaping = !GlobalSettings.useDeterministic;
 			simulation.enableAirplanes = GlobalSettings.useAirports;
 			if (GlobalSettings.useGravityModel) {
-				LocalizedGravityMovementModel gravityMovementModel = new LocalizedGravityMovementModel();
-				gravityMovementModel.parameters[0] = GlobalSettings.gravityModelParams[0];
-				gravityMovementModel.parameters[1] = GlobalSettings.gravityModelParams[1];
+				LocalizedGravityMovementModel gravityMovementModel = new LocalizedGravityMovementModel(GlobalSettings.gravityModelParams[0], GlobalSettings.gravityModelParams[1]);
 				simulation.movementModel = gravityMovementModel;
 			} else {
-				simulation.movementModel = new CJsMovementModel();
+				simulation.movementModel = new CJsMovementModel(GlobalSettings.cjspreadRate);
+				//Quicker testing of the gravity model
+				//LocalizedGravityMovementModel gravityMovementModel = new LocalizedGravityMovementModel(0.35f, 0.35f);
+				//simulation.movementModel = gravityMovementModel;
 			}
 
 			//Set up the generic movement model params
