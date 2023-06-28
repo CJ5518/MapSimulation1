@@ -295,6 +295,7 @@ public class SimulationStats {
 	private void beginFileWrite() {
 		if (beganFileWrite)
 			return;
+		Simulation simulation = SimulationManager.simulation;
 		beganFileWrite = true;
 		//Set up on destroy
 		SimulationManager.main.onMainDestroy.AddListener(endFileWrite);
@@ -310,27 +311,58 @@ public class SimulationStats {
 		SimulationModel model = SimulationManager.simulation.model;
 
 		//Write the parameter file
-		StreamWriter paramFile = new StreamWriter(outFolder + dataFileRootName + "-Params.csv");
+		List<KeyValuePair<string,string>> data = new List<KeyValuePair<string, string>>();
+
+		System.Action<string, string> makeEntry = (key,val)=> {
+			data.Add(new KeyValuePair<string, string>(key,val));
+		};
+
+		//Disease params
 		for (int q = 0; q < model.parameterCount; q++) {
-			if (q > 0) {
-				paramFile.Write(",");
-			}
-			paramFile.Write(model.parameterInfoArray[q].longName);
+			makeEntry(model.parameterInfoArray[q].longName, model.parameters[q].ToString());
 		}
 
-		paramFile.Write(",Airports,Deterministic,Gravity");
-		
-		paramFile.Write("\n");
-		for (int q = 0; q < model.parameterCount; q++) {
+		//Misc things
+		makeEntry("Deterministic", (!SimulationManager.simulation.useTauLeaping).ToString());
+		makeEntry("Airports", (SimulationManager.simulation.enableAirplanes).ToString());
+
+		bool isGravity = SimulationManager.simulation.movementModel.GetType() == typeof(LocalizedGravityMovementModel);
+		makeEntry("Gravity", (isGravity).ToString());
+		//Gravity model or no? Would be better if this would be automagic, but whatever
+		if (isGravity) {
+			LocalizedGravityMovementModel gravModel = simulation.movementModel as LocalizedGravityMovementModel;
+			makeEntry("Alpha", gravModel.parameters[0].ToString());
+			makeEntry("Beta", gravModel.parameters[1].ToString());
+			makeEntry("SpreadRate", (0.0f).ToString());
+		} else {
+			CJsMovementModel cjModel = simulation.movementModel as CJsMovementModel;
+			makeEntry("Alpha", (0.0f).ToString());
+			makeEntry("Beta", (0.0f).ToString());
+			makeEntry("SpreadRate", cjModel.spreadRate.ToString());
+		}
+		makeEntry("RoadFactor", simulation.movementModel.roadFactor.ToString());
+		makeEntry("WaterFactor", simulation.movementModel.waterFactor.ToString());
+		makeEntry("HeightFactor", simulation.movementModel.heightFactor.ToString());
+		makeEntry("StartingAirport(IfApplicable)", GlobalSettings.airportStartAt);
+
+		StreamWriter paramFile = new StreamWriter(outFolder + dataFileRootName + "-Params.csv");
+		//Write keys
+		for (int q = 0; q < data.Count; q++) {
 			if (q > 0) {
 				paramFile.Write(",");
 			}
-			paramFile.Write(model.parameters[q]);
+			paramFile.Write(data[q].Key);
 		}
-		paramFile.Write(
-			"," + SimulationManager.simulation.enableAirplanes +
-			"," + !SimulationManager.simulation.useTauLeaping + 
-			"," + (SimulationManager.simulation.movementModel.GetType() == typeof(LocalizedGravityMovementModel)));
+
+		//Write values
+		paramFile.Write("\n");
+		for (int q = 0; q < data.Count; q++) {
+			if (q > 0) {
+				paramFile.Write(",");
+			}
+			paramFile.Write(data[q].Value);
+		}
+
 		paramFile.Flush();
 		paramFile.Close();
 
