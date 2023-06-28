@@ -1,10 +1,10 @@
 using UnityEngine;
 
 public class CJsMovementModel : SimulationMovementModel {
-	ParameterSliderSettings[] settingsArray;
+	ParameterSliderSettings[] settingsArray = new ParameterSliderSettings[1];
 
 	//Fudge factor
-	float spreadRate = 1.0f;
+	public float spreadRate = 1.0f;
 
 	public CJsMovementModel(float spreadRate) {
 		this.spreadRate = spreadRate;
