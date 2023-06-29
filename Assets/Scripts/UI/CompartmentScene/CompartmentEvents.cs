@@ -59,7 +59,14 @@ public static class CompartmentEvents
 	/// <param name="newValue"></param>
 	public static void SetNewValue(int newValue)
 	{
-		//Logger.Log($"SetNewValue {newValue}");
+		Logger.Log($"SetNewValue {newValue}");
+		switch (newValue) {  //15, 20,21,22 are all bad
+			case 15:
+			case 20:
+			case 21:
+			case 22:
+			return;
+		}
 		if (newValue == currVal)
 		{
 			return;
@@ -79,14 +86,24 @@ public static class CompartmentEvents
 	{
 		if (currVal + 1 > maxVal) return;
 		oldVal = currVal;
-		OnValueChange?.Invoke(++currVal);
+		//Dumb stuff to remove some questions
+		if (currVal + 1 == 15) currVal++;
+		if (currVal + 1 == 20) currVal+=3;
+		if (currVal + 1 == 21) currVal+=2;
+		currVal++;
+		OnValueChange?.Invoke(currVal);
 	}
 
 	public static void DecValue()
 	{
 		if (currVal - 1 < minVal) return;
 		oldVal = currVal;
-		OnValueChange?.Invoke(--currVal);
+		//Dumb stuff to remove some questions
+		if (currVal - 1 == 15) currVal--;
+		if (currVal - 1 == 21) currVal-=2;
+		if (currVal - 1 == 22) currVal-=3;
+		currVal--;
+		OnValueChange?.Invoke(currVal);
 	}
 
 	/// <summary>
