@@ -389,4 +389,10 @@ public class CompartmentDataManager : MonoBehaviour
 	{
 		SceneManager.LoadScene(1);
 	}
+
+	void Update() {
+		if (Input.GetKeyDown(KeyCode.Q)) {
+			PrintData();
+		}
+	}
 }
