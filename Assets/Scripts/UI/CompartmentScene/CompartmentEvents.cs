@@ -60,8 +60,7 @@ public static class CompartmentEvents
 	public static void SetNewValue(int newValue)
 	{
 		Logger.Log($"SetNewValue {newValue}");
-		switch (newValue) {  //15, 20,21,22 are all bad
-			case 15:
+		switch (newValue) {  //20,21,22 are all bad
 			case 20:
 			case 21:
 			case 22:
@@ -87,7 +86,6 @@ public static class CompartmentEvents
 		if (currVal + 1 > maxVal) return;
 		oldVal = currVal;
 		//Dumb stuff to remove some questions
-		if (currVal + 1 == 15) currVal++;
 		if (currVal + 1 == 20) currVal+=3;
 		if (currVal + 1 == 21) currVal+=2;
 		currVal++;
@@ -99,7 +97,6 @@ public static class CompartmentEvents
 		if (currVal - 1 < minVal) return;
 		oldVal = currVal;
 		//Dumb stuff to remove some questions
-		if (currVal - 1 == 15) currVal--;
 		if (currVal - 1 == 21) currVal-=2;
 		if (currVal - 1 == 22) currVal-=3;
 		currVal--;

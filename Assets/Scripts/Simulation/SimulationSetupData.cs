@@ -13,6 +13,14 @@ public static class SimulationSetupData {
 	//Tau leaping, gillespie, etc.
 	public static bool useStochasticModel = false;
 
+	public static float alpha = 0.35f;
+	public static float beta = 0.35f;
+	public static float spreadRate = 1.0f;
+
+	public static float roadFactor = 0.1f;
+	public static float waterFactor = 0.1f;
+	public static float heightFactor = 0.1f;
+
     #region Parameters
     //S to E
     public static float contactRate = 0.0f;
