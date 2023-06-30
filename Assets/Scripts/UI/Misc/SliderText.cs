@@ -14,6 +14,7 @@ public class SliderText : MonoBehaviour
 	void Start()
 	{
 		slider = GetComponent<Slider>();
+		slider.onValueChanged.AddListener(SliderUpdateTexts);
 	}
 
 	/// <summary>
@@ -22,17 +23,21 @@ public class SliderText : MonoBehaviour
 	/// <param name="value"></param>
 	public void SliderUpdateTexts(float value)
 	{
-		if (decimalText)
-			decimalText.text = value.ToString("0.000");
-		if (InverseText)
-		{
-			if (value <= 0)
-				InverseText.text = "No chance";
-			else if (value >= 1)
-				InverseText.text = "100%";
-			else
-				InverseText.text = ToFraction(value, 30);
+		if (!slider.wholeNumbers) {
+			if (decimalText)
+				decimalText.text = value.ToString("0.000");
+			if (InverseText)
+			{
+				if (value <= 0)
+					InverseText.text = "No chance";
+				else if (value >= 1)
+					InverseText.text = "100%";
+				else
+					InverseText.text = ToFraction(value, 30);
 
+			}
+		} else {
+			decimalText.text = ((int)value+1).ToString();
 		}
 	}
 

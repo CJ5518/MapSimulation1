@@ -302,28 +302,14 @@ public class CompartmentDataManager : MonoBehaviour
 
 	public void PrintData()
 	{
-		Logger.Log($"Contact Rate {SimulationSetupData.contactRate} {SimulationSetupData.confidenceContact}\n" +
-			$"Infection Probability {SimulationSetupData.infectionProbability} {SimulationSetupData.confidenceInfectionProb}\n" +
-			$"LatencyEI {SimulationSetupData.latencyEI} {SimulationSetupData.confidenceEI}\n" +
-			$"RecoveryRate {SimulationSetupData.recoveryRate} {SimulationSetupData.confidenceIR}\n" +
-			$"Vaccination Availability {SimulationSetupData.vaccinationAvailability} {SimulationSetupData.confidenceAvailability}\n" +
-			$"Vaccination Uptake {SimulationSetupData.vaccinationUptake} {SimulationSetupData.confidenceUptake}\n" +
-			$"Breaktrhough Rate {SimulationSetupData.breakthroughRate} {SimulationSetupData.confidenceVE}\n" +
-			$"Mortality Rate {SimulationSetupData.mortalityRate} {SimulationSetupData.confidenceID}\n" +
-			$"Resusceptibility Rate {SimulationSetupData.waningImmunity} {SimulationSetupData.confidenceRS}\n" +
-			$"Movement Model, {(SimulationSetupData.movementModel == 0f ? "Gravity Model" : "Custom Model")}\n" +
-			$"Disease Immobilization, {SimulationSetupData.diseaseImmobilization}, {SimulationSetupData.confidenceDiseaseImmobilization}\n" +
-			$"Airplane Security Against Exposed, {SimulationSetupData.airplaneSecurityAgainstExposed}, {SimulationSetupData.confidenceAirplaneSecurityAgainstExposed}\n" +
-			$"Airplane Security Against Infected, {SimulationSetupData.airplaneSecurityAgainstInfected}, {SimulationSetupData.confidenceAirplaneSecurityAgainstInfected}\n" +
-			$"Elevation, {SimulationSetupData.elevation}, {SimulationSetupData.confidenceElevation}\n" +
-			$"Highway, {SimulationSetupData.highway}, {SimulationSetupData.confidenceHighway}\n" +
-			$"Water, {SimulationSetupData.water}, {SimulationSetupData.confidenceWater}\n" +
-			$"Income Infection Rate, {SimulationSetupData.incomeInfectionRate}, {SimulationSetupData.confidenceIncomeInfectionRate}\n" +
-			$"Income Vaccine Effectiveness, {SimulationSetupData.incomeVaccineEffectiveness}, {SimulationSetupData.confidenceIncomeVaccineEffectiveness}\n" +
-			$"Income Disease Onset Time, {SimulationSetupData.incomeDiseaseOnsetTime}, {SimulationSetupData.confidenceIncomeDiseaseOnsetTime}\n" +
-			$"Income Mortality Rate, {SimulationSetupData.incomeMortalityRate}, {SimulationSetupData.confidenceIncomeMortalityRate}\n" +
-			$"Income Waning Immunity, {SimulationSetupData.incomeWaningImmunity}, {SimulationSetupData.confidenceIncomeWaningImmunity}\n" +
-			$"Vaccination Hesistancy, {SimulationSetupData.vaccinationHesitancy}, {SimulationSetupData.confidenceVaccinationHesitancy}\n" +
+		Logger.Log($"Deterministic? {SimulationSetupData.useStochasticModel} \n" +
+			$"Movement Model, {(SimulationSetupData.movementModel == 0 ? "Gravity Model" : "Custom Model")}\n" +
+			$"Water, {SimulationSetupData.waterFactor}, {SimulationSetupData.confidenceElevation}\n" +
+			$"Highway, {SimulationSetupData.roadFactor}, {SimulationSetupData.confidenceHighway}\n" +
+			$"Elevation, {SimulationSetupData.heightFactor}, {SimulationSetupData.confidenceWater}\n" +
+			$"Alpha, {SimulationSetupData.alpha}\n" +
+			$"Beta, {SimulationSetupData.beta}\n" +
+			$"SpreadRate, {SimulationSetupData.spreadRate}\n" +
 			$"Done");
 	}
 

@@ -81,20 +81,6 @@ public class SimulationManager {
 		Texture2D roadsTexture = new Texture2D(2,2);
 		roadsTexture.LoadImage(System.IO.File.ReadAllBytes(Application.streamingAssetsPath + "/Images/Roads.png"));
 
-		//Set up the movement model
-		SimulationMovementModel movementModel;
-		switch (SimulationSetupData.movementModel) {
-			case 0:
-			movementModel = new LocalizedGravityMovementModel(0.35f, 0.35f);
-			break;
-			case 1:
-			movementModel = new CJsMovementModel(1.0f);
-			break;
-			default:
-			throw new System.Exception(
-				"Invalid number sent from script section to Main.cs for movement model, we got" + SimulationSetupData.movementModel
-			);
-		}
 		//Set up the simulation
 		simulation = new Simulation(
 			populationTexture,
@@ -104,7 +90,7 @@ public class SimulationManager {
 			roadsTexture,
 			new Texture2D[] { },
 			SimulationModelPresets.getPreset(3),
-			movementModel
+			null
 		);
 		
 		//Set up peripherals
@@ -118,7 +104,7 @@ public class SimulationManager {
 		//Put this in our fancy schmancy time thing
 		//I'm not sure what that comment means
 		colorSettingsPanel.setSimulationColors(ref simulation);
-		simulation.tickSimulation();
+		//simulation.tickSimulation();
 
 
 		//Set the parameters of the model
@@ -135,6 +121,24 @@ public class SimulationManager {
 
 			simulation.enableAirplanes = SimulationSetupData.enableAirports;
 			simulation.useTauLeaping = SimulationSetupData.useStochasticModel;
+
+
+			switch (SimulationSetupData.movementModel) {
+				case 0:
+				simulation.movementModel = new LocalizedGravityMovementModel(SimulationSetupData.alpha, SimulationSetupData.beta);
+				break;
+				case 1:
+				simulation.movementModel = new CJsMovementModel(SimulationSetupData.spreadRate);
+				break;
+				default:
+				throw new System.Exception(
+					"Invalid number sent from script section to Main.cs for movement model, we got" + SimulationSetupData.movementModel
+				);
+			}
+
+			simulation.movementModel.roadFactor = SimulationSetupData.roadFactor / 4.0f;
+			simulation.movementModel.waterFactor = SimulationSetupData.waterFactor / 4.0f;
+			simulation.movementModel.heightFactor = SimulationSetupData.heightFactor / 4.0f;
 		} else {
 			//Question scene not used, check global settings
 			simulation.useTauLeaping = !GlobalSettings.useDeterministic;

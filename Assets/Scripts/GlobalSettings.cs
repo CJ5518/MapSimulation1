@@ -33,7 +33,7 @@ public class GlobalSettings {
 
 	public static string airportStartAt = "ATL";
 
-	public static int ticksPerStatsUpdate = 1;
+	public static int ticksPerStatsUpdate = 5;
 
 	//Not set by any specific arg
 	public static bool quitApplication = false;

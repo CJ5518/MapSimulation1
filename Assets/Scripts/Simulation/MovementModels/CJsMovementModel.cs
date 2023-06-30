@@ -15,7 +15,6 @@ public class CJsMovementModel : SimulationMovementModel {
 		settingsArray[0].maxValue = 2;
 		settingsArray[0].startingValue = spreadRate;
 		settingsArray[0].textPrefix = "Spread Rate:";
-		settingsArray = new ParameterSliderSettings[1];
 	}
 
 	public override float getCellSpreadValue(int idxGiver, int idxReceiver, Simulation simulation) {
