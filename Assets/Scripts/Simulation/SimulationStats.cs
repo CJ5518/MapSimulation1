@@ -11,11 +11,11 @@ using System.IO;
 public class SimulationStats {
 	public int lastStatsUpdate = -1;
 
-	//Some settings - Both are UNUSED cjnote
-	//Store at minimum 200 hours of data
-	public int graphTimeRangeMin = 200;
-	//Store at maximum 250 hours of data
-	public int graphTimeRangeMax = 250;
+	//Some settings
+	//Store at minimum 20 data points
+	public int graphTimeRangeMin = 20;
+	//Store at maximum 25 data points
+	public int graphTimeRangeMax = 25;
 
 	public const string relativeStateShapefilePath = "/USA_States_Expanded.shp";
 	//The shapes of every state
@@ -272,6 +272,18 @@ public class SimulationStats {
 			//	break;
 			}
 		//}
+		
+		if (usaChartData.categories.Count > graphTimeRangeMax) {
+			int countDiff = usaChartData.categories.Count - graphTimeRangeMin;
+			for (int q = countDiff-1; q >= 0; q--) {
+				usaChartData.categories.RemoveAt(q);
+				for (int i = 0; i < usaChartData.series.Count; i++) {
+					usaChartData.series[i].data.RemoveAt(q);
+				}
+			}
+		}
+		
+
 		if (GlobalSettings.writeOutputFiles)
 			updateFileWrite();
 		//Fire event if the infection has died out
