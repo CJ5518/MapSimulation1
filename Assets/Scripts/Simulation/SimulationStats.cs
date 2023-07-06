@@ -255,6 +255,17 @@ public class SimulationStats {
 				}
 			}
 
+			//Enforce limitations on graph size
+			if (chartData.categories.Count > graphTimeRangeMax) {
+				int countDiff = chartData.categories.Count - graphTimeRangeMin;
+				for (int j = countDiff-1; j >= 0; j--) {
+					chartData.categories.RemoveAt(j);
+					for (int i = 0; i < chartData.series.Count; i++) {
+						chartData.series[i].data.RemoveAt(j);
+					}
+				}
+			}
+
 			chartOptions.title.mainTitle = stateNames[q];
 		}
 
@@ -273,6 +284,7 @@ public class SimulationStats {
 			}
 		//}
 		
+		//Enforce limitations in the graph size
 		if (usaChartData.categories.Count > graphTimeRangeMax) {
 			int countDiff = usaChartData.categories.Count - graphTimeRangeMin;
 			for (int q = countDiff-1; q >= 0; q--) {
