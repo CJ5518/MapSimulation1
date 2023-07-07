@@ -166,14 +166,19 @@ public class SimulationStats {
 		usaChartObj = GameObject.Find("UI_Main_CameraSpace/USAGraph/Chart");
 		Chart usaChart = usaChartObj.GetComponent<Chart>();
 
+		SimulationManager.graphsPanel.makeEntry("USA");
+
 		for (int q = 0; q < stateNames.Count; q++) {
+			SimulationManager.graphsPanel.makeEntry(stateNames[q]);
 			charts.Add(GameObject.Instantiate(chartModel, chartModel.transform.parent));
 			Chart chart = charts[q].GetComponent<Chart>();
 			//Set up the chart to have things
 			for (int i = 0; i < simulation.model.compartmentInfoArray.Length; i++) {
 				//Initialize the chart series
 				chart.chartData.series = new List<Series>();
+				SimulationManager.graphsPanel.getEntry(q+1).chartData.series = new List<Series>();
 				usaChart.chartData.series = new List<Series>();
+				SimulationManager.graphsPanel.getEntry(0).chartData.series = new List<Series>();
 				for (int j = 0; j < simulation.model.compartmentCount; j++) {
 					Series newSeries = new Series();
 					newSeries.show = true;
@@ -181,6 +186,17 @@ public class SimulationStats {
 					newSeries.name = simulation.model.compartmentInfoArray[j].longName;
 					newSeries.data = new List<Data>();
 					chart.chartData.series.Add(newSeries);
+
+					Series newSeriesBigChart = new Series();
+					newSeriesBigChart.show = true;
+					newSeriesBigChart.colorIndex = j;
+					newSeriesBigChart.name = simulation.model.compartmentInfoArray[j].longName;
+					newSeriesBigChart.data = new List<Data>();
+
+					SimulationManager.graphsPanel.getEntry(q+1).chartData.series.Add(newSeriesBigChart);
+
+
+
 					//Do the same for the usa
 					Series usaSeries = new Series();
 					usaSeries.show = true;
@@ -188,6 +204,16 @@ public class SimulationStats {
 					usaSeries.name = simulation.model.compartmentInfoArray[j].longName;
 					usaSeries.data = new List<Data>();
 					usaChart.chartData.series.Add(usaSeries);
+
+					Series usaSeriesBig = new Series();
+					usaSeriesBig.show = true;
+					usaSeriesBig.colorIndex = j;
+					usaSeriesBig.name = simulation.model.compartmentInfoArray[j].longName;
+					usaSeriesBig.data = new List<Data>();
+
+					SimulationManager.graphsPanel.getEntry(0).chartData.series.Add(usaSeriesBig);
+
+
 				}
 				chart.chartOptions.plotOptions.dataColor[i] = simulation.model.compartmentInfoArray[i].mapDisplayColor;
 				usaChart.chartOptions.plotOptions.dataColor[i] = simulation.model.compartmentInfoArray[i].mapDisplayColor;
@@ -246,9 +272,12 @@ public class SimulationStats {
 
 					//Then add the data
 					for (int j = 0; j < simulation.model.compartmentCount; j++) {
+						SimulationManager.graphsPanel.getEntry(q+1).chartData.series[j].data.Add(new Data(totals.state[j]));
 						chartData.series[j].data.Add(new Data(totals.state[j]));
 					}
+					SimulationManager.graphsPanel.getEntry(q+1).chartData.categories.Add(simulation.dtSimulated.ToString());
 					chartData.categories.Add(simulation.dtSimulated.ToString());
+
 					
 					//Only do this once
 					break;
@@ -276,8 +305,10 @@ public class SimulationStats {
 			if (true) {
 				//Add the data
 				for (int j = 0; j < simulation.model.compartmentCount; j++) {
+					SimulationManager.graphsPanel.getEntry(0).chartData.series[j].data.Add(new Data(globalTotals.state[j]));
 					usaChartData.series[j].data.Add(new Data(globalTotals.state[j]));
 				}
+				SimulationManager.graphsPanel.getEntry(0).chartData.categories.Add(simulation.dtSimulated.ToString());
 				usaChartData.categories.Add(simulation.dtSimulated.ToString());
 				//Only do this once
 			//	break;

@@ -24,6 +24,7 @@ public class Main : MonoBehaviour {
 
 	public ParameterPanel parameterPanel;
 	public ColorSettingsPanel colorSettingsPanel;
+	public GraphsPanel graphsPanel;
 
 	//Events we emit
 	//called in unity's own OnDestroy
@@ -59,6 +60,7 @@ public class Main : MonoBehaviour {
 		SimulationManager.settingsPanel = settingsPanel;
 		SimulationManager.ParametersPanel = ParametersPanel;
 		SimulationManager.simulationCanvas = simulationCanvas;
+		SimulationManager.graphsPanel = graphsPanel;
 		SimulationManager.main = this;
 
 		SimulationManager.Initialize();

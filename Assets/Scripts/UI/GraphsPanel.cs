@@ -21,6 +21,9 @@ public class GraphsPanel : MonoBehaviour {
 		GraphPanelChartButton newButton = Instantiate(buttonTemplate, buttonParent.transform);
 		newButton.text.text = text;
 		newButton.associatedChart = newChart;
+		newButton.mothership = this;
+
+		newChart.gameObject.SetActive(false);
 
 		return newChart;
 	}
@@ -30,6 +33,7 @@ public class GraphsPanel : MonoBehaviour {
 	}
 
 	public void onButtonClick(Chart chart) {
+		Logger.Log("Button click");
 		if (activeChart != null) {
 			activeChart.Clear();
 			activeChart.gameObject.SetActive(false);

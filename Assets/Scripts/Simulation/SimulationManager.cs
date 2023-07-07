@@ -31,6 +31,7 @@ public class SimulationManager {
 	//The game object with the panel might want to look into this
 	public static GameObject ParametersPanel;
 	public static ColorSettingsPanel colorSettingsPanel;
+	public static GraphsPanel graphsPanel;
 
 	public static bool goodToGo = false;
 
