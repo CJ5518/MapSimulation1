@@ -24,6 +24,7 @@ public class GraphsPanel : MonoBehaviour {
 		newButton.mothership = this;
 
 		newChart.gameObject.SetActive(false);
+		newButton.gameObject.SetActive(true);
 
 		return newChart;
 	}

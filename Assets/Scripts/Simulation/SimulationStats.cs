@@ -217,6 +217,9 @@ public class SimulationStats {
 				}
 				chart.chartOptions.plotOptions.dataColor[i] = simulation.model.compartmentInfoArray[i].mapDisplayColor;
 				usaChart.chartOptions.plotOptions.dataColor[i] = simulation.model.compartmentInfoArray[i].mapDisplayColor;
+
+				SimulationManager.graphsPanel.getEntry(q+1).chartOptions.plotOptions.dataColor[i] = simulation.model.compartmentInfoArray[i].mapDisplayColor;
+				SimulationManager.graphsPanel.getEntry(0).chartOptions.plotOptions.dataColor[i] = simulation.model.compartmentInfoArray[i].mapDisplayColor;
 			}
 			charts[q].SetActive(false);
 		}
