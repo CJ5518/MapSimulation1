@@ -166,7 +166,7 @@ public class SimulationStats {
 		usaChartObj = GameObject.Find("UI_Main_CameraSpace/USAGraph/Chart");
 		Chart usaChart = usaChartObj.GetComponent<Chart>();
 
-		SimulationManager.graphsPanel.makeEntry("USA");
+		SimulationManager.graphsPanel.makeEntry("USA", true);
 
 		for (int q = 0; q < stateNames.Count; q++) {
 			SimulationManager.graphsPanel.makeEntry(stateNames[q]);
@@ -223,6 +223,7 @@ public class SimulationStats {
 			}
 			charts[q].SetActive(false);
 		}
+		SimulationManager.graphsPanel.sortEntries();
 		globalTotals = new DiseaseState(simulation.model.compartmentCount);
 	}
 

@@ -13,7 +13,9 @@ public class GraphsPanel : MonoBehaviour {
 
 	Chart activeChart = null;
 
-	public Chart makeEntry(string text) {
+	SortedDictionary<string, Transform> stateButtons = new SortedDictionary<string, Transform>();
+
+	public Chart makeEntry(string text, bool noSort = false) {
 		Chart newChart = Instantiate(chartTemplate, chartParent.transform);
 		charts.Add(newChart);
 
@@ -22,6 +24,9 @@ public class GraphsPanel : MonoBehaviour {
 		newButton.text.text = text;
 		newButton.associatedChart = newChart;
 		newButton.mothership = this;
+		if (!noSort)
+			stateButtons.Add(text, newButton.transform);
+		
 
 		newChart.gameObject.SetActive(false);
 		newButton.gameObject.SetActive(true);
@@ -31,6 +36,14 @@ public class GraphsPanel : MonoBehaviour {
 
 	public Chart getEntry(int idx) {
 		return charts[idx];
+	}
+
+	public void sortEntries() {
+		int q = 2;
+		foreach(KeyValuePair<string, Transform> entry in stateButtons) {
+			entry.Value.SetSiblingIndex(q);
+			q++;
+		}
 	}
 
 	public void onButtonClick(Chart chart) {
