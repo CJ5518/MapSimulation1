@@ -314,4 +314,22 @@ public class SimulationManager {
 	public static void Delete() {
 		
 	}
+
+	//Set the satics anythings to null
+	public static void OnDestroy() {
+		simulation = null;
+		main = null;
+		simulationCanvas = null;
+		m_stats = null;
+		mainTexture = null;
+		secondTexture = null;
+		objectWithMeshRenderer = null;
+		settingsPanel = null;
+		parameterPanel = null;
+		ParametersPanel = null;
+		colorSettingsPanel = null;
+		graphsPanel = null;
+		//This is probably the one that was tripping us up
+		goodToGo = false;
+	}
 }

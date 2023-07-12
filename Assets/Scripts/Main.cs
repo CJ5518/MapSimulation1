@@ -53,6 +53,7 @@ public class Main : MonoBehaviour {
 		
 		onMainDestroy = new UnityEvent();
 		onMainDestroy.AddListener(Logger.onExit);
+		onMainDestroy.AddListener(SimulationManager.OnDestroy);
 
 		//Set things externally
 		SimulationManager.parameterPanel = parameterPanel;
@@ -94,6 +95,7 @@ public class Main : MonoBehaviour {
 	void OnDestroy() {
 		simulation.endTick();
 		simulation.deleteNativeArrays();
+		Debug.Log("Calling on main destroy");
 		onMainDestroy.Invoke();
 		
 	}
