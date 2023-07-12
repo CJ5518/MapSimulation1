@@ -121,28 +121,6 @@ public class SimulationCanvas : MonoBehaviour
 
 	int lastIndex = -1;
 	public unsafe void updateStatisticsLabel() {
-		if (SimulationManager.simulation.dtSimulated < 10000.0f) {
-			bool panelIsOpen = totalChart.gameObject.GetComponentInParent<WallPanelOpenClose>().open;
-			if (panelIsOpen) {
-				if (!Application.isBatchMode)
-					totalChart.UpdateChart();
-				totalChart.gameObject.SetActive(true);
-			} else {
-				totalChart.gameObject.SetActive(false);
-			}
-		}
-
-		if (prevHoverStateIdx >= 0) {
-			bool panelIsOpen = stateChart.gameObject.GetComponentInParent<WallPanelOpenClose>().open;
-			if (panelIsOpen) {
-				if (!Application.isBatchMode)
-					SimulationManager.stats.charts[activeChartIdx].GetComponent<Chart>().UpdateChart();
-				SimulationManager.stats.charts[activeChartIdx].SetActive(true);
-			} else {
-				SimulationManager.stats.charts[activeChartIdx].SetActive(false);
-			}
-		}
-
 		populationDisplayBar.UpdateBars();
 
 
@@ -156,6 +134,18 @@ public class SimulationCanvas : MonoBehaviour
 
 		//Set the simulated dt text
 		//simulatedDtText.text = main.simulation.dtSimulated.ToString("F1") + " Hours";
+
+		bool panelIsOpen = totalChart.gameObject.GetComponentInParent<WallPanelOpenClose>().open;
+			if (panelIsOpen) {
+				if (!Application.isBatchMode) {
+					try {
+						totalChart.UpdateChart();
+					} catch (System.Exception e) {Logger.LogError(e.Message);}
+				}
+				totalChart.gameObject.SetActive(true);
+			} else {
+				totalChart.gameObject.SetActive(false);
+			}
 	}
 
 	//Get a pixel on the texture from a screen (commonly mouse) coordinate

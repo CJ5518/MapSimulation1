@@ -349,7 +349,7 @@ public class SimulationStats {
 	}
 
 
-	StreamWriter outputFile;
+	StreamWriter outputFile = null;
 	bool beganFileWrite = false;
 	private void beginFileWrite() {
 		if (beganFileWrite)
@@ -465,6 +465,7 @@ public class SimulationStats {
 	private void endFileWrite() {
 		outputFile.Flush();
 		outputFile.Close();
+		outputFile = null;
 	}
 
 	//Get the state that the given lat long coord is in

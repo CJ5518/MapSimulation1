@@ -26,6 +26,7 @@ public class ParameterPanel : MonoBehaviour {
 	public List<ParameterSlider> movementModelSliders;
 
 	public void loadInSliders(ref SimulationModel model, ref SimulationMovementModel movementModel) {
+		Debug.Log("Loading in sliders");
 		parameterSliders = new List<ParameterSlider>();
 		for (int q = 0; q < model.parameterCount; q++) {
 			ParameterSliderSettings settings = new ParameterSliderSettings();
@@ -64,6 +65,7 @@ public class ParameterPanel : MonoBehaviour {
 			//I'm not too sure what this is or does but ok
 			parameterSliders[q].GraphicUpdateComplete();
 		}
+		Debug.Log("Slider count for movement model is " + movementModelSliders.Count);
 		float[] values = new float[movementModelSliders.Count];
 		for (int q = 0; q < movementModelSliders.Count; q++) {
 			values[q] = movementModelSliders[q].scaledValue;

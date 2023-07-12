@@ -38,6 +38,8 @@ public class CJsMovementModel : SimulationMovementModel {
 	}
 
 	public override ParameterSliderSettings[] getSliderSettings(bool duringSimulation) {
+		Debug.Log(settingsArray.Length);
+		Debug.Log("We are here right now");
 		return settingsArray;
 	}
 
