@@ -136,16 +136,28 @@ public class SimulationCanvas : MonoBehaviour
 		//simulatedDtText.text = main.simulation.dtSimulated.ToString("F1") + " Hours";
 
 		bool panelIsOpen = totalChart.gameObject.GetComponentInParent<WallPanelOpenClose>().open;
-			if (panelIsOpen) {
-				if (!Application.isBatchMode) {
-					try {
-						totalChart.UpdateChart();
-					} catch (System.Exception e) {Logger.LogError(e.Message);}
-				}
-				totalChart.gameObject.SetActive(true);
-			} else {
-				totalChart.gameObject.SetActive(false);
+		if (panelIsOpen) {
+			if (!Application.isBatchMode) {
+				try {
+					totalChart.UpdateChart();
+				} catch (System.Exception e) {Logger.LogError(e.Message);}
 			}
+			totalChart.gameObject.SetActive(true);
+		} else {
+			totalChart.gameObject.SetActive(false);
+		}
+
+		if (prevHoverStateIdx >= 0) {
+			panelIsOpen = stateChart.gameObject.GetComponentInParent<WallPanelOpenClose>().open;
+			if (panelIsOpen) {
+				if (!Application.isBatchMode)
+					SimulationManager.stats.charts[activeChartIdx].GetComponent<Chart>().UpdateChart();
+				SimulationManager.stats.charts[activeChartIdx].SetActive(true);
+			} else {
+				SimulationManager.stats.charts[activeChartIdx].SetActive(false);
+			}
+		}
+
 	}
 
 	//Get a pixel on the texture from a screen (commonly mouse) coordinate
