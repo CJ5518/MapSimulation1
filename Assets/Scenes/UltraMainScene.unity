@@ -4971,7 +4971,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 691955010}
         m_TargetAssemblyTypeName: Main, Assembly-CSharp
-        m_MethodName: ExitProgram
+        m_MethodName: ExitProgramNoArgs
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8900,7 +8900,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1091742668}
   m_HandleRect: {fileID: 1091742667}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
