@@ -62,10 +62,12 @@ public class SimulationCanvas : MonoBehaviour
 	}
 
 	int prevHoverStateIdx = -1;
+	int selectedState = -1;
 	void Update() {
 
 		//Check which state we're hovering over
 		Vector2? hoverLatLongMaybe = getLatLongFromScreenCoord(Input.mousePosition);
+		
 		bool onDifferentState = false;
 		if (hoverLatLongMaybe != null) {
 			Vector2 hoverLatLong = (Vector2)hoverLatLongMaybe;
@@ -80,24 +82,33 @@ public class SimulationCanvas : MonoBehaviour
 			} else {
 				prevHoverStateIdx = SimulationManager.stats.getStateIdxFromLatLong(hoverLatLong);
 			}
+			if (Input.GetMouseButtonDown(0)) {
+				selectedState = prevHoverStateIdx;
+				onDifferentState = true;
+			}
+		} else {
+			Material material = SimulationManager.objectWithMeshRenderer.GetComponent<MeshRenderer>().material;
+			material.SetTexture("_HoverState", null);
 		}
 
 
 		//Set the mask to the correct state
 		if (prevHoverStateIdx >= 0 && onDifferentState) {
-			string stateName = SimulationManager.stats.stateNames[prevHoverStateIdx];
-			stateName = stateName.Replace(" ", System.String.Empty);
 			SerializableListOfStateMasks stateMasks = SimulationManager.objectWithMeshRenderer.GetComponent<SerializableListOfStateMasks>();
 			Material material = SimulationManager.objectWithMeshRenderer.GetComponent<MeshRenderer>().material;
-			material.SetTexture("_State", stateMasks.stateTextures[stateIdxToHoverStateIdx[prevHoverStateIdx]]);
+			material.SetTexture("_HoverState", stateMasks.stateTextures[stateIdxToHoverStateIdx[prevHoverStateIdx]]);
+
 
 			//And set the chart data
 			//stateChart.chartData = SimulationManager.stats.charts[prevHoverStateIdx].GetComponent<ChartData>();
-			stateGraphTextTitle.text = SimulationManager.stats.charts[prevHoverStateIdx].GetComponent<ChartOptions>().title.mainTitle;
-			SimulationManager.stats.charts[activeChartIdx].SetActive(false);
-			activeChartIdx = prevHoverStateIdx;
-			//Only set this active if the panel is open
-			SimulationManager.stats.charts[activeChartIdx].SetActive(stateChart.gameObject.GetComponentInParent<WallPanelOpenClose>().open);
+			if (selectedState >= 0) {
+				material.SetTexture("_State", stateMasks.stateTextures[stateIdxToHoverStateIdx[selectedState]]);
+				stateGraphTextTitle.text = SimulationManager.stats.charts[selectedState].GetComponent<ChartOptions>().title.mainTitle;
+				SimulationManager.stats.charts[activeChartIdx].SetActive(false);
+				activeChartIdx = selectedState;
+				//Only set this active if the panel is open
+				SimulationManager.stats.charts[activeChartIdx].SetActive(stateChart.gameObject.GetComponentInParent<WallPanelOpenClose>().open);
+			}
 		}
 	}
 

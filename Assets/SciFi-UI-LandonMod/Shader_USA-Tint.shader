@@ -6,6 +6,7 @@ Shader "Landon/USA-Tint" {
 		[NoScaleOffset] _BaseTex ("Base Texture (rgb)", 2D) = "white" {}
 		[NoScaleOffset] _Details ("State Lines (r) nothing yet (gba)", 2D) = "white" {}
 		[NoScaleOffset] _State ("State Mask(r) nothing yet (gba)", 2D) = "black" {}
+		[NoScaleOffset] _HoverState ("Hover State Mask(r) nothing yet (gba)", 2D) = "black" {}
 
 		[HDR] _StateLines ("Lines Color (rgb) Intensity (a)", Color) = (1,1,1,1)
 
@@ -29,7 +30,7 @@ Shader "Landon/USA-Tint" {
         #pragma target 3.0  // (shader model 3.0 for nicer looking lighting)
 
 
-        sampler2D _MainTex, _SecondTex, _BumpMap, _BaseTex, _Details, _State;
+        sampler2D _MainTex, _SecondTex, _BumpMap, _BaseTex, _Details, _State, _HoverState;
 
         struct Input {
             float2 uv_MainTex;
@@ -46,6 +47,7 @@ Shader "Landon/USA-Tint" {
 			fixed4 d = tex2D (_Details, IN.uv_MainTex);
 			fixed4 secondTextureColor = tex2D(_SecondTex, IN.uv_MainTex);
 			fixed4 s = tex2D (_State, IN.uv_MainTex);
+			fixed4 s2 = tex2D (_HoverState, IN.uv_MainTex);
 
 			m = lerp(m.rgba, secondTextureColor.rgba, _TextureLerpValue);
 			fixed data1 = m.r * _Color1.a;
@@ -71,6 +73,9 @@ Shader "Landon/USA-Tint" {
 			//second add color for shown data
 			color += (data1 * _Color1.rgb) + (data2 * _Color2.rgb) + (data3 * _Color3.rgb) + (data4 * _Color4.rgb);
 			//brighten hovered State
+			color = (s2.r * 0.2 + 0.8) * color + s2.r * 0.05;
+
+			//Brighten the selected state
 			color = (s.r * 0.2 + 0.8) * color + s.r * 0.05;
 			//add state lines over top
 			o.Albedo = lerp(color.rgb, _StateLines.rgb, d.r * _StateLines.a);
