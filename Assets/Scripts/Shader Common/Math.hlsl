@@ -1,7 +1,7 @@
 #ifndef MATH_INCLUDED
 #define MATH_INCLUDED
 
-#include "Assets/Scripts/Shader Common/MathInternal.hlsl"
+#include "Assets/Shaders/Shader Common/MathInternal.hlsl"
 
 // Remap a value from the range [minOld, maxOld] to [minNew, maxNew]
 float remap(float minOld, float maxOld, float minNew, float maxNew, float val) {

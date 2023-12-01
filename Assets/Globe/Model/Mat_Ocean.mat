@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Mat_Ocean
-  m_Shader: {fileID: 4800000, guid: 34c257849a685ba4b8774960dbdd59e5, type: 3}
+  m_Shader: {fileID: 4800000, guid: c1037d0d76e503840a9854675f7242ee, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -136,7 +136,7 @@ Material:
     - _UVSec: 0
     - _WaveNormalScale: 0.05
     - _WaveSpeed: 0.5
-    - _WaveStrength: 0.874
+    - _WaveStrength: 0.06
     - _ZWrite: 1
     m_Colors:
     - _Ambient: {r: 0.106057905, g: 0.11751007, b: 0.23584908, a: 0}
