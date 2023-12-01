@@ -366,6 +366,7 @@ public class SimulationStats {
 		string outFolder = GlobalSettings.outputPath;
 
 		System.IO.Directory.CreateDirectory(outFolder);
+		BehaviourLogger.initLogger(outFolder + dateString + "-UserEvents.csv");
 
 		SimulationModel model = SimulationManager.simulation.model;
 
@@ -466,6 +467,7 @@ public class SimulationStats {
 		outputFile.Flush();
 		outputFile.Close();
 		outputFile = null;
+		BehaviourLogger.endLogger();
 	}
 
 	//Get the state that the given lat long coord is in

@@ -116,6 +116,7 @@ public class Main : MonoBehaviour {
 
 	public static void ExitProgram(bool hard = false, int code = 0) {
 		Logger.Log("---------------------------------Quitting application---------------------------------");
+		BehaviourLogger.logItem("QuittingApplication");
 		Application.Quit();
 	}
 
@@ -124,10 +125,12 @@ public class Main : MonoBehaviour {
 	}
 
 	public static void ResetScene() {
+		BehaviourLogger.logItem("ResetScene");
 		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 	}
 
 	public static void ReturnToSetup() {
+		BehaviourLogger.logItem("ReturnToSetup");
 		SceneManager.LoadScene("LandonSetup0");
 	}
 
@@ -140,6 +143,9 @@ public class Main : MonoBehaviour {
 
 		dropZombieAtIndex(index, zombieCount);
 		onZombieDropped.Invoke();
+		//Lol events
+		//Imagine using those and not just putting code random places
+		BehaviourLogger.logItem("DroppedInfectionAt_" + index.ToString());
 	}
 
 	public void dropZombieAtIndex(int index, int zombieCount = 30) {
