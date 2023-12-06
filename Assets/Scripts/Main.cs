@@ -131,7 +131,7 @@ public class Main : MonoBehaviour {
 
 	public static void ReturnToSetup() {
 		BehaviourLogger.logItem("ReturnToSetup");
-		SceneManager.LoadScene("LandonSetup0");
+		SceneManager.LoadScene("SetUp");
 	}
 
 	public void dropZombieAtMousePosition() {

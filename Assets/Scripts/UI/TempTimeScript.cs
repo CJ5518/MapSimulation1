@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 //This class isn't as temporary as I wanted it to be anymore
 //Not nearly as temp as I thought it might be
+//Nowhere near as tmp as I initially anticipated
 public class TempTimeScript : MonoBehaviour {
 	public TMPro.TMP_Text text;
 	public Button pauseButton;
@@ -45,14 +46,17 @@ public class TempTimeScript : MonoBehaviour {
 	}
 
 	void pauseButtonClick() {
+		BehaviourLogger.logItem("PauseButtonClick");
 		SimulationManager.TargetTps = 0.0f;
 	}
 
 	void playButtonClick() {
+		BehaviourLogger.logItem("PlayButtonClick");
 		SimulationManager.TargetTps = 5.0f;
 	}
 
 	void fastButtonClick() {
+		BehaviourLogger.logItem("FastSpeedButtonClick");
 		SimulationManager.TargetTps = 100.0f;
 	}
 }
