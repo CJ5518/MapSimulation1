@@ -34,9 +34,30 @@ public class CameraControl_Force : MonoBehaviour {
 		
 		zoomInput = Input.mouseScrollDelta.y * 20f;
 		zoomInput += Input.GetMouseButton(2) ? mouseDelta.y / 5f : 0;
-		float KeyZoom = Input.GetKey(KeyCode.Z) ? -1f : Input.GetKey(KeyCode.X) ? 1f : 0f;
+		float KeyZoom = Input.GetKey(KeyCode.Q) ? -1f : Input.GetKey(KeyCode.E) ? 1f : 0f;
 		zoomInput += KeyZoom;
-		rotationInput = Input.GetMouseButton(1) ? mouseDelta : Vector2.zero;
+
+		rotationInput = Vector2.zero;
+		
+
+		float keyboardFactor = Input.GetKey(KeyCode.LeftShift) ? 2.0f : 1.0f;
+
+		//Poorly hacked in keyboard controls
+		if (Input.GetKey("a")) {
+			rotationInput += new Vector2(-3f, 0) * keyboardFactor;
+		}
+		if (Input.GetKey("d")) {
+			rotationInput += new Vector2(3f, 0) * keyboardFactor;
+		}
+		if (Input.GetKey("w")) {
+			rotationInput += new Vector2(0f, 3f) * keyboardFactor;
+		}
+		if (Input.GetKey("s")) {
+			rotationInput += new Vector2(0f, -3f) * keyboardFactor;
+		}
+
+
+		rotationInput = Input.GetMouseButton(1) ? mouseDelta : rotationInput;
 	}
 	void Zoom() {
 		float zoomSpeed = Mathf.Lerp(zoomSpeedRange.x, zoomSpeedRange.y, zoomPercent);
