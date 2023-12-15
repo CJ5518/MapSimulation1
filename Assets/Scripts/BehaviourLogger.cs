@@ -20,6 +20,7 @@ public static class BehaviourLogger {
 	//Called by sim stats because this project is a mess
 	public static void initLogger(string filename) {
 		file = new StreamWriter(filename);
+		file.WriteLine("Time Format is: {time.Year}_{time.Month}_{time.Day}_{time.Hour}_{time.Minute}_{time.Second}_{time.Millisecond}");
 		logItem("StartLogging");
 	}
 
@@ -31,7 +32,7 @@ public static class BehaviourLogger {
 		file.Write(dateString);
 		file.Write(message);
 		file.Write("\n");
-
+		file.Flush();
 	}
 
 	//Also called in SimStats

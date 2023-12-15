@@ -15,7 +15,8 @@ public class WallPanelOpenClose : MonoBehaviour{
 
 	RectTransform panel;
 
-	
+    public string behaviourLoggerMessage = "";
+
 	void Start(){
 		panel = GetComponent<RectTransform>();
 	}
@@ -38,7 +39,16 @@ public class WallPanelOpenClose : MonoBehaviour{
 		}
 		panel.SetSizeWithCurrentAnchors(axis, open? sizeClosed: sizeOpen);
 
+		if (behaviourLoggerMessage != "") {
+				if (open) {
+						BehaviourLogger.logItem(behaviourLoggerMessage + "Closed");
+				} else {
+						BehaviourLogger.logItem(behaviourLoggerMessage + "Opened");
+				}
+		}
+
 		open = !open;
+
 		if (horizontal) {
 			horizontalButton.SetActive(open);
 			verticalClosedButton.SetActive(!open);
