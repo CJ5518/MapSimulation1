@@ -143,9 +143,21 @@ public class Main : MonoBehaviour {
 
 		dropZombieAtIndex(index, zombieCount);
 		onZombieDropped.Invoke();
+
+		int stateDroppedIn = -1;
+		for (int stateID = 0; stateID < SimulationManager.stats.stateIndices.Count; stateID++) {
+			for (int q = 0; q < SimulationManager.stats.stateIndices[stateID].Count; q++) {
+				if (index == SimulationManager.stats.stateIndices[stateID][q]) {
+					stateDroppedIn = stateID;
+					break;
+				}
+			}
+			if (stateDroppedIn >= 0) break;
+		}
+		string stateName = stateDroppedIn >= 0 ? SimulationManager.stats.stateNames[stateDroppedIn] : "UnkownState";
 		//Lol events
 		//Imagine using those and not just putting code random places
-		BehaviourLogger.logItem("DroppedInfectionAt_" + index.ToString());
+		BehaviourLogger.logItem("DroppedInfectionAt_" + index.ToString() + "(" + stateName + ")");
 	}
 
 	public void dropZombieAtIndex(int index, int zombieCount = 30) {
