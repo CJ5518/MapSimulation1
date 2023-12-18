@@ -11,10 +11,13 @@ public class DisplaySettingsEvents : MonoBehaviour {
 		SetStateLinesVisibility(toggle.isOn);
 	}
 	public void SetStateLinesVisibility(bool state) {
-		if (state)
+		if (state) {
 			TurnOnStateLines();
-		else
+			BehaviourLogger.logItem("StateLineDisplayTurnedOn");
+		} else {
 			TurnOffStateLines();
+			BehaviourLogger.logItem("StateLineDisplayTurnedOff");
+		}
 	}
 
 	public void SetPlaneTrailsActive(Toggle toggle) {
@@ -22,6 +25,11 @@ public class DisplaySettingsEvents : MonoBehaviour {
 	}
 	public void SetPlaneTrailsActive(bool state) {
 		SimulationManager.simulation.simulationAirports.drawPlaneTrails = state;
+		if (state) {
+			BehaviourLogger.logItem("PlaneTrailDisplayTurnedOn");
+		} else {
+			BehaviourLogger.logItem("PlaneTrailDisplayTurnedOff");
+		}
 	}
 	private void TurnOffStateLines() {
 		USAMesh.GetComponent<MeshRenderer>().material.SetTexture("_Details", NoStateLinesTexture);

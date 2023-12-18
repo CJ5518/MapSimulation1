@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using ChartUtil;
+using UnityEngine.EventSystems;
 
 //Click on the color thingies
 
@@ -82,9 +83,10 @@ public class SimulationCanvas : MonoBehaviour
 			} else {
 				prevHoverStateIdx = SimulationManager.stats.getStateIdxFromLatLong(hoverLatLong);
 			}
-			if (Input.GetMouseButtonDown(0)) {
+			if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
 				selectedState = prevHoverStateIdx;
 				onDifferentState = true;
+				BehaviourLogger.logItem("ClickedOnState_" + SimulationManager.stats.stateNames[selectedState]);
 			}
 		} else {
 			Material material = SimulationManager.objectWithMeshRenderer.GetComponent<MeshRenderer>().material;

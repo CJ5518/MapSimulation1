@@ -26,6 +26,7 @@ public static class BehaviourLogger {
 
 	//Don't put a newline into message, function does it for you
 	public static void logItem(string message) {
+		if (file == null) return;
 		System.DateTime time = System.DateTime.Now;
 
 		string dateString = $"{time.Year}_{time.Month}_{time.Day}_{time.Hour}_{time.Minute}_{time.Second}_{time.Millisecond}: ";

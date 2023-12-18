@@ -72,11 +72,14 @@ public class ColorSettingsPanel : MonoBehaviour {
 	public void onSettingsChanged() {
 		thingsHaveChanged = true;
 		int onCount = 0;
+		string onBits = "";
 		for (int q = 0; q < toggles.Length; q++) {
 			if (isToggleOn(q)) onCount++;
 			if (onCount > maxTogglesOn) {
 				setToggleState(q, false);
 			}
+			onBits += isToggleOn(q) ? "1" : "0";
 		}
+		BehaviourLogger.logItem("DisplayColorsChanged_NewState=" + onBits);
 	}
 }

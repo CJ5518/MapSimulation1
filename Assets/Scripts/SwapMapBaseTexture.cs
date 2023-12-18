@@ -14,12 +14,15 @@ public class SwapMapBaseTexture : MonoBehaviour {
 		Logger.Log(index);
 		if(index == 0){
 			mesh.material.SetTexture("_BaseTex", sateliteTex);
+			BehaviourLogger.logItem("MapTextureSetToSatellite");
 		}
 		if (index == 1) {
 			mesh.material.SetTexture("_BaseTex", populationTex);
+			BehaviourLogger.logItem("MapTextureSetToPopulation");
 		}
 		if(index == 2){
 			mesh.material.SetTexture("_BaseTex", highwayTex);
+			BehaviourLogger.logItem("MapTextureSetToHighways");
 		}
 	}
 }
