@@ -36,6 +36,7 @@ namespace ChartUtil
         public void ToggleSeries(int index)
         {
             chartInfo.data.series[index].show = !chartInfo.data.series[index].show;
+            BehaviourLogger.logItem("Chart" + chartInfo.options.title.mainTitle + "_Index" + index + "Turned" + (chartInfo.data.series[index].show ? "On" : "Off"));
             UpdateChart();
             if (chartInfo.chartEvents != null) chartInfo.chartEvents.seriesToggleEvent.Invoke(index, chartInfo.data.series[index].show);
         }

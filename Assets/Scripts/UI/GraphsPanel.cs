@@ -25,6 +25,7 @@ public class GraphsPanel : MonoBehaviour {
 		newButton.associatedChart = newChart;
 		newButton.mothership = this;
 		newButton.stateName = text;
+		newChart.chartOptions.title.mainTitle = "BigGraph" + text;
 		if (!noSort)
 			stateButtons.Add(text, newButton.transform);
 		
