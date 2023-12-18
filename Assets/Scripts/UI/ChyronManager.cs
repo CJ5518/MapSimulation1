@@ -40,6 +40,7 @@ public class ChyronManager : MonoBehaviour {
 		eventTextObject.GetComponent<TMP_Text>().text = text;
 		newElement.transform.Find("Time").gameObject.GetComponent<TMP_Text>().text = tempTimeScript.GetTimeText();
 		newElement.SetActive(true);
+		BehaviourLogger.logItem("MadeChyronEntry_" + tempTimeScript.GetTimeText() + "_" + text);
 	}
 
 	public void onScrollSliderValueChanged(float value) {
