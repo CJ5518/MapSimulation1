@@ -90,6 +90,10 @@ public class Main : MonoBehaviour {
 				ExitProgram(true, 1);
 			}
 		}
+		if (!hasPlacedAZombie && SimulationSetupData.startImmediatelyAtPosition) {
+			dropZombieAtIndex(20331);
+			SimulationSetupData.startImmediatelyAtPosition = false;
+		}
 		SimulationManager.simulationCanvas.getRealCoordFromSimCoord(new Vector2(0,0));
 	}
 	void OnDestroy() {
@@ -141,26 +145,11 @@ public class Main : MonoBehaviour {
 
 		const int zombieCount = 30;
 
-		dropZombieAtIndex(index, zombieCount);
+		dropZombieAtIndex(index, zombieCount, true);
 		onZombieDropped.Invoke();
-
-		int stateDroppedIn = -1;
-		for (int stateID = 0; stateID < SimulationManager.stats.stateIndices.Count; stateID++) {
-			for (int q = 0; q < SimulationManager.stats.stateIndices[stateID].Count; q++) {
-				if (index == SimulationManager.stats.stateIndices[stateID][q]) {
-					stateDroppedIn = stateID;
-					break;
-				}
-			}
-			if (stateDroppedIn >= 0) break;
-		}
-		string stateName = stateDroppedIn >= 0 ? SimulationManager.stats.stateNames[stateDroppedIn] : "UnkownState";
-		//Lol events
-		//Imagine using those and not just putting code random places
-		BehaviourLogger.logItem("DroppedInfectionAt_" + index.ToString() + "(" + stateName + ")");
 	}
 
-	public void dropZombieAtIndex(int index, int zombieCount = 30) {
+	public void dropZombieAtIndex(int index, int zombieCount = 30, bool viaMouse = false) {
 		if (simulation.cellIsValid(index)) {
 
 			Simulation.Cell cell = simulation.readCells[index];
@@ -177,6 +166,26 @@ public class Main : MonoBehaviour {
 				hasPlacedAZombie = true;
 				SimulationManager.goodToGo = true;
 				startingCellIdx = index;
+			}
+
+			
+			int stateDroppedIn = -1;
+			for (int stateID = 0; stateID < SimulationManager.stats.stateIndices.Count; stateID++) {
+				for (int q = 0; q < SimulationManager.stats.stateIndices[stateID].Count; q++) {
+					if (index == SimulationManager.stats.stateIndices[stateID][q]) {
+						stateDroppedIn = stateID;
+						break;
+					}
+				}
+				if (stateDroppedIn >= 0) break;
+			}
+			string stateName = stateDroppedIn >= 0 ? SimulationManager.stats.stateNames[stateDroppedIn] : "UnkownState";
+			//Lol events
+			//Imagine using those and not just putting code random places
+			if (viaMouse) {
+				BehaviourLogger.logItem("DroppedInfectionAtViaMouse_" + index.ToString() + "(" + stateName + ")");
+			} else {
+				BehaviourLogger.logItem("DroppedInfectionAt_" + index.ToString() + "(" + stateName + ")");
 			}
 		}
 	}

@@ -41,10 +41,11 @@ public class ChyronManager : MonoBehaviour {
 		newElement.transform.Find("Time").gameObject.GetComponent<TMP_Text>().text = tempTimeScript.GetTimeText();
 		newElement.SetActive(true);
 		BehaviourLogger.logItem("MadeChyronEntry_" + tempTimeScript.GetTimeText() + "_" + text);
+		scrollbar.value = 0;
 	}
 
 	public void onScrollSliderValueChanged(float value) {
 		//Also doesn't let the user scroll but, whatever
-		scrollbar.value = 0;
+		//scrollbar.value = 0;
 	}
 }

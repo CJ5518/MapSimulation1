@@ -13,6 +13,9 @@ public static class SimulationSetupData {
 	//Tau leaping, gillespie, etc.
 	public static bool useStochasticModel = false;
 
+	public static bool startImmediatelyAtPosition = false;
+	public static int startImmediatelyPositionIndex = 0;
+
 	public static float alpha = 0.35f;
 	public static float beta = 0.35f;
 	public static float spreadRate = 1.0f;

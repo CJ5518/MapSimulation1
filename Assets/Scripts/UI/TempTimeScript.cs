@@ -27,7 +27,7 @@ public class TempTimeScript : MonoBehaviour {
 
 	public string GetTimeText() {
 		//Starting time
-		float time = SimulationManager.simulation.dtSimulated - 1;
+		float time = (SimulationManager.simulation.dtSimulated - 1) * 24; //the times 24 is part of outrageous hacks I am doing now 
 		//Number of days/weeks passed
 		int days = (((int)time) / 24);
 		int weeks = days / 7;

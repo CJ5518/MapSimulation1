@@ -57,7 +57,7 @@ public class CameraControl_Force : MonoBehaviour {
 		}
 
 
-		rotationInput = Input.GetMouseButton(1) ? mouseDelta : rotationInput;
+		rotationInput = Input.GetMouseButton(1) ? mouseDelta / 2.0f : rotationInput;
 	}
 	void Zoom() {
 		float zoomSpeed = Mathf.Lerp(zoomSpeedRange.x, zoomSpeedRange.y, zoomPercent);

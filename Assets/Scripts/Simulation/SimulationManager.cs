@@ -114,11 +114,13 @@ public class SimulationManager {
 			float theNumberToDivideBy = SimulationSetupData.infectionLength;
 			simulation.model.parameters[0] = SimulationSetupData.mortalityRate / theNumberToDivideBy;
 			simulation.model.parameters[1] = SimulationSetupData.recoveryRate / theNumberToDivideBy;
-			simulation.model.parameters[2] = 1.0f / SimulationSetupData.waningImmunity;
+			//Be quiet sweet prince, your suffering will be over soon
+			simulation.model.parameters[2] = SimulationSetupData.waningImmunity; //1.0f / SimulationSetupData.waningImmunity
 			simulation.model.parameters[3] = 0;//SimulationSetupData.vaccinationUptake;
 			simulation.model.parameters[4] = 0;//SimulationSetupData.breakthroughRate;
 			simulation.model.parameters[5] = 1.0f / SimulationSetupData.latencyEI;
-			simulation.model.parameters[6] = (SimulationSetupData.contactRate / 24.0f) * SimulationSetupData.infectionProbability;
+			//Made another change to this, I'm so sorry. But we are in the end gamd of this hunk of junk project, and I'm tired of it
+			simulation.model.parameters[6] = (SimulationSetupData.contactRate) * SimulationSetupData.infectionProbability;
 
 			simulation.enableAirplanes = SimulationSetupData.enableAirports;
 			simulation.useTauLeaping = SimulationSetupData.useStochasticModel;
