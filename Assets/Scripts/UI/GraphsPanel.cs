@@ -25,7 +25,8 @@ public class GraphsPanel : MonoBehaviour {
 		newButton.associatedChart = newChart;
 		newButton.mothership = this;
 		newButton.stateName = text;
-		newChart.chartOptions.title.mainTitle = "BigGraph" + text;
+		newChart.chartOptions.title.mainTitle = "Big Graph of " + text;
+		newChart.chartOptions.title.enableMainTitle = true;
 		if (!noSort)
 			stateButtons.Add(text, newButton.transform);
 		
@@ -46,6 +47,10 @@ public class GraphsPanel : MonoBehaviour {
 			entry.Value.SetSiblingIndex(q);
 			q++;
 		}
+	}
+
+	public void closeGraphsPanel() {
+		this.gameObject.SetActive(false);
 	}
 
 	public void onButtonClick(Chart chart) {

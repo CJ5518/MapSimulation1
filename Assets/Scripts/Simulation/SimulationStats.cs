@@ -181,7 +181,10 @@ public class SimulationStats {
 				SimulationManager.graphsPanel.getEntry(0).chartData.series = new List<Series>();
 				for (int j = 0; j < simulation.model.compartmentCount; j++) {
 					Series newSeries = new Series();
-					newSeries.show = true;
+					if (j == 1 || j == 2)
+						newSeries.show = true;
+					else
+						newSeries.show = false;
 					newSeries.colorIndex = j;
 					newSeries.name = simulation.model.compartmentInfoArray[j].longName;
 					newSeries.data = new List<Data>();
@@ -199,7 +202,10 @@ public class SimulationStats {
 
 					//Do the same for the usa
 					Series usaSeries = new Series();
-					usaSeries.show = true;
+					if (j == 1 || j == 2)
+						usaSeries.show = true;
+					else
+						usaSeries.show = false;
 					usaSeries.colorIndex = j;
 					usaSeries.name = simulation.model.compartmentInfoArray[j].longName;
 					usaSeries.data = new List<Data>();
@@ -468,6 +474,15 @@ public class SimulationStats {
 		outputFile.Close();
 		outputFile = null;
 		BehaviourLogger.endLogger();
+		beganFileWrite = false;
+		indexToState = new int[0];
+
+		lastStatsUpdate = -1;
+		charts.Clear();
+		infectionReachesState = new UnityEvent<int>();
+		infectionDiesOut = new UnityEvent();
+		invokedDeathOut = false;
+		stateIndices.Clear();
 	}
 
 	//Get the state that the given lat long coord is in

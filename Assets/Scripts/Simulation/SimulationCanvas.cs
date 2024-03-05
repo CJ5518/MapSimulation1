@@ -153,7 +153,7 @@ public class SimulationCanvas : MonoBehaviour
 			if (!Application.isBatchMode) {
 				try {
 					totalChart.UpdateChart();
-				} catch (System.Exception e) {Logger.LogError(e.Message);}
+				} catch (System.Exception e) {}
 			}
 			totalChart.gameObject.SetActive(true);
 		} else {
@@ -163,8 +163,11 @@ public class SimulationCanvas : MonoBehaviour
 		if (prevHoverStateIdx >= 0) {
 			panelIsOpen = stateChart.gameObject.GetComponentInParent<WallPanelOpenClose>().open;
 			if (panelIsOpen) {
-				if (!Application.isBatchMode)
+				if (!Application.isBatchMode) {
+					try {
 					SimulationManager.stats.charts[activeChartIdx].GetComponent<Chart>().UpdateChart();
+					} catch (System.Exception e) {}
+				}
 				SimulationManager.stats.charts[activeChartIdx].SetActive(true);
 			} else {
 				SimulationManager.stats.charts[activeChartIdx].SetActive(false);

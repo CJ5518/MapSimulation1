@@ -16,6 +16,8 @@ public class ChyronManager : MonoBehaviour {
 	//Not so temporary, needed to get the time of an event
 	public TempTimeScript tempTimeScript;
 
+	public GameObject simStopPanel;
+
 	//Objects needed because they emit events
 
 	public InterventionPanel interventionPanel;
@@ -28,6 +30,14 @@ public class ChyronManager : MonoBehaviour {
 
 	void onInfectionDiesOut() {
 		createElement($"Infection died out!");
+
+		//Also do some other stuff because I am a bad programmer
+		simStopPanel.SetActive(true);
+		SimulationManager.TargetTps = 0.0f;
+	}
+
+	public void closeSimStoppedPopup() {
+		simStopPanel.SetActive(false);
 	}
 	
 	void onInfectionReachesStates(int stateIdx) {
@@ -41,6 +51,10 @@ public class ChyronManager : MonoBehaviour {
 		newElement.transform.Find("Time").gameObject.GetComponent<TMP_Text>().text = tempTimeScript.GetTimeText();
 		newElement.SetActive(true);
 		BehaviourLogger.logItem("MadeChyronEntry_" + tempTimeScript.GetTimeText() + "_" + text);
+		Invoke("setScrollValueTo0", 1.0f / Application.targetFrameRate);
+	}
+
+	void setScrollValueTo0() {
 		scrollbar.value = 0;
 	}
 

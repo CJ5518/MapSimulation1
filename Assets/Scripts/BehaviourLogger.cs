@@ -39,5 +39,6 @@ public static class BehaviourLogger {
 	//Also called in SimStats
 	public static void endLogger() {
 		file.Close();
+		file = null;
 	}
 }

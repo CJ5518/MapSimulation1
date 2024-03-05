@@ -37,6 +37,7 @@ public class TempTimeScript : MonoBehaviour {
 		string dayString = "0" + (days % 7).ToString();
 
 		//Dumb ass if statement
+		//I love reading my comments months after they've been written I'm so funny
 		if (time % 24 >= 10) {
 			return System.String.Format("{2}:{0}:{1}", dayString, (int)time % 24, weekString);
 		}

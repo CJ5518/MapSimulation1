@@ -38,6 +38,13 @@ public class SimulationManager {
 	//Private instances of the setters/getters
 	private static SimulationStats m_stats;
 
+	public static void mainDestroy() {
+		simulation = null;
+		main = null;
+		simulationCanvas = null;
+		mainTexture = null;
+	}
+
 	public static void Initialize() {
 		double startTime = Time.realtimeSinceStartupAsDouble;
 
@@ -48,7 +55,7 @@ public class SimulationManager {
 		objectWithMeshRenderer = GameObject.Find("USAMesh");
 
 		loadSimulation();
-		targetTickTime = 1.0f / _targetTps;
+		SimulationManager.TargetTps = 5.0f;
 
 		Logger.Log("took " + (Time.realtimeSinceStartupAsDouble - startTime) +
 			" seconds to run the Main.cs start function");

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Unity.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -36,6 +36,7 @@ public class Main : MonoBehaviour {
 	float targetTickTime;
 
 	void Start() {
+		
 		Application.targetFrameRate = framerate;
 
 		string[] args = System.Environment.GetCommandLineArgs();
@@ -101,7 +102,6 @@ public class Main : MonoBehaviour {
 		simulation.deleteNativeArrays();
 		Debug.Log("Calling on main destroy");
 		onMainDestroy.Invoke();
-		
 	}
 
 	//Print out some debug information about a cell and it's neighbors
